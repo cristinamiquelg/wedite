@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import type { Template } from "@/lib/templates";
 import type { WeddingData } from "@/lib/wedding-types";
 import { useWeddingDraft } from "@/lib/use-wedding-draft";
@@ -58,6 +59,11 @@ export default function CustomizeClient({ template }: { template: Template }) {
   }, [data, template.slug]);
 
   const sectionId = steps[stepIndex].sectionId;
+  const stepKey = steps[stepIndex].key;
+
+  useEffect(() => {
+    trackEvent("wizard_step", { props: { step: stepKey } });
+  }, [stepKey]);
 
   function scrollToSection(id: string | null) {
     if (!id) return;

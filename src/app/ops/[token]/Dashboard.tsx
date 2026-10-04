@@ -1,0 +1,376 @@
+import { logout } from "./actions";
+import OptOutToggle from "./OptOutToggle";
+import type { DashboardStats } from "@/lib/dashboard-stats";
+import type { DataSource } from "@/lib/supabase/admin";
+
+const nf = new Intl.NumberFormat("es-ES");
+const eur = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
+
+const STEP_ORDER = ["language", "couple", "story", "itinerary", "details", "rsvp"];
+const STEP_LABEL: Record<string, string> = {
+  language: "1 · Idioma",
+  couple: "2 · Pareja",
+  story: "3 · Historia",
+  itinerary: "4 · Itinerario",
+  details: "5 · Detalles",
+  rsvp: "6 · RSVP y regalo",
+};
+const EVENT_LABEL: Record<string, string> = {
+  page_view: "Página vista",
+  wizard_step: "Paso del asistente",
+  checkout_submit: "Pago enviado",
+};
+const DEVICE_LABEL: Record<string, string> = { mobile: "Móvil", tablet: "Tablet", desktop: "Ordenador", desconocido: "Desconocido" };
+
+function pct(part: number, whole: number): string {
+  return whole > 0 ? `${Math.round((part / whole) * 100)} %` : "–";
+}
+
+function shortDay(day: string): string {
+  const [, m, d] = day.split("-");
+  return `${Number(d)}/${Number(m)}`;
+}
+
+function clock(iso: string): string {
+  return new Intl.DateTimeFormat("es-ES", {
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Europe/Madrid",
+  })
+    .format(new Date(iso))
+    .replace(/\./g, "");
+}
+
+function Card({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-line bg-paper-raised p-5">
+      <h2 className="font-display text-lg">{title}</h2>
+      {hint ? <p className="mt-0.5 text-xs text-ink-soft">{hint}</p> : null}
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
+function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
+  return (
+    <div className="rounded-2xl border border-line bg-paper-raised p-5">
+      <p className="text-xs uppercase tracking-[0.18em] text-ink-soft">{label}</p>
+      <p className="mt-2 font-display text-4xl leading-none">{value}</p>
+      {sub ? <p className="mt-2 text-xs text-ink-soft">{sub}</p> : null}
+    </div>
+  );
+}
+
+function Empty() {
+  return <p className="text-sm text-ink-soft">Todavía no hay datos en este periodo.</p>;
+}
+
+// A ranked list with a proportional bar behind each row.
+function BarList({ rows }: { rows: { label: string; value: number; sub?: string }[] }) {
+  if (rows.length === 0) return <Empty />;
+  const max = Math.max(...rows.map((r) => r.value), 1);
+  return (
+    <ul className="space-y-1.5">
+      {rows.map((r) => (
+        <li key={r.label} className="relative overflow-hidden rounded-md text-sm">
+          <span
+            aria-hidden="true"
+            className="absolute inset-y-0 left-0 rounded-md bg-sage-light"
+            style={{ width: `${(r.value / max) * 100}%` }}
+          />
+          <span className="relative flex items-baseline justify-between gap-3 px-2.5 py-1.5">
+            <span className="min-w-0 truncate">{r.label}</span>
+            <span className="shrink-0 tabular-nums text-ink-soft">
+              <span className="text-ink">{nf.format(r.value)}</span>
+              {r.sub ? ` · ${r.sub}` : ""}
+            </span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function DailyChart({ daily }: { daily: DashboardStats["daily"] }) {
+  const W = 720;
+  const H = 180;
+  const pad = { l: 28, r: 8, t: 10, b: 22 };
+  const max = Math.max(...daily.map((d) => d.sessions), 1);
+  const niceMax = max <= 4 ? 4 : Math.ceil(max / 4) * 4;
+  const plotW = W - pad.l - pad.r;
+  const plotH = H - pad.t - pad.b;
+  const slot = plotW / daily.length;
+  const barW = Math.max(2, Math.min(28, slot * 0.64));
+  const labelEvery = Math.ceil(daily.length / 8);
+
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Visitas por día" className="w-full">
+      {[0, 0.5, 1].map((t) => {
+        const y = pad.t + plotH - t * plotH;
+        return (
+          <g key={t}>
+            <line x1={pad.l} x2={W - pad.r} y1={y} y2={y} stroke="var(--color-line)" />
+            <text x={pad.l - 6} y={y + 3} textAnchor="end" fontSize="10" fill="var(--color-ink-soft)">
+              {Math.round(niceMax * t)}
+            </text>
+          </g>
+        );
+      })}
+      {daily.map((d, i) => {
+        const h = (d.sessions / niceMax) * plotH;
+        const x = pad.l + i * slot + (slot - barW) / 2;
+        return (
+          <g key={d.day}>
+            <rect x={x} y={pad.t + plotH - h} width={barW} height={Math.max(h, d.sessions > 0 ? 2 : 0)} rx="2" fill="var(--color-clay)">
+              <title>{`${shortDay(d.day)}: ${d.sessions} visitas · ${d.page_views} páginas vistas`}</title>
+            </rect>
+            {i % labelEvery === 0 ? (
+              <text x={x + barW / 2} y={H - 6} textAnchor="middle" fontSize="10" fill="var(--color-ink-soft)">
+                {shortDay(d.day)}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function Funnel({ funnel }: { funnel: DashboardStats["funnel"] }) {
+  const stages = [
+    { label: "Visitan la web", value: funnel.visited },
+    { label: "Ven una plantilla", value: funnel.viewed_template },
+    { label: "Empiezan a personalizar", value: funnel.started },
+    { label: "Llegan al pago", value: funnel.checkout },
+    { label: "Completan la compra", value: funnel.completed },
+  ];
+  const top = Math.max(stages[0].value, 1);
+  return (
+    <ol className="space-y-2.5">
+      {stages.map((s, i) => (
+        <li key={s.label}>
+          <div className="flex items-baseline justify-between text-sm">
+            <span>{s.label}</span>
+            <span className="tabular-nums">
+              <span className="text-ink">{nf.format(s.value)}</span>
+              <span className="text-ink-soft">
+                {" "}
+                · {pct(s.value, top)}
+                {i > 0 ? ` (${pct(s.value, stages[i - 1].value)} del paso anterior)` : ""}
+              </span>
+            </span>
+          </div>
+          <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-sage-light">
+            <div className="h-full rounded-full bg-sage" style={{ width: `${(s.value / top) * 100}%` }} />
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+export default function Dashboard({
+  token,
+  canLogout,
+  source,
+  days,
+  ranges,
+  stats,
+  problem,
+}: {
+  token: string;
+  canLogout: boolean;
+  source: DataSource;
+  days: number;
+  ranges: number[];
+  stats: DashboardStats | null;
+  problem: string | null;
+}) {
+  const logoutAction = logout.bind(null, token);
+
+  return (
+    <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-clay">Wedite · Panel privado</p>
+          <h1 className="mt-2 font-display text-3xl">
+            Analítica <span className="text-clay">· {source === "production" ? "producción" : "staging"}</span>
+          </h1>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <nav aria-label="Entorno" className="flex overflow-hidden rounded-full border border-line text-sm">
+            {(["production", "staging"] as const).map((src) => (
+              <a
+                key={src}
+                href={`/ops/${token}?env=${src}&d=${days}`}
+                aria-current={src === source ? "page" : undefined}
+                className={`px-4 py-1.5 ${src === source ? "bg-clay text-paper" : "text-ink-soft hover:text-ink"}`}
+              >
+                {src === "production" ? "Producción" : "Staging"}
+              </a>
+            ))}
+          </nav>
+          <nav aria-label="Periodo" className="flex overflow-hidden rounded-full border border-line text-sm">
+            {ranges.map((r) => (
+              <a
+                key={r}
+                href={`/ops/${token}?env=${source}&d=${r}`}
+                aria-current={r === days ? "page" : undefined}
+                className={`px-4 py-1.5 ${r === days ? "bg-ink text-paper" : "text-ink-soft hover:text-ink"}`}
+              >
+                {r} días
+              </a>
+            ))}
+          </nav>
+          {canLogout ? (
+            <form action={logoutAction}>
+              <button type="submit" className="rounded-full border border-line px-4 py-1.5 text-sm text-ink-soft hover:border-ink hover:text-ink">
+                Salir
+              </button>
+            </form>
+          ) : null}
+        </div>
+      </header>
+
+      <div className="mt-4">
+        <OptOutToggle />
+      </div>
+
+      {problem || !stats ? (
+        <p role="alert" className="mt-8 rounded-2xl border border-line bg-paper-raised p-5 text-sm text-clay-dark">
+          {problem}
+        </p>
+      ) : (
+        <Body stats={stats} days={days} />
+      )}
+    </main>
+  );
+}
+
+function Body({ stats, days }: { stats: DashboardStats; days: number }) {
+  const { kpis, business } = stats;
+  const stepRows = [...stats.steps]
+    .sort((a, b) => STEP_ORDER.indexOf(a.step) - STEP_ORDER.indexOf(b.step))
+    .map((s) => ({ label: STEP_LABEL[s.step] ?? s.step, value: s.sessions }));
+
+  return (
+    <div className="mt-8 space-y-6">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        <Kpi label="Visitas" value={nf.format(kpis.sessions)} sub={`${nf.format(kpis.page_views)} páginas vistas`} />
+        <Kpi label="Han empezado" value={nf.format(kpis.started)} sub={`${pct(kpis.started, kpis.sessions)} de las visitas`} />
+        <Kpi label="Han comprado" value={nf.format(kpis.completed)} sub={`${pct(kpis.completed, kpis.sessions)} de las visitas`} />
+        <Kpi
+          label="Ingresos"
+          value={eur.format(business.revenue_cents / 100)}
+          sub={`${nf.format(business.orders_paid)} pedidos pagados`}
+        />
+      </div>
+
+      <Card title="Visitas por día" hint={`Últimos ${days} días · una visita = una sesión de navegación`}>
+        <DailyChart daily={stats.daily} />
+      </Card>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card title="Embudo de compra" hint="Visitas que llegan a cada paso (no tienen por qué seguir el orden)">
+          <Funnel funnel={stats.funnel} />
+        </Card>
+        <Card title="Pasos del asistente" hint="Visitas que abren cada paso">
+          <BarList rows={stepRows} />
+        </Card>
+      </div>
+
+      <Card title="Plantillas">
+        {stats.templates.length === 0 ? (
+          <Empty />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
+                <tr>
+                  <th className="py-2 pr-4 font-normal">Plantilla</th>
+                  <th className="py-2 pr-4 text-right font-normal">La ven</th>
+                  <th className="py-2 pr-4 text-right font-normal">Empiezan</th>
+                  <th className="py-2 text-right font-normal">Compran</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.templates.map((t) => (
+                  <tr key={t.template} className="border-t border-line tabular-nums">
+                    <td className="py-2 pr-4 font-sans">{t.template}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(t.viewed)}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(t.started)}</td>
+                    <td className="py-2 text-right">{nf.format(t.completed)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card title="Origen" hint="De dónde llegan">
+          <BarList rows={stats.sources.map((s) => ({ label: s.source, value: s.sessions }))} />
+        </Card>
+        <Card title="Países">
+          <BarList rows={stats.countries.map((c) => ({ label: c.country, value: c.sessions }))} />
+        </Card>
+        <Card title="Dispositivo">
+          <BarList rows={stats.devices.map((d) => ({ label: DEVICE_LABEL[d.device] ?? d.device, value: d.sessions }))} />
+        </Card>
+        <Card title="Idioma">
+          <BarList rows={stats.locales.map((l) => ({ label: l.locale.toUpperCase(), value: l.sessions }))} />
+        </Card>
+      </div>
+
+      <Card title="Páginas más vistas">
+        <BarList rows={stats.top_pages.map((p) => ({ label: p.path, value: p.views, sub: `${nf.format(p.sessions)} visitantes` }))} />
+      </Card>
+
+      <Card title="Negocio" hint="Datos de la base de datos; «nuevos» = en el periodo elegido">
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm sm:grid-cols-3 lg:grid-cols-4">
+          {[
+            ["Webs creadas", `${nf.format(business.sites_total)} (${nf.format(business.sites_new)} nuevas)`],
+            ["Webs publicadas", nf.format(business.sites_published)],
+            ["Pedidos", `${nf.format(business.orders_total)} (${nf.format(business.orders_new)} nuevos)`],
+            ["Códigos de invitación usados", nf.format(business.invite_codes_used)],
+            ["Respuestas RSVP", `${nf.format(business.rsvps_total)} (${nf.format(business.rsvps_new)} nuevas)`],
+            ["Ilustraciones IA", nf.format(business.ai_generations_new)],
+            ["Coste IA", eur.format(business.ai_cost_cents_new / 100)],
+          ].map(([label, value]) => (
+            <div key={label}>
+              <dt className="text-xs uppercase tracking-[0.14em] text-ink-soft">{label}</dt>
+              <dd className="mt-1 font-display text-xl">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </Card>
+
+      <Card title="Actividad reciente" hint="Últimos 25 eventos (hora de Madrid)">
+        {stats.recent.length === 0 ? (
+          <Empty />
+        ) : (
+          <ul className="divide-y divide-line text-sm">
+            {stats.recent.map((e, i) => (
+              <li key={`${e.created_at}-${i}`} className="flex flex-wrap items-baseline gap-x-3 gap-y-0.5 py-2">
+                <span className="w-28 shrink-0 tabular-nums text-ink-soft">{clock(e.created_at)}</span>
+                <span className="w-40 shrink-0">{EVENT_LABEL[e.name] ?? e.name}</span>
+                <span className="min-w-0 basis-full truncate text-ink-soft sm:flex-1 sm:basis-0">{e.path ?? e.template_slug ?? ""}</span>
+                <span className="shrink-0 text-xs text-ink-soft">
+                  {[e.country, e.device ? DEVICE_LABEL[e.device] : null].filter(Boolean).join(" · ")}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Card>
+
+      <p className="pb-8 text-xs leading-relaxed text-ink-soft">
+        Medición propia, sin cookies: cada pestaña genera un identificador aleatorio que desaparece al cerrarla; no se
+        guarda IP ni navegador. Por eso una misma persona que vuelve otro día cuenta como una visita nueva.
+      </p>
+    </div>
+  );
+}

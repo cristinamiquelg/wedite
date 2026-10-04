@@ -22,6 +22,17 @@ async function hasStagingAccess(request: NextRequest): Promise<boolean> {
   }
 }
 
+// The private dashboard lives under /ops/<secret>. It must stay reachable in
+// production while the rest of the site shows "coming soon", and it must never
+// be indexed (the page also sets noindex; this covers its server actions too).
+const DASHBOARD_PREFIX = "/ops/";
+
+function withNoIndex(response: NextResponse): NextResponse {
+  response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  response.headers.set("Cache-Control", "private, no-store");
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   // Staging and PR previews: nothing is reachable without the password,
   // pages and API alike.
@@ -32,12 +43,18 @@ export async function proxy(request: NextRequest) {
     });
   }
 
+  const { pathname } = request.nextUrl;
+  if (!isComingSoon()) {
+    return pathname.startsWith(DASHBOARD_PREFIX) ? withNoIndex(NextResponse.next()) : NextResponse.next();
+  }
+
   // Production only, and only until LAUNCHED is flipped: every page shows the
   // coming-soon screen and the API (which costs money) is closed.
-  if (!isComingSoon()) return NextResponse.next();
-
-  const { pathname } = request.nextUrl;
   if (pathname === "/coming-soon") return NextResponse.next();
+  if (pathname.startsWith(DASHBOARD_PREFIX)) return withNoIndex(NextResponse.next());
+  // Usage tracking is open (and harmless: it only inserts a small event); it
+  // lets us count visits to the coming-soon page itself.
+  if (pathname === "/api/track") return NextResponse.next();
   if (pathname.startsWith("/api/")) {
     return NextResponse.json({ error: "not_available" }, { status: 404 });
   }

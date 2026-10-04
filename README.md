@@ -74,6 +74,40 @@ gasto propio.
 | `OPENAI_API_KEY` | Ilustración de "Nuestra historia" (`/api/story-illustration`) |
 | `OPENAI_IMAGE_MODEL` | Opcional: modelo de imagen (por defecto `gpt-image-1`) |
 | `RESEND_API_KEY` | Envío del formulario de contacto |
+| `SUPABASE_URL` | URL del proyecto de Supabase de ese entorno |
+| `SUPABASE_SERVICE_ROLE_KEY` | Clave **secreta** de Supabase (solo servidor; nunca en el cliente ni en el repositorio) |
+| `DASHBOARD_PATH_TOKEN` | Parte secreta de la URL del panel de analítica (`/ops/<token>`); mínimo 24 caracteres aleatorios |
+| `DASHBOARD_STAGING_SUPABASE_URL` / `DASHBOARD_STAGING_SERVICE_ROLE_KEY` | Solo en **Production**: dan al panel acceso a la base de datos de staging para ver ambos entornos desde una única URL (`wedite.com/ops/<token>`). No pongas claves de producción en Preview |
+| `DASHBOARD_PASSWORD` | Contraseña del panel de analítica. Obligatoria en Production; en Preview es opcional (staging ya está tras su propia contraseña) |
+
+### Base de datos (Supabase)
+
+Un proyecto de Supabase por entorno, ambos en Irlanda (`eu-west-1`) por el RGPD:
+
+| Entorno | Proyecto | Ref |
+| --- | --- | --- |
+| Staging (Vercel Preview) | `wedite-staging` | `lglyotjdmfyvnikjjsva` |
+| Producción (Vercel Production) | `wedite-prod` | `hbtpmguhjfrflrwzsoqr` |
+
+- El esquema vive en `supabase/migrations/` y se aplica primero a staging y,
+  una vez probado, a producción. No se hacen cambios a mano en producción.
+- Todas las tablas tienen RLS activado **sin políticas**: la clave pública no
+  puede leer ni escribir nada. Solo el servidor, con
+  `SUPABASE_SERVICE_ROLE_KEY`, accede a los datos.
+- Sin cuentas por ahora: una pareja gestiona su web con un enlace de edición
+  secreto enviado por email (en base de datos solo se guarda su hash).
+- Los cobros (`payments`, `stripe_events`) llegan con la integración de Stripe.
+
+### Analítica y panel privado
+
+Medición propia, sin cookies ni terceros: el navegador envía eventos
+(`page_view`, `wizard_step`, `checkout_submit`) a `/api/track`, que los guarda en
+la tabla `events` con un id aleatorio de pestaña (`sessionStorage`); no se guarda
+IP ni navegador. El panel está en `/ops/<DASHBOARD_PATH_TOKEN>` (un token
+incorrecto da un 404 normal), pide `DASHBOARD_PASSWORD`, limita los intentos
+fallidos, lleva `noindex` y no aparece en `robots.txt`. Desde el propio panel se
+puede excluir el navegador propio de las métricas. Para añadir un evento, súmalo
+a `EVENT_NAMES` en `src/lib/analytics.ts` y llámalo con `trackEvent`.
 
 Por ahora todo el sitio, producción incluida, es no indexable (`noindex` en el
 layout y `robots.txt` con `Disallow: /`); staging debe seguir siéndolo siempre.

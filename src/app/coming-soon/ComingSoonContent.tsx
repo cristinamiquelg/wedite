@@ -35,11 +35,10 @@ export default function ComingSoonContent() {
         />
       ))}
 
+      <p className="mb-6 text-xs uppercase tracking-[0.3em] text-clay">{dict.eyebrow}</p>
       <Logo className="text-5xl sm:text-6xl" />
-      <p className="mt-10 text-xs uppercase tracking-[0.3em] text-clay">{dict.eyebrow}</p>
-      <h1 className="mt-4 max-w-xl font-display text-4xl leading-tight sm:text-5xl">{dict.heading}</h1>
+      <h1 className="mt-10 max-w-xl font-display text-4xl leading-tight sm:text-5xl">{dict.heading}</h1>
       <p className="mt-6 max-w-md text-ink-soft">{dict.body}</p>
-      <p className="mt-10 text-sm text-ink-soft">{dict.footer}</p>
 
       <div className="absolute right-5 top-5 inline-flex items-center gap-0.5 rounded-full border border-line p-0.5 text-xs font-medium">
         {(["es", "en"] as const).map((l) => (

@@ -55,11 +55,6 @@ export default function StepLanguage({
           );
         })}
       </div>
-      {data.locales.length > 1 ? (
-        <p className="text-xs text-ink-soft">
-          {dict.summary(locales.filter((l) => data.locales.includes(l.id)).map((l) => l.label).join(" / "))}
-        </p>
-      ) : null}
     </div>
   );
 }

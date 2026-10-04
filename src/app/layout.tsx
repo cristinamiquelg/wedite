@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, Libre_Baskerville, Oswald, Science_Gothic } from "next/font/google";
 import "./globals.css";
+import Analytics from "@/components/site/Analytics";
 import ScrollReveal from "@/components/site/ScrollReveal";
 import StagingBadge from "@/components/site/StagingBadge";
 import { isStagingEnv } from "@/lib/environment";
@@ -63,6 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-full flex flex-col font-sans">
         <SiteLocaleProvider>{children}</SiteLocaleProvider>
         <ScrollReveal />
+        <Analytics />
         {isStagingEnv() ? <StagingBadge /> : null}
       </body>
     </html>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import type { Template } from "@/lib/templates";
 import { useWeddingDraft } from "@/lib/use-wedding-draft";
 import { formatLongDate } from "@/lib/format";
@@ -32,6 +33,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    trackEvent("checkout_submit");
     window.setTimeout(() => {
       try {
         window.localStorage.setItem(`wedite:purchased:${template.slug}`, "1");

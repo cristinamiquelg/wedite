@@ -1,7 +1,7 @@
 import type { SiteLocale } from "./site-locale";
 
 type SiteDict = {
-  comingSoon: { eyebrow: string; heading: string; body: string; footer: string };
+  comingSoon: { eyebrow: string; heading: string; body: string };
   nav: { designs: string; howItWorks: string; whoWeAre: string; contact: string; viewDesigns: string };
   footer: {
     tagline: string;
@@ -136,7 +136,7 @@ type SiteDict = {
     required: string;
     remove: string;
     maxChars: (n: number) => string;
-    stepLanguage: { intro: string; included: string; summary: (langs: string) => string };
+    stepLanguage: { intro: string; included: string };
     stepCouple: {
       yourName: string;
       partnerName: string;
@@ -220,7 +220,6 @@ const es: SiteDict = {
     eyebrow: "Muy pronto",
     heading: "Algo bonito está en camino",
     body: "Estamos terminando Wedite: webs de boda con diseño propio, que se personalizan en minutos y enamoran desde el primer vistazo.",
-    footer: "Volveremos con novedades.",
   },
   nav: { designs: "Diseños", howItWorks: "Cómo funciona", whoWeAre: "Quiénes somos", contact: "Contacto", viewDesigns: "Ver diseños" },
   footer: {
@@ -395,9 +394,8 @@ const es: SiteDict = {
     remove: "Quitar",
     maxChars: (n) => `Máx. ${n} caracteres`,
     stepLanguage: {
-      intro: "Elegid en qué idiomas estará disponible vuestra web. Podéis elegir más de uno: si la boda es bilingüe, vuestros invitados podrán cambiar de idioma con un selector en la propia web. Esto afecta a los textos fijos (menú, botones, RSVP...); lo que escribáis vosotros (historia, mensajes...) se mostrará tal cual lo escribáis.",
+      intro: "Elegid en qué idiomas estará disponible vuestra web. Podéis elegir más de uno: si la boda es bilingüe, vuestros invitados podrán cambiar de idioma con un selector en la propia web.",
       included: "Incluido",
-      summary: (langs) => `Vuestra web mostrará un selector de idioma para que cada invitado elija entre: ${langs}.`,
     },
     stepCouple: {
       yourName: "Vuestro nombre",
@@ -483,7 +481,6 @@ const en: SiteDict = {
     eyebrow: "Coming soon",
     heading: "Something lovely is on its way",
     body: "We're putting the finishing touches on Wedite: wedding websites with a design of their own, personalised in minutes and lovable at first glance.",
-    footer: "We'll be back with news.",
   },
   nav: { designs: "Designs", howItWorks: "How it works", whoWeAre: "About us", contact: "Contact", viewDesigns: "View designs" },
   footer: {
@@ -658,9 +655,8 @@ const en: SiteDict = {
     remove: "Remove",
     maxChars: (n) => `Max. ${n} characters`,
     stepLanguage: {
-      intro: "Choose which languages your website will be available in. You can pick more than one: if the wedding is bilingual, your guests will be able to switch language with a selector on the site itself. This affects the fixed text (menu, buttons, RSVP...); whatever you write yourselves (story, messages...) will show up exactly as you wrote it.",
+      intro: "Choose which languages your website will be available in. You can pick more than one: if the wedding is bilingual, your guests will be able to switch language with a selector on the site itself.",
       included: "Included",
-      summary: (langs) => `Your website will show a language selector so each guest can choose between: ${langs}.`,
     },
     stepCouple: {
       yourName: "Your name",
