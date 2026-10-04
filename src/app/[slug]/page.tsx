@@ -1,31 +1,25 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { isKnownTemplateSlug, renderTemplate } from "@/components/templates/registry";
-import { supabaseAdmin } from "@/lib/supabase/admin";
-import { emptyWeddingData, type WeddingData } from "@/lib/wedding-types";
+import { loadPublishedSite } from "@/lib/published-site";
 
 export const dynamic = "force-dynamic";
 
-// The couple's public site. Only published sites (i.e. paid) are visible.
-async function loadSite(slug: string) {
-  const { data } = await supabaseAdmin()
-    .from("sites")
-    .select("template_slug, data, partner_a, partner_b")
-    .eq("slug", slug)
-    .eq("status", "published")
-    .maybeSingle();
-  return data;
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-  const site = await loadSite((await params).slug);
-  if (!site) return {};
-  return { title: [site.partner_a, site.partner_b].filter(Boolean).join(" & ") || "Wedite" };
+  const site = await loadPublishedSite((await params).slug);
+  return site ? { title: site.title } : {};
 }
 
-export default async function PublishedSitePage({ params }: { params: Promise<{ slug: string }> }) {
-  const site = await loadSite((await params).slug);
-  if (!site || !isKnownTemplateSlug(site.template_slug)) notFound();
-  const data: WeddingData = { ...emptyWeddingData, ...(site.data as Partial<WeddingData>) };
-  return renderTemplate(site.template_slug, data);
+export default async function PublishedSitePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ lang?: string }>;
+}) {
+  const { slug } = await params;
+  const site = await loadPublishedSite(slug);
+  if (!site || !isKnownTemplateSlug(site.templateSlug)) notFound();
+  const { lang } = await searchParams;
+  return renderTemplate(site.templateSlug, site.data, { rsvpHref: `/${slug}/rsvp`, initialLocale: lang });
 }

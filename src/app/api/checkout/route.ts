@@ -11,6 +11,13 @@ export const dynamic = "force-dynamic";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const SUFFIX_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+/** Random lowercase letters and digits, so the public URL can't be guessed from the names. */
+function randomSuffix(length = 6): string {
+  return Array.from(randomBytes(length), (b) => SUFFIX_CHARS[b % SUFFIX_CHARS.length]).join("");
+}
+
 const MAX_DRAFT_BYTES = 4_000_000;
 
 /** "Laura" + "Álvaro" -> "laura-alvaro" (the public URL of the couple's site). */
@@ -56,7 +63,7 @@ export async function POST(request: NextRequest) {
   const base = baseSiteSlug(data.partnerA, data.partnerB);
   let site: { id: string; slug: string } | null = null;
   for (let attempt = 0; attempt < 5 && !site; attempt++) {
-    const slug = attempt === 0 ? base : `${base}-${randomBytes(2).toString("hex")}`;
+    const slug = `${base}-${randomSuffix()}`;
     const { data: row, error: siteError } = await db
       .from("sites")
       .insert({
@@ -74,8 +81,8 @@ export async function POST(request: NextRequest) {
       .select("id, slug")
       .single();
     if (row) site = row;
-    // 23505 = slug taken, 23514 = reserved/invalid slug: try another suffix.
-    else if (siteError?.code !== "23505" && siteError?.code !== "23514") {
+    // 23505 = slug taken: draw another suffix.
+    else if (siteError?.code !== "23505") {
       console.error("checkout: could not create site", siteError);
       break;
     }
