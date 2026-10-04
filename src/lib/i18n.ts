@@ -20,6 +20,7 @@ type Dict = {
     hero: { saveTheDate: string; forTheWeddingOf: string };
     countdownTitle: string;
     storyTitleFallback: string;
+    storyIllustrationAiNote: string;
     giftTitle: string;
     itinerary: { title: string; comoLlegar: string };
     details: {
@@ -103,6 +104,7 @@ const es: Dict = {
     hero: { saveTheDate: "Save the Date", forTheWeddingOf: "la boda de" },
     countdownTitle: "¡Se acerca el gran día!",
     storyTitleFallback: "Nuestra historia",
+    storyIllustrationAiNote: "Ilustración generada con inteligencia artificial",
     giftTitle: "Regalos",
     itinerary: { title: "Itinerario y lugares", comoLlegar: "Cómo llegar" },
     details: {
@@ -186,6 +188,7 @@ const en: Dict = {
     hero: { saveTheDate: "Save the Date", forTheWeddingOf: "for the wedding of" },
     countdownTitle: "The big day is getting close!",
     storyTitleFallback: "Our story",
+    storyIllustrationAiNote: "Illustration generated with artificial intelligence",
     giftTitle: "Gifts",
     itinerary: { title: "Itinerary & venues", comoLlegar: "Get directions" },
     details: {
