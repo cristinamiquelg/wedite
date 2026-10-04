@@ -38,7 +38,9 @@ export default async function DashboardPage({
     stats = await loadDashboardStats(days, source);
   } catch (err) {
     problem =
-      err instanceof SourceNotConfiguredError
+      err instanceof SourceNotConfiguredError && source === "production" && currentSource() !== "production"
+        ? "Los datos de producción se ven desde el panel de producción (wedite.com/ops/…). Por seguridad, staging no tiene la clave de la base de datos de producción."
+        : err instanceof SourceNotConfiguredError
         ? `Este despliegue no tiene acceso a la base de datos de ${source === "staging" ? "staging" : "producción"}. Faltan las variables DASHBOARD_${source.toUpperCase()}_SUPABASE_URL y DASHBOARD_${source.toUpperCase()}_SERVICE_ROLE_KEY.`
         : `No se han podido cargar los datos de ${source === "staging" ? "staging" : "producción"}. ¿Está aplicada la migración de analítica en esa base de datos?`;
   }
