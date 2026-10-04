@@ -283,8 +283,11 @@ export default function RiberaTemplate({
             {data.storyImage ? (
               <div className={styles.storyRow}>
                 {data.storyImageKind === "illustration" ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={data.storyImage} alt="" className={styles.storyIllustration} />
+                  <figure className={styles.storyFigure}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={data.storyImage} alt="" className={styles.storyIllustration} />
+                    <figcaption className={styles.storyAiNote}>{dict.ribera.storyIllustrationAiNote}</figcaption>
+                  </figure>
                 ) : (
                   <div className={styles.storyImageWrap}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
