@@ -109,5 +109,16 @@ fallidos, lleva `noindex` y no aparece en `robots.txt`. Desde el propio panel se
 puede excluir el navegador propio de las métricas. Para añadir un evento, súmalo
 a `EVENT_NAMES` en `src/lib/analytics.ts` y llámalo con `trackEvent`.
 
+El panel incluye: embudo de compra y embudo por pasos del asistente (con tiempo
+medio por paso y último paso abierto de quien no llega al pago), filtro por
+origen / idioma / dispositivo / país (uno a la vez, `?fk=<tipo>&fv=<valor>`),
+campañas UTM, funciones que usan las webs (calculado desde la base de datos),
+webs compradas editadas después del pago y visitas + RSVP por web de pareja
+(`wedite.com/<nombre>`; esas visitas no cuentan como visitas a Wedite). Todo se
+calcula en la función SQL `dashboard_stats`. Cuando exista la ruta del enlace
+secreto de edición, debe llamar a `recordSiteEditOpen(siteId)`
+(`src/lib/site-edit-tracking.ts`), que guarda solo la fecha, sin identificar a
+nadie.
+
 Por ahora todo el sitio, producción incluida, es no indexable (`noindex` en el
 layout y `robots.txt` con `Disallow: /`); staging debe seguir siéndolo siempre.
