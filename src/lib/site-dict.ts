@@ -104,12 +104,10 @@ type SiteDict = {
     totalOnce: string;
     reviewBeforeBuy: string;
     paymentData: string;
-    demoMode: string;
-    fillTestCard: string;
-    cardName: string;
-    cardNumber: string;
-    expiry: string;
-    cvc: string;
+    securePayment: string;
+    email: string;
+    emailHint: string;
+    payError: string;
     confirming: string;
     confirmBuy: (price: number) => string;
     disclaimer: string;
@@ -360,16 +358,14 @@ const es: SiteDict = {
     venueTBD: "Por confirmar",
     totalOnce: "Total, pago único",
     reviewBeforeBuy: "Revisar la vista previa antes de comprar",
-    paymentData: "Datos de pago",
-    demoMode: "Modo demo · sin cobro real",
-    fillTestCard: "Rellenar con tarjeta de prueba",
-    cardName: "Nombre en la tarjeta",
-    cardNumber: "Número de tarjeta",
-    expiry: "Caducidad",
-    cvc: "CVC",
-    confirming: "Confirmando...",
-    confirmBuy: (price) => `Confirmar compra · ${price} €`,
-    disclaimer: "Al confirmar aceptáis los términos del servicio. Sin llamadas, sin papeleo: vuestra web queda lista al instante.",
+    paymentData: "Pago",
+    securePayment: "Pago seguro con Stripe",
+    email: "Correo electrónico",
+    emailHint: "Aquí recibiréis la factura y el enlace para editar vuestra web.",
+    payError: "No hemos podido iniciar el pago. Inténtalo de nuevo en unos minutos.",
+    confirming: "Redirigiendo al pago...",
+    confirmBuy: (price) => `Pagar · ${price} €`,
+    disclaimer: "Al pagar aceptáis los términos del servicio. Precio con IVA incluido.",
   },
   wizard: {
     savingAuto: "Guardado automáticamente",
@@ -621,16 +617,14 @@ const en: SiteDict = {
     venueTBD: "To be confirmed",
     totalOnce: "Total, one-time payment",
     reviewBeforeBuy: "Review the preview before buying",
-    paymentData: "Payment details",
-    demoMode: "Demo mode · no real charge",
-    fillTestCard: "Fill in with a test card",
-    cardName: "Name on card",
-    cardNumber: "Card number",
-    expiry: "Expiry",
-    cvc: "CVC",
-    confirming: "Confirming...",
-    confirmBuy: (price) => `Confirm purchase · €${price}`,
-    disclaimer: "By confirming you accept the terms of service. No calls, no paperwork: your website is ready instantly.",
+    paymentData: "Payment",
+    securePayment: "Secure payment with Stripe",
+    email: "Email",
+    emailHint: "We'll send the invoice and the link to edit your website here.",
+    payError: "We couldn't start the payment. Please try again in a few minutes.",
+    confirming: "Redirecting to payment...",
+    confirmBuy: (price) => `Pay · €${price}`,
+    disclaimer: "By paying you accept the terms of service. Price includes VAT.",
   },
   wizard: {
     savingAuto: "Saved automatically",

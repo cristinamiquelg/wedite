@@ -8,9 +8,12 @@ import { getSiteDict } from "@/lib/site-dict";
 
 export default function GraciasContent({
   slug,
+  site,
   template,
 }: {
   slug?: string;
+  /** Public slug of the couple's published site. */
+  site?: string;
   template?: Template;
 }) {
   const { locale } = useSiteLocale();
@@ -46,7 +49,7 @@ export default function GraciasContent({
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
         {slug ? (
           <Link
-            href={`/preview/${slug}?draft=1`}
+            href={site ? `/${site}` : `/preview/${slug}?draft=1`}
             target="_blank"
             // Not noopener: the new tab has to inherit this tab's sessionStorage,
             // which is where the configured draft lives; without it the tab
