@@ -1,3 +1,4 @@
+<script src="https://golexvibe.com/v1/lexvibe-widget.js" data-lexvibe-app="9c792a55-4811-499c-bd5a-a61abb57aa9c" data-config="https://golexvibe.com/api/widget-config/9c792a55-4811-499c-bd5a-a61abb57aa9c" data-ingest="https://golexvibe.com/api/consent" data-policy="https://golexvibe.com/p/9c792a55-4811-499c-bd5a-a61abb57aa9c/privacy" defer></script>
 import type { Metadata } from "next";
 import { Fraunces, Inter, Libre_Baskerville, Oswald, Science_Gothic } from "next/font/google";
 import "./globals.css";
