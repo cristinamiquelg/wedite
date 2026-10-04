@@ -5,10 +5,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 export type SiteLocale = "es" | "en";
 const STORAGE_KEY = "wedite:site-locale";
 
-// Spanish browsers get Spanish; every other language gets English.
+// Spanish and Catalan browsers get Spanish (we have no Catalan version, and
+// Spanish is what those visitors read); every other language gets English.
+const SPANISH_LANGUAGES = new Set(["es", "ca"]);
+
 function browserLocale(): SiteLocale {
   const preferred = navigator.languages?.[0] ?? navigator.language ?? "";
-  return preferred.toLowerCase().split("-")[0] === "es" ? "es" : "en";
+  return SPANISH_LANGUAGES.has(preferred.toLowerCase().split("-")[0]) ? "es" : "en";
 }
 
 const SiteLocaleContext = createContext<{
