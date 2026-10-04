@@ -1,6 +1,7 @@
 import "server-only";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies, headers } from "next/headers";
+import { isStagingEnv } from "@/lib/environment";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
 // The private analytics dashboard has two independent secrets, both set as
@@ -8,18 +9,28 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 //   DASHBOARD_PATH_TOKEN  the unguessable segment of the URL: /ops/<token>
 //   DASHBOARD_PASSWORD    asked once per session on that page
 // A wrong token is indistinguishable from any other missing page (404).
+// On staging the password is optional: the whole deployment is already behind
+// the staging password, so the token alone is enough there. Production always
+// requires both.
 
 const SESSION_COOKIE = "wd_ops";
 const SESSION_HOURS = 12;
 const MAX_FAILED_ATTEMPTS = 5;
 const ATTEMPT_WINDOW_MINUTES = 15;
 
-export function dashboardConfig(): { token: string; password: string } | null {
+export function dashboardConfig(): { token: string; password: string | null } | null {
   const token = process.env.DASHBOARD_PATH_TOKEN;
-  const password = process.env.DASHBOARD_PASSWORD;
+  const password = process.env.DASHBOARD_PASSWORD || null;
   // A short token would be guessable; refuse to run with one.
-  if (!token || token.length < 24 || !password) return null;
+  if (!token || token.length < 24) return null;
+  if (!password && !isStagingEnv()) return null;
   return { token, password };
+}
+
+/** True when the dashboard has no password of its own (staging only). */
+export function dashboardIsPasswordless(): boolean {
+  const config = dashboardConfig();
+  return config !== null && config.password === null;
 }
 
 function safeEqual(a: string, b: string): boolean {
@@ -35,7 +46,7 @@ export function tokenMatches(candidate: string): boolean {
 
 export function passwordMatches(candidate: string): boolean {
   const config = dashboardConfig();
-  return config !== null && safeEqual(candidate, config.password);
+  return config !== null && config.password !== null && safeEqual(candidate, config.password);
 }
 
 // Session value: "<expiry ms>.<hmac>". The key mixes the password and the
@@ -43,10 +54,11 @@ export function passwordMatches(candidate: string): boolean {
 function sign(expiry: string): string {
   const config = dashboardConfig();
   if (!config) return "";
-  return createHmac("sha256", `${config.password}\n${config.token}`).update(`ops-session:${expiry}`).digest("hex");
+  return createHmac("sha256", `${config.password ?? ""}\n${config.token}`).update(`ops-session:${expiry}`).digest("hex");
 }
 
 export async function hasDashboardSession(): Promise<boolean> {
+  if (dashboardIsPasswordless()) return true;
   const value = (await cookies()).get(SESSION_COOKIE)?.value;
   if (!value) return false;
   const [expiry, signature] = value.split(".");

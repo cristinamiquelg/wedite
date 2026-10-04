@@ -172,12 +172,14 @@ function Funnel({ funnel }: { funnel: DashboardStats["funnel"] }) {
 
 export default function Dashboard({
   token,
+  canLogout,
   days,
   ranges,
   stats,
   problem,
 }: {
   token: string;
+  canLogout: boolean;
   days: number;
   ranges: number[];
   stats: DashboardStats | null;
@@ -205,11 +207,13 @@ export default function Dashboard({
               </a>
             ))}
           </nav>
-          <form action={logoutAction}>
-            <button type="submit" className="rounded-full border border-line px-4 py-1.5 text-sm text-ink-soft hover:border-ink hover:text-ink">
-              Salir
-            </button>
-          </form>
+          {canLogout ? (
+            <form action={logoutAction}>
+              <button type="submit" className="rounded-full border border-line px-4 py-1.5 text-sm text-ink-soft hover:border-ink hover:text-ink">
+                Salir
+              </button>
+            </form>
+          ) : null}
         </div>
       </header>
 

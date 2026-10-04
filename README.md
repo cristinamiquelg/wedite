@@ -77,7 +77,7 @@ gasto propio.
 | `SUPABASE_URL` | URL del proyecto de Supabase de ese entorno |
 | `SUPABASE_SERVICE_ROLE_KEY` | Clave **secreta** de Supabase (solo servidor; nunca en el cliente ni en el repositorio) |
 | `DASHBOARD_PATH_TOKEN` | Parte secreta de la URL del panel de analítica (`/ops/<token>`); mínimo 24 caracteres aleatorios |
-| `DASHBOARD_PASSWORD` | Contraseña del panel de analítica |
+| `DASHBOARD_PASSWORD` | Contraseña del panel de analítica. Obligatoria en Production; en Preview es opcional (staging ya está tras su propia contraseña) |
 
 ### Base de datos (Supabase)
 

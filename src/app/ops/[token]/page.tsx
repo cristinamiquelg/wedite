@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { dashboardConfig, hasDashboardSession, tokenMatches } from "@/lib/dashboard-auth";
+import { dashboardConfig, dashboardIsPasswordless, hasDashboardSession, tokenMatches } from "@/lib/dashboard-auth";
 import { loadDashboardStats, type DashboardStats } from "@/lib/dashboard-stats";
 import { SupabaseNotConfiguredError } from "@/lib/supabase/admin";
 import Dashboard from "./Dashboard";
@@ -42,5 +42,5 @@ export default async function DashboardPage({
         : "No se han podido cargar los datos. ¿Está aplicada la migración de analítica?";
   }
 
-  return <Dashboard token={token} days={days} ranges={[...RANGES]} stats={stats} problem={problem} />;
+  return <Dashboard token={token} canLogout={!dashboardIsPasswordless()} days={days} ranges={[...RANGES]} stats={stats} problem={problem} />;
 }
