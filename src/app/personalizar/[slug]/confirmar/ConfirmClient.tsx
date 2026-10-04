@@ -31,7 +31,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: template.slug, email, locale }),
+        body: JSON.stringify({ slug: template.slug, email, locale, data }),
       });
       const body = (await res.json()) as { url?: string };
       if (!res.ok || !body.url) throw new Error("checkout failed");

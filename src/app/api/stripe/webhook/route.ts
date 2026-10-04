@@ -37,7 +37,8 @@ export async function POST(request: NextRequest) {
       case "checkout.session.async_payment_succeeded": {
         const session = event.data.object as Stripe.Checkout.Session;
         if (session.payment_status !== "paid") break;
-        await db
+        const orderId = session.client_reference_id ?? session.metadata?.order_id ?? "";
+        const { data: paid } = await db
           .from("orders")
           .update({
             status: "paid",
@@ -47,8 +48,18 @@ export async function POST(request: NextRequest) {
             stripe_payment_intent_id:
               typeof session.payment_intent === "string" ? session.payment_intent : null,
           })
-          .eq("id", session.client_reference_id ?? session.metadata?.order_id ?? "")
-          .eq("status", "pending");
+          .eq("id", orderId)
+          .eq("status", "pending")
+          .select("site_id");
+        // Payment confirmed: the couple's site goes live.
+        const siteId = paid?.[0]?.site_id;
+        if (siteId) {
+          await db
+            .from("sites")
+            .update({ status: "published", published_at: new Date().toISOString() })
+            .eq("id", siteId)
+            .neq("status", "published");
+        }
         break;
       }
       case "checkout.session.expired":
