@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
+import { firstIncompleteStep, missingAll, missingForStep } from "@/lib/wizard-required";
 import type { Template } from "@/lib/templates";
 import type { WeddingData } from "@/lib/wedding-types";
 import { useWeddingDraft } from "@/lib/use-wedding-draft";
@@ -24,6 +25,7 @@ type StepDef = {
   Component: (props: {
     data: WeddingData;
     onChange: (patch: Partial<WeddingData>) => void;
+    showErrors?: boolean;
   }) => React.ReactElement;
 };
 
@@ -42,6 +44,8 @@ export default function CustomizeClient({ template }: { template: Template }) {
   const dict = getSiteDict(locale);
   const [stepIndex, setStepIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
+  // The step where the couple already tried to continue with a mandatory field empty.
+  const [attemptedStep, setAttemptedStep] = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   // The section/item id the preview should be following right now — kept
   // in a ref (not state) since updating it shouldn't itself trigger a
@@ -101,6 +105,33 @@ export default function CustomizeClient({ template }: { template: Template }) {
 
   const Step = steps[stepIndex].Component;
   const isLast = stepIndex === steps.length - 1;
+
+  // Mandatory fields gate progress: no moving on (nor jumping ahead from the
+  // step chips, nor to checkout) while one is empty. Going back is always free.
+  const blockedAt = firstIncompleteStep(
+    steps.map((s) => s.key),
+    data,
+  );
+  const lastReachable = blockedAt === -1 ? steps.length - 1 : blockedAt;
+  const missingNow = isLast ? missingAll(data) : missingForStep(steps[stepIndex].key, data);
+  const blocked = missingNow.length > 0;
+  const showErrors = attemptedStep === stepIndex;
+  const missingLabels = missingNow.map((f) => dict.wizard.missing[f]).join(", ");
+
+  function tryAdvance() {
+    if (!blocked) {
+      setStepIndex((i) => Math.min(steps.length - 1, i + 1));
+      return;
+    }
+    // On the last step the gap may be in an earlier step: take them there.
+    const target = isLast ? Math.max(blockedAt, 0) : stepIndex;
+    setAttemptedStep(target);
+    setStepIndex(target);
+    // Let the step render its error state, then put the cursor on the first gap.
+    window.requestAnimationFrame(() => {
+      document.querySelector<HTMLElement>("[aria-invalid='true'] , input[aria-invalid='true']")?.focus();
+    });
+  }
 
   return (
     <div className="flex h-dvh flex-col">
@@ -174,11 +205,12 @@ export default function CustomizeClient({ template }: { template: Template }) {
               <li key={s.key}>
                 <button
                   type="button"
+                  disabled={i > lastReachable}
                   onClick={() => setStepIndex(i)}
-                  className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors ${
+                  className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                     i === stepIndex
                       ? "border-clay bg-clay/10 text-clay"
-                      : "border-line text-ink-soft hover:border-ink-soft"
+                      : "border-line text-ink-soft enabled:hover:border-ink-soft"
                   }`}
                 >
                   {i + 1}. {dict.wizard.stepLabels[s.key as keyof typeof dict.wizard.stepLabels]}
@@ -196,11 +228,19 @@ export default function CustomizeClient({ template }: { template: Template }) {
                 not just once when the step first opens — since a step like
                 "Detalles" can have several cards spread further down. */}
             <div className="mt-6" onFocus={onFieldFocus}>
-              <Step data={data} onChange={patch} />
+              <Step data={data} onChange={patch} showErrors={showErrors} />
             </div>
           </div>
 
-          <div className="mx-auto mt-10 flex w-full max-w-xl flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+          {blocked ? (
+            <p
+              role="status"
+              className={`mx-auto mt-8 w-full max-w-xl text-sm ${showErrors ? "text-clay-dark" : "text-ink-soft"}`}
+            >
+              {dict.wizard.completeToContinue(missingLabels)}
+            </p>
+          ) : null}
+          <div className={`mx-auto flex w-full max-w-xl flex-col-reverse gap-3 sm:flex-row sm:justify-between ${blocked ? "mt-4" : "mt-10"}`}>
             <button
               type="button"
               disabled={stepIndex === 0}
@@ -209,7 +249,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
             >
               {dict.wizard.back}
             </button>
-            {isLast ? (
+            {isLast && !blocked ? (
               <Link
                 href={`/personalizar/${template.slug}/confirmar`}
                 className="w-full rounded-full bg-ink px-6 py-3 text-center text-sm font-medium text-paper transition-opacity hover:opacity-90 sm:w-auto"
@@ -219,10 +259,13 @@ export default function CustomizeClient({ template }: { template: Template }) {
             ) : (
               <button
                 type="button"
-                onClick={() => setStepIndex((i) => Math.min(steps.length - 1, i + 1))}
-                className="w-full rounded-full bg-ink px-6 py-3 text-center text-sm font-medium text-paper transition-opacity hover:opacity-90 sm:w-auto"
+                aria-disabled={blocked}
+                onClick={tryAdvance}
+                className={`w-full rounded-full bg-ink px-6 py-3 text-center text-sm font-medium text-paper transition-opacity sm:w-auto ${
+                  blocked ? "opacity-50" : "hover:opacity-90"
+                }`}
               >
-                {dict.wizard.next}
+                {isLast ? dict.wizard.reviewAndBuy : dict.wizard.next}
               </button>
             )}
           </div>
