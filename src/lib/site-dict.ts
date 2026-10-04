@@ -95,6 +95,8 @@ type SiteDict = {
   };
   checkout: {
     backEdit: string;
+    missingRequired: (labels: string) => string;
+    completeNow: string;
     summary: string;
     yourWeddingFallback: string;
     design: string;
@@ -123,6 +125,8 @@ type SiteDict = {
     back: string;
     next: string;
     reviewAndBuy: string;
+    completeToContinue: (labels: string) => string;
+    missing: { partnerA: string; partnerB: string; date: string };
     stepLabels: {
       language: string;
       couple: string;
@@ -132,6 +136,7 @@ type SiteDict = {
       details: string;
     };
     required: string;
+    fieldRequired: string;
     remove: string;
     maxChars: (n: number) => string;
     stepLanguage: { intro: string; included: string };
@@ -350,6 +355,8 @@ const es: SiteDict = {
   },
   checkout: {
     backEdit: "← Seguir editando",
+    missingRequired: (labels) => `Antes de comprar, completad: ${labels}.`,
+    completeNow: "Completar ahora",
     summary: "Resumen",
     yourWeddingFallback: "Vuestra boda",
     design: "Diseño",
@@ -378,6 +385,8 @@ const es: SiteDict = {
     back: "Atrás",
     next: "Siguiente",
     reviewAndBuy: "Revisar y comprar",
+    completeToContinue: (labels) => `Para continuar, completad: ${labels}.`,
+    missing: { partnerA: "vuestro nombre", partnerB: "el nombre de tu pareja", date: "la fecha de la boda" },
     stepLabels: {
       language: "Idioma",
       couple: "Pareja y fecha",
@@ -387,6 +396,7 @@ const es: SiteDict = {
       details: "Detalles",
     },
     required: "Obligatorio",
+    fieldRequired: "Este dato es obligatorio",
     remove: "Quitar",
     maxChars: (n) => `Máx. ${n} caracteres`,
     stepLanguage: {
@@ -609,6 +619,8 @@ const en: SiteDict = {
   },
   checkout: {
     backEdit: "← Keep editing",
+    missingRequired: (labels) => `Before buying, please fill in: ${labels}.`,
+    completeNow: "Complete now",
     summary: "Summary",
     yourWeddingFallback: "Your wedding",
     design: "Design",
@@ -637,6 +649,8 @@ const en: SiteDict = {
     back: "Back",
     next: "Next",
     reviewAndBuy: "Review and buy",
+    completeToContinue: (labels) => `To continue, please fill in: ${labels}.`,
+    missing: { partnerA: "your name", partnerB: "your partner's name", date: "the wedding date" },
     stepLabels: {
       language: "Language",
       couple: "Couple and date",
@@ -646,6 +660,7 @@ const en: SiteDict = {
       details: "Details",
     },
     required: "Required",
+    fieldRequired: "This field is required",
     remove: "Remove",
     maxChars: (n) => `Max. ${n} characters`,
     stepLanguage: {

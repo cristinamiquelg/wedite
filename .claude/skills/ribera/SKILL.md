@@ -33,7 +33,11 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
   StepDetails, StepRsvpGift). Order should match the template's own
   top-to-bottom visual order.
 - `src/app/personalizar/[slug]/CustomizeClient.tsx` — wires wizard steps to
-  live-preview scrolling (see "Wizard ↔ preview wiring" below).
+  live-preview scrolling (see "Wizard ↔ preview wiring" below) and enforces
+  mandatory fields: `src/lib/wizard-required.ts` lists what each step requires
+  (today: names and date in the couple step); "Siguiente", the step chips and
+  the checkout stay blocked until they are filled. Add a field there (plus a
+  `dict.wizard.missing` label) to make it mandatory.
 - `src/app/preview/[slug]/PreviewClient.tsx` — the iframe that actually
   renders `RiberaTemplate` inside the wizard and on `/preview/ribera`.
 - `src/lib/i18n.ts` — the `Dict` type plus `es`/`en` objects for

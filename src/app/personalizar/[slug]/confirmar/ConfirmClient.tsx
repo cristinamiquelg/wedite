@@ -6,6 +6,7 @@ import { trackEvent } from "@/lib/analytics";
 import type { Template } from "@/lib/templates";
 import { useWeddingDraft } from "@/lib/use-wedding-draft";
 import { formatLongDate } from "@/lib/format";
+import { missingAll } from "@/lib/wizard-required";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
@@ -15,7 +16,11 @@ export default function ConfirmClient({ template }: { template: Template }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const { locale } = useSiteLocale();
-  const dict = getSiteDict(locale).checkout;
+  const siteDict = getSiteDict(locale);
+  const dict = siteDict.checkout;
+  // The checkout can be reached by URL, so it re-checks what the wizard enforces.
+  const missing = loaded ? missingAll(data) : [];
+  const missingLabels = missing.map((f) => siteDict.wizard.missing[f]).join(", ");
 
   const names =
     data.partnerA || data.partnerB
@@ -106,6 +111,14 @@ export default function ConfirmClient({ template }: { template: Template }) {
                 {dict.securePayment}
               </span>
             </div>
+            {missing.length > 0 ? (
+              <div role="alert" className="mb-4 rounded-lg border border-clay-dark/40 bg-clay/5 p-4 text-sm text-clay-dark">
+                <p>{dict.missingRequired(missingLabels)}</p>
+                <Link href={`/personalizar/${template.slug}`} className="mt-2 inline-block font-medium underline underline-offset-4">
+                  {dict.completeNow}
+                </Link>
+              </div>
+            ) : null}
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="font-medium text-ink">{dict.email}</span>
@@ -122,7 +135,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
               </label>
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || missing.length > 0}
                 className="mt-4 w-full rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {submitting ? dict.confirming : dict.confirmBuy(template.price)}

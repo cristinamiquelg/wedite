@@ -3,6 +3,7 @@ import { Field, TextArea, TextInput } from "@/components/customize/fields";
 import DatePicker, { todayISO } from "@/components/customize/DatePicker";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
+import { missingForStep, type RequiredField } from "@/lib/wizard-required";
 
 const NAME_MAX_LENGTH = 40;
 const PLACE_MAX_LENGTH = 60;
@@ -11,13 +12,18 @@ const WELCOME_MAX_LENGTH = 160;
 export default function StepRiberaCouple({
   data,
   onChange,
+  showErrors = false,
 }: {
   data: WeddingData;
   onChange: (patch: Partial<WeddingData>) => void;
+  /** Set once the couple tried to continue: flags the mandatory fields still empty. */
+  showErrors?: boolean;
 }) {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).wizard;
   const minDate = todayISO();
+  const missing = new Set(missingForStep("couple", data));
+  const errorFor = (field: RequiredField) => (showErrors && missing.has(field) ? dict.fieldRequired : undefined);
 
   return (
     <div className="flex flex-col gap-5">
@@ -27,9 +33,11 @@ export default function StepRiberaCouple({
           required
           requiredLabel={dict.required}
           hint={dict.maxChars(NAME_MAX_LENGTH)}
+          error={errorFor("partnerA")}
         >
           <TextInput
             value={data.partnerA}
+            aria-invalid={errorFor("partnerA") ? true : undefined}
             onChange={(e) => onChange({ partnerA: e.target.value })}
             placeholder="Cassandra"
             maxLength={NAME_MAX_LENGTH}
@@ -40,16 +48,18 @@ export default function StepRiberaCouple({
           required
           requiredLabel={dict.required}
           hint={dict.maxChars(NAME_MAX_LENGTH)}
+          error={errorFor("partnerB")}
         >
           <TextInput
             value={data.partnerB}
+            aria-invalid={errorFor("partnerB") ? true : undefined}
             onChange={(e) => onChange({ partnerB: e.target.value })}
             placeholder="Jonathan"
             maxLength={NAME_MAX_LENGTH}
           />
         </Field>
       </div>
-      <Field label={dict.stepCouple.weddingDate} required requiredLabel={dict.required} asDiv>
+      <Field label={dict.stepCouple.weddingDate} required requiredLabel={dict.required} asDiv error={errorFor("date")}>
         <DatePicker
           value={data.date}
           min={minDate}
