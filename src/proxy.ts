@@ -44,7 +44,14 @@ function isOpenForAudit(pathname: string): boolean {
   return !pathname.startsWith("/api/") && !pathname.startsWith(DASHBOARD_PREFIX);
 }
 
+// Stripe's servers call this endpoint, so it can't carry the staging password
+// and must stay reachable even while production shows "coming soon". It is
+// protected by the Stripe signature check inside the route itself.
+const STRIPE_WEBHOOK_PATH = "/api/stripe/webhook";
+
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === STRIPE_WEBHOOK_PATH) return NextResponse.next();
+
   // Staging and PR previews: nothing is reachable without the password,
   // pages and API alike (unless audit mode opens the pages, see above).
   if (isStagingEnv() && !isOpenForAudit(request.nextUrl.pathname) && !(await hasStagingAccess(request))) {
