@@ -1,6 +1,6 @@
 import { logout } from "./actions";
 import OptOutToggle from "./OptOutToggle";
-import type { DashboardStats } from "@/lib/dashboard-stats";
+import type { DashboardStats, FilterKind, StatsFilter } from "@/lib/dashboard-stats";
 import type { DataSource } from "@/lib/supabase/admin";
 
 const nf = new Intl.NumberFormat("es-ES");
@@ -15,12 +15,35 @@ const STEP_LABEL: Record<string, string> = {
   details: "5 · Detalles",
   rsvp: "6 · RSVP y regalo",
 };
+const FILTER_LABEL: Record<FilterKind, string> = { source: "Origen", locale: "Idioma", device: "Dispositivo", country: "País" };
 const EVENT_LABEL: Record<string, string> = {
   page_view: "Página vista",
   wizard_step: "Paso del asistente",
   checkout_submit: "Pago enviado",
 };
 const DEVICE_LABEL: Record<string, string> = { mobile: "Móvil", tablet: "Tablet", desktop: "Ordenador", desconocido: "Desconocido" };
+
+function duration(seconds: number): string {
+  if (seconds < 60) return `${seconds} s`;
+  const m = Math.floor(seconds / 60);
+  const sec = seconds % 60;
+  return sec ? `${m} min ${sec} s` : `${m} min`;
+}
+
+function dashHref(token: string, env: DataSource, days: number, filter: StatsFilter | null): string {
+  const q = new URLSearchParams({ env, d: String(days) });
+  if (filter) {
+    q.set("fk", filter.kind);
+    q.set("fv", filter.value);
+  }
+  return `/ops/${token}?${q.toString()}`;
+}
+
+function filterValueLabel(kind: FilterKind, value: string): string {
+  if (kind === "device") return DEVICE_LABEL[value] ?? value;
+  if (kind === "locale") return value.toUpperCase();
+  return value;
+}
 
 function pct(part: number, whole: number): string {
   return whole > 0 ? `${Math.round((part / whole) * 100)} %` : "–";
@@ -68,7 +91,7 @@ function Empty() {
 }
 
 // A ranked list with a proportional bar behind each row.
-function BarList({ rows }: { rows: { label: string; value: number; sub?: string }[] }) {
+function BarList({ rows }: { rows: { label: string; value: number; shown?: string; sub?: string }[] }) {
   if (rows.length === 0) return <Empty />;
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
@@ -83,7 +106,7 @@ function BarList({ rows }: { rows: { label: string; value: number; sub?: string 
           <span className="relative flex items-baseline justify-between gap-3 px-2.5 py-1.5">
             <span className="min-w-0 truncate">{r.label}</span>
             <span className="shrink-0 tabular-nums text-ink-soft">
-              <span className="text-ink">{nf.format(r.value)}</span>
+              <span className="text-ink">{r.shown ?? nf.format(r.value)}</span>
               {r.sub ? ` · ${r.sub}` : ""}
             </span>
           </span>
@@ -171,12 +194,88 @@ function Funnel({ funnel }: { funnel: DashboardStats["funnel"] }) {
   );
 }
 
+function StepFunnel({ steps, checkout }: { steps: DashboardStats["steps"]; checkout: number }) {
+  const byStep = new Map(steps.map((s) => [s.step, s.reached]));
+  const stages = [
+    ...STEP_ORDER.map((step) => ({ label: STEP_LABEL[step], value: byStep.get(step) ?? 0 })),
+    { label: "Llegan al pago", value: checkout },
+  ];
+  const top = Math.max(stages[0].value, 1);
+  if (stages[0].value === 0) return <Empty />;
+  return (
+    <ol className="space-y-2.5">
+      {stages.map((s, i) => {
+        const next = stages[i + 1];
+        return (
+          <li key={s.label}>
+            <div className="flex items-baseline justify-between gap-3 text-sm">
+              <span>{s.label}</span>
+              <span className="tabular-nums">
+                <span className="text-ink">{nf.format(s.value)}</span>
+                <span className="text-ink-soft">
+                  {next ? ` · ${pct(Math.min(next.value, s.value), s.value)} pasan al siguiente` : ""}
+                </span>
+              </span>
+            </div>
+            <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-sage-light">
+              <div className="h-full rounded-full bg-sage" style={{ width: `${(s.value / top) * 100}%` }} />
+            </div>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+// Narrows the purchase funnel and the wizard funnel by one dimension at a time.
+function FilterBar({ stats, token, source, days }: { stats: DashboardStats; token: string; source: DataSource; days: number }) {
+  const groups: { kind: FilterKind; options: { value: string; sessions: number }[] }[] = [
+    { kind: "source", options: stats.sources.map((o) => ({ value: o.source, sessions: o.sessions })) },
+    { kind: "locale", options: stats.locales.map((o) => ({ value: o.locale, sessions: o.sessions })) },
+    { kind: "device", options: stats.devices.map((o) => ({ value: o.device, sessions: o.sessions })) },
+    { kind: "country", options: stats.countries.map((o) => ({ value: o.country, sessions: o.sessions })) },
+  ];
+  const active = stats.filter;
+  const chip = (on: boolean) =>
+    `rounded-full border px-3 py-1 text-xs ${on ? "border-clay bg-clay text-paper" : "border-line text-ink-soft hover:border-ink hover:text-ink"}`;
+  return (
+    <Card title="Comparar grupos" hint="Filtra los dos embudos por una sola cosa a la vez: origen, idioma, dispositivo o país">
+      <div className="space-y-3 text-sm">
+        <a href={dashHref(token, source, days, null)} className={`inline-block ${chip(!active)}`} aria-current={!active ? "true" : undefined}>
+          Todas las visitas
+        </a>
+        {groups.map((g) =>
+          g.options.length === 0 ? null : (
+            <div key={g.kind} className="flex flex-wrap items-center gap-1.5">
+              <span className="w-24 shrink-0 text-xs uppercase tracking-[0.14em] text-ink-soft">{FILTER_LABEL[g.kind]}</span>
+              {g.options.map((o) => {
+                const on = active?.kind === g.kind && active.value === o.value;
+                return (
+                  <a
+                    key={o.value}
+                    href={dashHref(token, source, days, { kind: g.kind, value: o.value })}
+                    aria-current={on ? "true" : undefined}
+                    className={chip(on)}
+                  >
+                    {filterValueLabel(g.kind, o.value)} <span className="tabular-nums opacity-70">{nf.format(o.sessions)}</span>
+                  </a>
+                );
+              })}
+            </div>
+          ),
+        )}
+      </div>
+    </Card>
+  );
+}
+
 export default function Dashboard({
   token,
   canLogout,
   source,
   days,
   ranges,
+  filter,
   stats,
   problem,
 }: {
@@ -185,6 +284,7 @@ export default function Dashboard({
   source: DataSource;
   days: number;
   ranges: number[];
+  filter: StatsFilter | null;
   stats: DashboardStats | null;
   problem: string | null;
 }) {
@@ -204,7 +304,7 @@ export default function Dashboard({
             {(["production", "staging"] as const).map((src) => (
               <a
                 key={src}
-                href={`/ops/${token}?env=${src}&d=${days}`}
+                href={dashHref(token, src, days, filter)}
                 aria-current={src === source ? "page" : undefined}
                 className={`px-4 py-1.5 ${src === source ? "bg-clay text-paper" : "text-ink-soft hover:text-ink"}`}
               >
@@ -216,7 +316,7 @@ export default function Dashboard({
             {ranges.map((r) => (
               <a
                 key={r}
-                href={`/ops/${token}?env=${source}&d=${r}`}
+                href={dashHref(token, source, r, filter)}
                 aria-current={r === days ? "page" : undefined}
                 className={`px-4 py-1.5 ${r === days ? "bg-ink text-paper" : "text-ink-soft hover:text-ink"}`}
               >
@@ -243,17 +343,24 @@ export default function Dashboard({
           {problem}
         </p>
       ) : (
-        <Body stats={stats} days={days} />
+        <Body stats={stats} days={days} token={token} source={source} />
       )}
     </main>
   );
 }
 
-function Body({ stats, days }: { stats: DashboardStats; days: number }) {
+function Body({ stats, days, token, source }: { stats: DashboardStats; days: number; token: string; source: DataSource }) {
   const { kpis, business } = stats;
-  const stepRows = [...stats.steps]
-    .sort((a, b) => STEP_ORDER.indexOf(a.step) - STEP_ORDER.indexOf(b.step))
-    .map((s) => ({ label: STEP_LABEL[s.step] ?? s.step, value: s.sessions }));
+  const filter = stats.filter;
+  const filterText = filter ? `${FILTER_LABEL[filter.kind]}: ${filterValueLabel(filter.kind, filter.value)}` : null;
+  const stepTime = new Map(stats.step_times.map((t) => [t.step, t]));
+  const dropoffRows = [...stats.dropoff]
+    .sort((a, b) => b.sessions - a.sessions)
+    .map((d) => ({ label: STEP_LABEL[d.step] ?? d.step, value: d.sessions }));
+  const timeRows = STEP_ORDER.filter((step) => stepTime.has(step)).map((step) => {
+    const t = stepTime.get(step)!;
+    return { label: STEP_LABEL[step], value: t.avg_seconds, shown: duration(t.avg_seconds), sub: `${nf.format(t.sessions)} visitas` };
+  });
 
   return (
     <div className="mt-8 space-y-6">
@@ -272,12 +379,40 @@ function Body({ stats, days }: { stats: DashboardStats; days: number }) {
         <DailyChart daily={stats.daily} />
       </Card>
 
+      <FilterBar
+        stats={stats}
+        token={token}
+        source={source}
+        days={days}
+      />
+
+      {stats.funnel.visited < 30 ? (
+        <p className="rounded-2xl border border-line bg-paper-raised px-5 py-3 text-xs leading-relaxed text-ink-soft">
+          Hay pocas visitas: estos datos sirven para localizar bloqueos concretos, no para sacar porcentajes fiables.
+        </p>
+      ) : null}
+
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Embudo de compra" hint="Visitas que llegan a cada paso (no tienen por qué seguir el orden)">
+        <Card
+          title="Embudo de compra"
+          hint={`${filterText ? `${filterText} · ` : ""}Visitas que llegan a cada paso (no tienen por qué seguir el orden)`}
+        >
           <Funnel funnel={stats.funnel} />
         </Card>
-        <Card title="Pasos del asistente" hint="Visitas que abren cada paso">
-          <BarList rows={stepRows} />
+        <Card
+          title="Embudo del asistente"
+          hint={`${filterText ? `${filterText} · ` : ""}Visitas que llegan a cada paso (o a uno posterior) y cuántas pasan al siguiente`}
+        >
+          <StepFunnel steps={stats.steps} checkout={stats.funnel.checkout} />
+        </Card>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card title="Tiempo en cada paso" hint="Tiempo medio por visita desde que abre el paso hasta su siguiente acción (pausas de más de 30 min no cuentan)">
+          <BarList rows={timeRows} />
+        </Card>
+        <Card title="Dónde abandonan" hint="Último paso abierto por las visitas que no llegan al pago">
+          <BarList rows={dropoffRows} />
         </Card>
       </div>
 
@@ -329,12 +464,101 @@ function Body({ stats, days }: { stats: DashboardStats; days: number }) {
         <BarList rows={stats.top_pages.map((p) => ({ label: p.path, value: p.views, sub: `${nf.format(p.sessions)} visitantes` }))} />
       </Card>
 
+      <Card title="Campañas (UTM)" hint="Visitas cuyo enlace traía utm_source / utm_medium / utm_campaign">
+        {stats.campaigns.length === 0 ? (
+          <Empty />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
+                <tr>
+                  <th className="py-2 pr-4 font-normal">Origen</th>
+                  <th className="py-2 pr-4 font-normal">Medio</th>
+                  <th className="py-2 pr-4 font-normal">Campaña</th>
+                  <th className="py-2 pr-4 text-right font-normal">Visitas</th>
+                  <th className="py-2 pr-4 text-right font-normal">Empiezan</th>
+                  <th className="py-2 text-right font-normal">Compran</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.campaigns.map((c, i) => (
+                  <tr key={i} className="border-t border-line tabular-nums">
+                    <td className="py-2 pr-4 font-sans">{c.source ?? "–"}</td>
+                    <td className="py-2 pr-4 font-sans">{c.medium ?? "–"}</td>
+                    <td className="py-2 pr-4 font-sans">{c.campaign ?? "–"}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(c.sessions)}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(c.started)}</td>
+                    <td className="py-2 text-right">{nf.format(c.completed)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <Card
+        title="Webs de parejas: invitados"
+        hint="Visitas a wedite.com/<nombre> (no cuentan como visitas a Wedite) y RSVP enviados en el periodo; «Responden» = RSVP enviados entre visitas. Sin identificar a nadie"
+      >
+        {stats.guest_sites.length === 0 ? (
+          <Empty />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
+                <tr>
+                  <th className="py-2 pr-4 font-normal">Web</th>
+                  <th className="py-2 pr-4 text-right font-normal">Visitas</th>
+                  <th className="py-2 pr-4 text-right font-normal">RSVP enviados</th>
+                  <th className="py-2 pr-4 text-right font-normal">Asisten</th>
+                  <th className="py-2 text-right font-normal">Responden</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.guest_sites.map((g) => (
+                  <tr key={g.site} className="border-t border-line tabular-nums">
+                    <td className="py-2 pr-4 font-sans">{g.site}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(g.visits)}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(g.rsvps)}</td>
+                    <td className="py-2 pr-4 text-right">{nf.format(g.attending)}</td>
+                    <td className="py-2 text-right">{pct(g.rsvps, g.visits)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </Card>
+
+      <Card title="Funciones que activan las parejas" hint={`Porcentaje de las ${nf.format(business.features.sites)} webs creadas (sin archivadas) que usan cada bloque; se calcula desde la base de datos`}>
+        {business.features.sites === 0 ? (
+          <Empty />
+        ) : (
+          <BarList
+            rows={[
+              { label: "Itinerario", value: business.features.itinerary },
+              { label: "RSVP", value: business.features.rsvp },
+              { label: "Regalo", value: business.features.gift },
+              { label: "Ilustración con IA", value: business.features.ai_illustration },
+            ].map((f) => ({ ...f, sub: pct(f.value, business.features.sites) }))}
+          />
+        )}
+        <p className="mt-3 text-xs text-ink-soft">
+          Itinerario: al menos una fase o un momento · RSVP: nota escrita o respuestas recibidas · Regalo: cuenta indicada · IA: ilustración usada en la historia.
+        </p>
+      </Card>
+
       <Card title="Negocio" hint="Datos de la base de datos; «nuevos» = en el periodo elegido">
         <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm sm:grid-cols-3 lg:grid-cols-4">
           {[
             ["Webs creadas", `${nf.format(business.sites_total)} (${nf.format(business.sites_new)} nuevas)`],
             ["Webs publicadas", nf.format(business.sites_published)],
             ["Pedidos", `${nf.format(business.orders_total)} (${nf.format(business.orders_new)} nuevos)`],
+            [
+              "Compradas editadas después del pago",
+              `${nf.format(business.purchased_sites_reedited)} de ${nf.format(business.purchased_sites)}`,
+            ],
             ["Códigos de invitación usados", nf.format(business.invite_codes_used)],
             ["Respuestas RSVP", `${nf.format(business.rsvps_total)} (${nf.format(business.rsvps_new)} nuevas)`],
             ["Ilustraciones IA", nf.format(business.ai_generations_new)],
