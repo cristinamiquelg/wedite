@@ -33,10 +33,21 @@ function withNoIndex(response: NextResponse): NextResponse {
   return response;
 }
 
+// Audit mode (STAGING_PUBLIC=1, set in Vercel for Preview): lets an outside
+// reviewer, such as a lawyer, open the staging pages without the password.
+// Only the pages open up. The API (it costs money: image generation) and the
+// private dashboard stay behind the password; the one exception is the
+// usage-tracking endpoint, which is harmless and keeps the pages working.
+function isOpenForAudit(pathname: string): boolean {
+  if (process.env.STAGING_PUBLIC !== "1") return false;
+  if (pathname === "/api/track") return true;
+  return !pathname.startsWith("/api/") && !pathname.startsWith(DASHBOARD_PREFIX);
+}
+
 export async function proxy(request: NextRequest) {
   // Staging and PR previews: nothing is reachable without the password,
-  // pages and API alike.
-  if (isStagingEnv() && !(await hasStagingAccess(request))) {
+  // pages and API alike (unless audit mode opens the pages, see above).
+  if (isStagingEnv() && !isOpenForAudit(request.nextUrl.pathname) && !(await hasStagingAccess(request))) {
     return new NextResponse("Staging — authentication required", {
       status: 401,
       headers: { "WWW-Authenticate": 'Basic realm="Wedite staging", charset="UTF-8"' },
