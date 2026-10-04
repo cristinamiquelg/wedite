@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomInt } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { emptyWeddingData, type WeddingData } from "@/lib/wedding-types";
 import { isKnownTemplateSlug } from "@/components/templates/registry";
@@ -11,22 +11,14 @@ export const dynamic = "force-dynamic";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const SUFFIX_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789";
+const SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-/** Random lowercase letters and digits, so the public URL can't be guessed from the names. */
-function randomSuffix(length = 6): string {
-  return Array.from(randomBytes(length), (b) => SUFFIX_CHARS[b % SUFFIX_CHARS.length]).join("");
+/** Fully random 15-character slug (upper/lower case + digits): the URL can't be guessed or derived from the names. */
+function randomSiteSlug(length = 15): string {
+  return Array.from({ length }, () => SLUG_CHARS[randomInt(SLUG_CHARS.length)]).join("");
 }
 
 const MAX_DRAFT_BYTES = 4_000_000;
-
-/** "Laura" + "Álvaro" -> "laura-alvaro" (the public URL of the couple's site). */
-function baseSiteSlug(a: string, b: string): string {
-  const clean = (v: string) =>
-    v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  const slug = [clean(a), clean(b)].filter(Boolean).join("-").slice(0, 32).replace(/-+$/, "");
-  return slug.length >= 3 ? slug : "boda";
-}
 
 // Creates a pending order and a Stripe Checkout Session, and returns its URL.
 // The price always comes from the server-side catalog, never from the client.
@@ -60,10 +52,9 @@ export async function POST(request: NextRequest) {
   // The edit token is generated here and only its hash is stored. Delivering it
   // to the couple (edit link) is not built yet.
   const editToken = randomBytes(32).toString("base64url");
-  const base = baseSiteSlug(data.partnerA, data.partnerB);
   let site: { id: string; slug: string } | null = null;
   for (let attempt = 0; attempt < 5 && !site; attempt++) {
-    const slug = `${base}-${randomSuffix()}`;
+    const slug = randomSiteSlug();
     const { data: row, error: siteError } = await db
       .from("sites")
       .insert({
