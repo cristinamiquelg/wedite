@@ -395,7 +395,7 @@ function Body({ stats, days, token, source }: { stats: DashboardStats; days: num
       <div className="grid gap-6 lg:grid-cols-2">
         <Card
           title="Embudo de compra"
-          hint={`${filterText ? `${filterText} · ` : ""}Visitas que llegan a cada paso (no tienen por qué seguir el orden)`}
+          hint={`${filterText ? `${filterText} · ` : ""}Visitas que llegan a cada paso o a uno posterior`}
         >
           <Funnel funnel={stats.funnel} />
         </Card>
