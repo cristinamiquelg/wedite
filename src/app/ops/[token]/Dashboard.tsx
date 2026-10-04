@@ -1,6 +1,7 @@
 import { logout } from "./actions";
 import OptOutToggle from "./OptOutToggle";
 import type { DashboardStats } from "@/lib/dashboard-stats";
+import type { DataSource } from "@/lib/supabase/admin";
 
 const nf = new Intl.NumberFormat("es-ES");
 const eur = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
@@ -173,6 +174,7 @@ function Funnel({ funnel }: { funnel: DashboardStats["funnel"] }) {
 export default function Dashboard({
   token,
   canLogout,
+  source,
   days,
   ranges,
   stats,
@@ -180,6 +182,7 @@ export default function Dashboard({
 }: {
   token: string;
   canLogout: boolean;
+  source: DataSource;
   days: number;
   ranges: number[];
   stats: DashboardStats | null;
@@ -192,14 +195,28 @@ export default function Dashboard({
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-clay">Wedite · Panel privado</p>
-          <h1 className="mt-2 font-display text-3xl">Analítica</h1>
+          <h1 className="mt-2 font-display text-3xl">
+            Analítica <span className="text-clay">· {source === "production" ? "producción" : "staging"}</span>
+          </h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <nav aria-label="Entorno" className="flex overflow-hidden rounded-full border border-line text-sm">
+            {(["production", "staging"] as const).map((src) => (
+              <a
+                key={src}
+                href={`/ops/${token}?env=${src}&d=${days}`}
+                aria-current={src === source ? "page" : undefined}
+                className={`px-4 py-1.5 ${src === source ? "bg-clay text-paper" : "text-ink-soft hover:text-ink"}`}
+              >
+                {src === "production" ? "Producción" : "Staging"}
+              </a>
+            ))}
+          </nav>
           <nav aria-label="Periodo" className="flex overflow-hidden rounded-full border border-line text-sm">
             {ranges.map((r) => (
               <a
                 key={r}
-                href={`/ops/${token}?d=${r}`}
+                href={`/ops/${token}?env=${source}&d=${r}`}
                 aria-current={r === days ? "page" : undefined}
                 className={`px-4 py-1.5 ${r === days ? "bg-ink text-paper" : "text-ink-soft hover:text-ink"}`}
               >

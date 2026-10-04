@@ -1,5 +1,7 @@
 import "server-only";
-import { supabaseAdmin } from "@/lib/supabase/admin";
+import { supabaseForSource, type DataSource } from "@/lib/supabase/admin";
+
+export class SourceNotConfiguredError extends Error {}
 
 export type Count = { sessions: number };
 
@@ -33,10 +35,12 @@ export type DashboardStats = {
   };
 };
 
-export async function loadDashboardStats(days: number): Promise<DashboardStats> {
+export async function loadDashboardStats(days: number, source: DataSource): Promise<DashboardStats> {
+  const db = supabaseForSource(source);
+  if (!db) throw new SourceNotConfiguredError(source);
   const to = new Date();
   const from = new Date(to.getTime() - days * 86_400_000);
-  const { data, error } = await supabaseAdmin().rpc("dashboard_stats", {
+  const { data, error } = await db.rpc("dashboard_stats", {
     p_from: from.toISOString(),
     p_to: to.toISOString(),
   });

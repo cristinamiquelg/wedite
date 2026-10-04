@@ -77,6 +77,7 @@ gasto propio.
 | `SUPABASE_URL` | URL del proyecto de Supabase de ese entorno |
 | `SUPABASE_SERVICE_ROLE_KEY` | Clave **secreta** de Supabase (solo servidor; nunca en el cliente ni en el repositorio) |
 | `DASHBOARD_PATH_TOKEN` | Parte secreta de la URL del panel de analítica (`/ops/<token>`); mínimo 24 caracteres aleatorios |
+| `DASHBOARD_STAGING_SUPABASE_URL` / `DASHBOARD_STAGING_SERVICE_ROLE_KEY` | Solo en **Production**: dan al panel acceso a la base de datos de staging para ver ambos entornos desde una única URL (`wedite.com/ops/<token>`). No pongas claves de producción en Preview |
 | `DASHBOARD_PASSWORD` | Contraseña del panel de analítica. Obligatoria en Production; en Preview es opcional (staging ya está tras su propia contraseña) |
 
 ### Base de datos (Supabase)

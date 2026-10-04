@@ -36,3 +36,40 @@ export function supabaseProjectRef(): string | null {
     return null;
   }
 }
+
+// ---------------------------------------------------------------------------
+// Dashboard data sources. The private dashboard can show the metrics of either
+// environment from a single URL. The deployment's own database is always
+// available; the other environment's needs its credentials added to this
+// deployment as DASHBOARD_<SOURCE>_SUPABASE_URL / _SERVICE_ROLE_KEY.
+// Recommended: host the dashboard on production and give it the *staging* keys
+// (test data). Don't put production keys on Preview deployments.
+// ---------------------------------------------------------------------------
+export type DataSource = "production" | "staging";
+
+export function currentSource(): DataSource {
+  return process.env.VERCEL_ENV === "production" ? "production" : "staging";
+}
+
+const sourceClients = new Map<DataSource, SupabaseClient>();
+
+/** Client for the given environment's database, or null if this deployment has no credentials for it. */
+export function supabaseForSource(source: DataSource): SupabaseClient | null {
+  if (source === currentSource()) {
+    try {
+      return supabaseAdmin();
+    } catch {
+      return null;
+    }
+  }
+  const prefix = `DASHBOARD_${source.toUpperCase()}`;
+  const url = process.env[`${prefix}_SUPABASE_URL`];
+  const key = process.env[`${prefix}_SERVICE_ROLE_KEY`];
+  if (!url || !key) return null;
+  let client = sourceClients.get(source);
+  if (!client) {
+    client = createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
+    sourceClients.set(source, client);
+  }
+  return client;
+}
