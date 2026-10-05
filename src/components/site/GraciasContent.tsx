@@ -42,9 +42,24 @@ export default function GraciasContent({
       <h1 className="mt-4 font-display text-4xl sm:text-5xl">{dict.h1}</h1>
       <p className="mt-5 max-w-md text-ink-soft">
         {dict.bodyPre}{" "}
-        {template ? <strong className="text-ink">{template.name}</strong> : dict.templateFallback}.{" "}
+        {template ? <strong className="text-ink">{template.name}</strong> : dict.templateFallback}
         {dict.bodyPost}
       </p>
+
+      <div className="mt-6 flex max-w-md items-start gap-3 rounded-2xl border border-line bg-paper-raised p-4 text-left text-sm text-ink-soft">
+        <svg
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+          className="mt-0.5 h-5 w-5 shrink-0 text-sage"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={1.8}
+        >
+          <rect x="3" y="5" width="18" height="14" rx="2" />
+          <path strokeLinecap="round" strokeLinejoin="round" d="m3.5 7 8.5 6 8.5-6" />
+        </svg>
+        <p>{dict.rsvpEmail}</p>
+      </div>
 
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
         {slug ? (
@@ -58,14 +73,6 @@ export default function GraciasContent({
             className="rounded-full bg-ink px-7 py-3.5 text-center text-sm font-medium text-paper transition-opacity hover:opacity-90"
           >
             {dict.viewSite}
-          </Link>
-        ) : null}
-        {slug ? (
-          <Link
-            href={`/personalizar/${slug}`}
-            className="rounded-full border border-line px-7 py-3.5 text-center text-sm font-medium transition-colors hover:border-ink"
-          >
-            {dict.keepEditing}
           </Link>
         ) : null}
       </div>
