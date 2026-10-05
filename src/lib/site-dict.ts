@@ -74,8 +74,8 @@ type SiteDict = {
     bodyPre: string;
     templateFallback: string;
     bodyPost: string;
+    rsvpEmail: string;
     viewSite: string;
-    keepEditing: string;
     backToCatalog: string;
   };
   contact: {
@@ -332,9 +332,10 @@ const es: SiteDict = {
     h1: "¡Enhorabuena! Vuestra web ya está lista",
     bodyPre: "Hemos generado vuestra web de boda con el diseño",
     templateFallback: "elegido",
-    bodyPost: "Podéis seguir editándola cuando queráis y compartirla con vuestros invitados.",
+    bodyPost: ". Ya podéis compartirla con vuestros invitados.",
+    rsvpEmail:
+      "Recibiréis en vuestro email el enlace a la tabla donde llegarán las respuestas de vuestros invitados al formulario de confirmación.",
     viewSite: "Ver vuestra web",
-    keepEditing: "Seguir editando",
     backToCatalog: "← Volver al catálogo",
   },
   contact: {
@@ -368,7 +369,7 @@ const es: SiteDict = {
     paymentData: "Pago",
     securePayment: "Pago seguro con Stripe",
     email: "Correo electrónico",
-    emailHint: "Aquí recibiréis la factura y el enlace para editar vuestra web.",
+    emailHint: "Aquí recibiréis la factura y el enlace a la tabla con las respuestas de vuestros invitados.",
     payError: "No hemos podido iniciar el pago. Inténtalo de nuevo en unos minutos.",
     confirming: "Redirigiendo al pago...",
     confirmBuy: (price) => `Pagar · ${price} €`,
@@ -596,9 +597,10 @@ const en: SiteDict = {
     h1: "Congratulations! Your website is ready",
     bodyPre: "We've generated your wedding website with the",
     templateFallback: "chosen",
-    bodyPost: "design. You can keep editing it whenever you like and share it with your guests.",
+    bodyPost: " design. You can now share it with your guests.",
+    rsvpEmail:
+      "You'll receive an email with the link to the table where your guests' answers to the RSVP form will arrive.",
     viewSite: "View your website",
-    keepEditing: "Keep editing",
     backToCatalog: "← Back to the catalog",
   },
   contact: {
@@ -632,7 +634,7 @@ const en: SiteDict = {
     paymentData: "Payment",
     securePayment: "Secure payment with Stripe",
     email: "Email",
-    emailHint: "We'll send the invoice and the link to edit your website here.",
+    emailHint: "We'll send the invoice and the link to the table with your guests' answers here.",
     payError: "We couldn't start the payment. Please try again in a few minutes.",
     confirming: "Redirecting to payment...",
     confirmBuy: (price) => `Pay · €${price}`,
