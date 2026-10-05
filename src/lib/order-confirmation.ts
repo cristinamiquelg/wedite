@@ -9,8 +9,8 @@ export function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
-// Sends the "purchase confirmed" email once per paid order, with the buttons to
-// the site, the share links and the private link to the guests' answers.
+// Sends the welcome email once per paid order: the site, the share links and the
+// private link to the guests' answers.
 //
 // The responses link carries a fresh secret token generated here; only its hash
 // goes into the database (sites.edit_token_hash). That is safe to rotate because
@@ -20,14 +20,14 @@ export function hashToken(token: string): string {
 export async function sendOrderConfirmation(db: SupabaseClient, orderId: string, origin: string): Promise<"sent" | "skipped"> {
   const { data: order } = await db
     .from("orders")
-    .select("id, number, email, template_name, amount_cents, locale, status, site_id, confirmation_email_sent_at")
+    .select("id, number, email, template_name, locale, status, site_id, confirmation_email_sent_at")
     .eq("id", orderId)
     .maybeSingle();
   if (!order || order.status !== "paid" || order.confirmation_email_sent_at || !order.site_id) return "skipped";
 
   const { data: site } = await db
     .from("sites")
-    .select("id, slug, partner_a, partner_b, status")
+    .select("id, slug, partner_a, partner_b, wedding_date, data, status")
     .eq("id", order.site_id)
     .maybeSingle();
   if (!site || site.status !== "published") return "skipped";
@@ -43,9 +43,11 @@ export async function sendOrderConfirmation(db: SupabaseClient, orderId: string,
     responsesToken: token,
     orderNumber: order.number,
     templateName: order.template_name,
-    amountCents: order.amount_cents,
     partnerA: site.partner_a,
     partnerB: site.partner_b,
+    weddingDate: site.wedding_date,
+    venue: (site.data as { estateName?: string } | null)?.estateName,
+    place: (site.data as { estateLocation?: string } | null)?.estateLocation,
   });
   await sendEmail({ to: order.email, ...email });
 

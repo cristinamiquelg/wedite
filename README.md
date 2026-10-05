@@ -104,15 +104,16 @@ Un proyecto de Supabase por entorno, ambos en Irlanda (`eu-west-1`) por el RGPD:
 ### Email de compra y respuestas de los invitados
 
 Cuando Stripe confirma el pago (webhook `checkout.session.completed`), la web de la
-pareja se publica y se envía **un** email de confirmación (`src/lib/order-confirmation.ts`):
-resumen del pedido, botón a su web, su dirección con botones de compartir por
-WhatsApp y por email, y un enlace privado a la tabla de respuestas. Si el envío
+pareja se publica y se envía **un** email de bienvenida (`src/lib/order-confirmation.ts`; la factura
+la manda Stripe): tarjeta con sus nombres y fecha, botón a su web, su dirección
+con botones de compartir por WhatsApp y por email, y un enlace privado a la
+tabla de respuestas. Si el envío
 falla, el webhook responde 500 y Stripe reintenta; `orders.confirmation_email_sent_at`
 evita duplicados.
 
 Las respuestas del formulario RSVP se guardan (`POST /api/rsvp` → tabla `rsvps`, con
 límite anti-abuso por IP hasheada). La pareja las ve en `/respuestas/<token>`
-(tabla, totales y descarga en CSV). El token es secreto: del enlace solo se
+(una línea por persona, filtros, orden, totales y descarga en CSV). El token es secreto: del enlace solo se
 guarda su hash (`sites.edit_token_hash`) y quien tenga el enlace ve las respuestas.
 No hay cuentas, así que si la pareja pierde el email todavía no hay forma de
 recuperar el enlace (pendiente).
