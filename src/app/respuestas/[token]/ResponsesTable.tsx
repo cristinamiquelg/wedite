@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Dropdown from "@/components/site/Dropdown";
 import type { PersonRow } from "@/lib/responses-people";
 
 export type TableCopy = {
-  filters: { all: string; yes: string; no: string; bus: string };
+  filters: { all: string; yes: string; no: string; bus: string; diet: string };
   sortLabel: string;
   sorts: { recent: string; oldest: string; first: string; last: string };
   cols: { guest: string; attends: string; bus: string; diet: string; contact: string; date: string };
@@ -16,7 +17,7 @@ export type TableCopy = {
   noMatches: string;
 };
 
-type Filter = "all" | "yes" | "no" | "bus";
+type Filter = "all" | "yes" | "no" | "bus" | "diet";
 type Sort = "recent" | "oldest" | "first" | "last";
 
 function when(iso: string, locale: "es" | "en"): string {
@@ -49,14 +50,26 @@ export default function ResponsesTable({ rows, locale, copy }: { rows: PersonRow
       yes: rows.filter((r) => r.attending).length,
       no: rows.filter((r) => !r.attending).length,
       bus: rows.filter((r) => r.bus === true).length,
+      diet: rows.filter((r) => r.dietary.trim() !== "").length,
     }),
     [rows],
   );
 
   const visible = useMemo(() => {
-    const filtered = rows.filter((r) =>
-      filter === "all" ? true : filter === "yes" ? r.attending : filter === "no" ? !r.attending : r.bus === true,
-    );
+    const filtered = rows.filter((r) => {
+      switch (filter) {
+        case "yes":
+          return r.attending;
+        case "no":
+          return !r.attending;
+        case "bus":
+          return r.bus === true;
+        case "diet":
+          return r.dietary.trim() !== "";
+        default:
+          return true;
+      }
+    });
     const byName = (a: string, b: string) => a.localeCompare(b, locale, { sensitivity: "base" });
     return [...filtered].sort((a, b) => {
       if (sort === "recent") return a.group - b.group || a.order - b.order;
@@ -71,6 +84,7 @@ export default function ResponsesTable({ rows, locale, copy }: { rows: PersonRow
     { id: "yes", label: copy.filters.yes },
     { id: "no", label: copy.filters.no },
     { id: "bus", label: copy.filters.bus },
+    { id: "diet", label: copy.filters.diet },
   ];
 
   return (
@@ -91,19 +105,20 @@ export default function ResponsesTable({ rows, locale, copy }: { rows: PersonRow
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-2 text-sm text-ink-soft">
-          {copy.sortLabel}
-          <select
+        <div className="flex items-center gap-2 text-sm text-ink-soft">
+          <span>{copy.sortLabel}</span>
+          <Dropdown
             value={sort}
-            onChange={(e) => setSort(e.target.value as Sort)}
-            className="rounded-full border border-line bg-paper-raised px-3.5 py-1.5 text-sm text-ink outline-none focus:border-ink"
-          >
-            <option value="recent">{copy.sorts.recent}</option>
-            <option value="oldest">{copy.sorts.oldest}</option>
-            <option value="first">{copy.sorts.first}</option>
-            <option value="last">{copy.sorts.last}</option>
-          </select>
-        </label>
+            onChange={setSort}
+            ariaLabel={copy.sortLabel}
+            options={[
+              { value: "recent", label: copy.sorts.recent },
+              { value: "oldest", label: copy.sorts.oldest },
+              { value: "first", label: copy.sorts.first },
+              { value: "last", label: copy.sorts.last },
+            ]}
+          />
+        </div>
       </div>
 
       {rows.length === 0 ? (
