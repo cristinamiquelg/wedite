@@ -13,6 +13,8 @@ export type OrderEmailInput = {
   siteSlug: string;
   /** Plain secret token for the private responses page. */
   responsesToken: string;
+  /** Access code (e.g. K7PX-4M9Q) the page asks for the first time it is opened. */
+  accessCode: string;
   orderNumber: string;
   templateName: string;
   partnerA?: string | null;
@@ -43,7 +45,9 @@ const COPY = {
     step2: "Seguid sus respuestas",
     step2Text: "Cada vez que un invitado confirme, aparecerá en una tabla: quién viene, con cuántos acompañantes, si necesita autobús y sus alergias. Una línea por persona, y la podéis bajar a Excel.",
     responses: "Ver las respuestas",
-    private: "Guardad este email: el enlace de las respuestas es privado, y cualquiera que lo tenga puede verlas.",
+    codeLabel: "Vuestro código de acceso",
+    codeHelp: "Os lo pedirá la primera vez que abráis la tabla.",
+    private: "Guardad este email: lo necesitaréis para volver a la tabla, y es privado.",
     signoff: "Que lo disfrutéis muchísimo.",
     team: "El equipo de Wedite",
     order: "Pedido",
@@ -69,7 +73,9 @@ const COPY = {
     step2: "Follow their answers",
     step2Text: "Every time a guest confirms, they show up in a table: who's coming, how many guests they bring, whether they need the bus and any allergies. One line per person, and you can download it for Excel.",
     responses: "See the answers",
-    private: "Keep this email: the answers link is private, and anyone who has it can see them.",
+    codeLabel: "Your access code",
+    codeHelp: "It will ask for it the first time you open the table.",
+    private: "Keep this email: you'll need it to come back to the table, and it's private.",
     signoff: "We hope you enjoy it.",
     team: "The Wedite team",
     order: "Order",
@@ -176,7 +182,12 @@ ${step(
     2,
     t.step2,
     `<p style="margin:0 0 16px;font:15px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.step2Text)}</p>
-<p style="margin:0 0 12px;">${button(responsesUrl, t.responses, true)}</p>
+<p style="margin:0 0 16px;">${button(responsesUrl, t.responses, true)}</p>
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;background:${SAGE_LIGHT};border-radius:14px;"><tr><td style="padding:14px 20px;">
+<p style="margin:0 0 4px;font:600 11px ${SANS};letter-spacing:2px;text-transform:uppercase;color:${SAGE};">${escapeHtml(t.codeLabel)}</p>
+<p style="margin:0 0 4px;font:700 26px 'Courier New',Courier,monospace;letter-spacing:5px;color:${INK};">${escapeHtml(input.accessCode)}</p>
+<p style="margin:0;font:13px ${SANS};color:${SOFT};">${escapeHtml(t.codeHelp)}</p>
+</td></tr></table>
 <p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${escapeHtml(t.private)}</p>`,
   )}
 <p style="margin:10px 0 0;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
@@ -207,6 +218,8 @@ ${step(
     t.step2,
     t.step2Text,
     `${t.responses}: ${responsesUrl}`,
+    `${t.codeLabel}: ${input.accessCode}`,
+    t.codeHelp,
     t.private,
     "",
     `${t.signoff} ${t.team}`,

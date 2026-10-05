@@ -3,6 +3,7 @@ import { createHash, randomBytes } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { buildOrderConfirmationEmail } from "@/lib/email/order-confirmation";
 import { sendEmail } from "@/lib/email/resend";
+import { generateAccessCode, hashCode } from "@/lib/responses-access";
 
 /** sha256 (hex) of a secret link token: the only form in which it is stored. */
 export function hashToken(token: string): string {
@@ -12,8 +13,9 @@ export function hashToken(token: string): string {
 // Sends the welcome email once per paid order: the site, the share links and the
 // private link to the guests' answers.
 //
-// The responses link carries a fresh secret token generated here; only its hash
-// goes into the database (sites.edit_token_hash). That is safe to rotate because
+// The responses link carries a fresh secret token and an access code generated
+// here; only their hashes go into the database (sites.edit_token_hash and
+// sites.responses_code_hash). That is safe to rotate because
 // no earlier link has been delivered to anyone. If sending fails this throws, so
 // the Stripe webhook answers 500 and Stripe retries it; the sent-at marker keeps
 // a retry from emailing twice.
@@ -33,7 +35,11 @@ export async function sendOrderConfirmation(db: SupabaseClient, orderId: string,
   if (!site || site.status !== "published") return "skipped";
 
   const token = randomBytes(32).toString("base64url");
-  const { error: tokenError } = await db.from("sites").update({ edit_token_hash: hashToken(token) }).eq("id", site.id);
+  const accessCode = generateAccessCode();
+  const { error: tokenError } = await db
+    .from("sites")
+    .update({ edit_token_hash: hashToken(token), responses_code_hash: hashCode(accessCode) })
+    .eq("id", site.id);
   if (tokenError) throw new Error(`could not store the responses link: ${tokenError.message}`);
 
   const email = buildOrderConfirmationEmail({
@@ -41,6 +47,7 @@ export async function sendOrderConfirmation(db: SupabaseClient, orderId: string,
     origin,
     siteSlug: site.slug,
     responsesToken: token,
+    accessCode,
     orderNumber: order.number,
     templateName: order.template_name,
     partnerA: site.partner_a,

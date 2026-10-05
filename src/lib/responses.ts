@@ -1,6 +1,7 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { hashToken } from "@/lib/order-confirmation";
+import { hasResponsesSession } from "@/lib/responses-access";
 import { toPersonRows, type Rsvp, type PersonRow } from "@/lib/responses-people";
 
 export type { Rsvp, PersonRow };
@@ -17,19 +18,42 @@ export type ResponsesView = {
 
 const TOKEN_RE = /^[A-Za-z0-9_-]{20,100}$/;
 
-/** The couple's private view of their guests' answers, found by the secret link token. Null if the link is wrong. */
-export async function loadResponses(token: string): Promise<ResponsesView | null> {
+export type ResponsesSite = {
+  id: string;
+  slug: string;
+  title: string;
+  locale: "es" | "en";
+  /** Hash of the access code; null on sites created before codes existed (the link alone opens them). */
+  codeHash: string | null;
+};
+
+/** The site a responses link belongs to, or null if the link is wrong. */
+export async function findSiteByToken(token: string): Promise<ResponsesSite | null> {
   if (!TOKEN_RE.test(token)) return null;
-  const db = supabaseAdmin();
-  const { data: site } = await db
+  const { data: site } = await supabaseAdmin()
     .from("sites")
-    .select("id, slug, partner_a, partner_b, locales, status")
+    .select("id, slug, partner_a, partner_b, locales, status, responses_code_hash")
     .eq("edit_token_hash", hashToken(token))
     .eq("status", "published")
     .maybeSingle();
   if (!site) return null;
+  return {
+    id: site.id,
+    slug: site.slug,
+    title: [site.partner_a, site.partner_b].filter(Boolean).join(" & ") || "Wedite",
+    locale: Array.isArray(site.locales) && site.locales[0] === "en" ? "en" : "es",
+    codeHash: site.responses_code_hash ?? null,
+  };
+}
 
-  const { data } = await db
+/** True when this browser may see the answers: a code-less legacy site, or a valid code session. */
+export async function canViewResponses(token: string, site: ResponsesSite): Promise<boolean> {
+  return site.codeHash === null || (await hasResponsesSession(token, site.codeHash));
+}
+
+/** The couple's private view of their guests' answers. Call only after canViewResponses. */
+export async function loadResponses(site: ResponsesSite): Promise<ResponsesView> {
+  const { data } = await supabaseAdmin()
     .from("rsvps")
     .select("id, first_name, last_name, phone, email, attending, bus, dietary, companions, guests, created_at")
     .eq("site_id", site.id)
@@ -39,8 +63,8 @@ export async function loadResponses(token: string): Promise<ResponsesView | null
 
   const people = toPersonRows(rsvps);
   return {
-    locale: Array.isArray(site.locales) && site.locales[0] === "en" ? "en" : "es",
-    title: [site.partner_a, site.partner_b].filter(Boolean).join(" & ") || "Wedite",
+    locale: site.locale,
+    title: site.title,
     siteSlug: site.slug,
     rsvps,
     people,

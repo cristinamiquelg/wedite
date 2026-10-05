@@ -114,7 +114,10 @@ evita duplicados.
 Las respuestas del formulario RSVP se guardan (`POST /api/rsvp` → tabla `rsvps`, con
 límite anti-abuso por IP hasheada). La pareja las ve en `/respuestas/<token>`
 (una línea por persona, filtros, orden, totales y descarga en CSV). El token es secreto: del enlace solo se
-guarda su hash (`sites.edit_token_hash`) y quien tenga el enlace ve las respuestas.
+guarda su hash (`sites.edit_token_hash`). Además la página pide un **código de acceso**
+(`XXXX-XXXX`, también en el email; solo se guarda su hash en `sites.responses_code_hash`):
+protege frente a un enlace que se filtre solo, no frente a reenviar el email entero.
+Tras 5 fallos desde una IP (o 25 por hora en total) el formulario se bloquea.
 No hay cuentas, así que si la pareja pierde el email todavía no hay forma de
 recuperar el enlace (pendiente).
 

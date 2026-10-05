@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { loadResponses } from "@/lib/responses";
+import { canViewResponses, findSiteByToken, loadResponses } from "@/lib/responses";
+import AccessForm from "./AccessForm";
 import ResponsesTable, { type TableCopy } from "./ResponsesTable";
 
 export const dynamic = "force-dynamic";
@@ -16,9 +17,8 @@ const COPY = {
     summary: { responses: "Respuestas recibidas", attending: "Personas que vienen", declined: "No vienen", bus: "Necesitan autobús" },
     download: "Descargar Excel",
     viewSite: "Ver vuestra web",
-    private: "Esta página es privada: cualquiera que tenga este enlace puede ver las respuestas. No lo compartáis.",
     table: {
-      filters: { all: "Todos", yes: "Vienen", no: "No vienen", bus: "Autobús" },
+      filters: { all: "Todos", yes: "Vienen", no: "No vienen", bus: "Autobús", diet: "Alergias o dieta" },
       sortLabel: "Ordenar por",
       sorts: { recent: "Más recientes", oldest: "Más antiguos", first: "Nombre (A-Z)", last: "Apellidos (A-Z)" },
       cols: { guest: "Invitado", attends: "Asiste", bus: "Autobús", diet: "Alergias o dieta", contact: "Contacto", date: "Recibida" },
@@ -35,9 +35,8 @@ const COPY = {
     summary: { responses: "Answers received", attending: "People coming", declined: "Not coming", bus: "Need the bus" },
     download: "Download Excel",
     viewSite: "View your website",
-    private: "This page is private: anyone with this link can see the answers. Please don't share it.",
     table: {
-      filters: { all: "Everyone", yes: "Coming", no: "Not coming", bus: "Bus" },
+      filters: { all: "Everyone", yes: "Coming", no: "Not coming", bus: "Bus", diet: "Allergies or diet" },
       sortLabel: "Sort by",
       sorts: { recent: "Newest", oldest: "Oldest", first: "First name (A-Z)", last: "Last name (A-Z)" },
       cols: { guest: "Guest", attends: "Attending", bus: "Bus", diet: "Allergies or diet", contact: "Contact", date: "Received" },
@@ -53,8 +52,10 @@ const COPY = {
 
 export default async function ResponsesPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const view = await loadResponses(token);
-  if (!view) notFound();
+  const site = await findSiteByToken(token);
+  if (!site) notFound();
+  if (!(await canViewResponses(token, site))) return <AccessForm token={token} locale={site.locale} />;
+  const view = await loadResponses(site);
   const t = COPY[view.locale];
 
   return (
@@ -99,8 +100,6 @@ export default async function ResponsesPage({ params }: { params: Promise<{ toke
       <div className="mt-6">
         <ResponsesTable rows={view.people} locale={view.locale} copy={t.table} />
       </div>
-
-      <p className="mt-6 text-xs leading-relaxed text-ink-soft">{t.private}</p>
     </main>
   );
 }
