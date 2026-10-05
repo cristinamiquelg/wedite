@@ -1,28 +1,17 @@
 import "server-only";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { hashToken } from "@/lib/order-confirmation";
+import { toPersonRows, type Rsvp, type PersonRow } from "@/lib/responses-people";
 
-export type Companion = { first_name: string; last_name: string; kid: boolean; bus: boolean | null; dietary: string };
-
-export type Rsvp = {
-  id: string;
-  first_name: string;
-  last_name: string;
-  phone: string | null;
-  email: string | null;
-  attending: boolean;
-  bus: boolean | null;
-  dietary: string | null;
-  companions: Companion[];
-  guests: number;
-  created_at: string;
-};
+export type { Rsvp, PersonRow };
 
 export type ResponsesView = {
   locale: "es" | "en";
   title: string;
   siteSlug: string;
   rsvps: Rsvp[];
+  /** One entry per person (a guest and each companion is a line). */
+  people: PersonRow[];
   totals: { responses: number; attendingPeople: number; declined: number; busPeople: number };
 };
 
@@ -48,39 +37,36 @@ export async function loadResponses(token: string): Promise<ResponsesView | null
     .limit(2000);
   const rsvps = ((data ?? []) as Rsvp[]).map((r) => ({ ...r, companions: Array.isArray(r.companions) ? r.companions : [] }));
 
-  const attending = rsvps.filter((r) => r.attending);
+  const people = toPersonRows(rsvps);
   return {
     locale: Array.isArray(site.locales) && site.locales[0] === "en" ? "en" : "es",
     title: [site.partner_a, site.partner_b].filter(Boolean).join(" & ") || "Wedite",
     siteSlug: site.slug,
     rsvps,
+    people,
     totals: {
       responses: rsvps.length,
-      attendingPeople: attending.reduce((sum, r) => sum + 1 + r.companions.length, 0),
-      declined: rsvps.length - attending.length,
-      busPeople: attending.reduce((sum, r) => sum + (r.bus ? 1 : 0) + r.companions.filter((c) => c.bus).length, 0),
+      attendingPeople: people.filter((p) => p.attending).length,
+      declined: people.filter((p) => !p.attending).length,
+      busPeople: people.filter((p) => p.bus === true).length,
     },
   };
 }
 
 const CSV_COPY = {
   es: {
-    headers: ["Nombre", "Apellidos", "Asiste", "Autobús", "Alergias o dieta", "Personas", "Acompañantes", "Teléfono", "Email", "Recibida"],
+    headers: ["Nombre", "Apellidos", "Asiste", "Autobús", "Alergias o dieta", "Menor", "Viene con", "Teléfono", "Email", "Recibida"],
     yes: "Sí",
     no: "No",
-    kid: "menor",
-    bus: "autobús",
   },
   en: {
-    headers: ["First name", "Last name", "Attending", "Bus", "Allergies or diet", "People", "Companions", "Phone", "Email", "Received"],
+    headers: ["First name", "Last name", "Attending", "Bus", "Allergies or diet", "Child", "Comes with", "Phone", "Email", "Received"],
     yes: "Yes",
     no: "No",
-    kid: "child",
-    bus: "bus",
   },
 } as const;
 
-/** One line per answer. Cells starting with = + - @ are prefixed so a spreadsheet won't run them as formulas. */
+/** One line per person. Cells starting with = + - @ are prefixed so a spreadsheet won't run them as formulas. */
 export function rsvpsToCsv(view: ResponsesView): string {
   const t = CSV_COPY[view.locale];
   const cell = (value: string) => {
@@ -89,30 +75,24 @@ export function rsvpsToCsv(view: ResponsesView): string {
   };
   const yn = (v: boolean | null) => (v === null ? "" : v ? t.yes : t.no);
   const lines = [t.headers.map(cell).join(",")];
-  for (const r of view.rsvps) {
-    const companions = r.companions
-      .map((c) => {
-        const extras = [c.kid ? t.kid : "", c.bus ? t.bus : "", c.dietary].filter(Boolean).join("; ");
-        return `${c.first_name} ${c.last_name}`.trim() + (extras ? ` (${extras})` : "");
-      })
-      .join(" · ");
+  for (const p of view.people) {
     lines.push(
       [
-        r.first_name,
-        r.last_name,
-        yn(r.attending),
-        r.attending ? yn(r.bus) : "",
-        r.dietary ?? "",
-        String(r.attending ? 1 + r.companions.length : 0),
-        companions,
-        r.phone ?? "",
-        r.email ?? "",
-        new Date(r.created_at).toISOString().slice(0, 16).replace("T", " "),
+        p.firstName,
+        p.lastName,
+        yn(p.attending),
+        yn(p.bus),
+        p.dietary,
+        p.kid ? t.yes : "",
+        p.withName ?? "",
+        p.phone,
+        p.email,
+        new Date(p.receivedAt).toISOString().slice(0, 16).replace("T", " "),
       ]
         .map(cell)
         .join(","),
     );
   }
   // BOM so Excel opens the accents correctly.
-  return "﻿" + lines.join("\r\n") + "\r\n";
+  return "\uFEFF" + lines.join("\r\n") + "\r\n";
 }
