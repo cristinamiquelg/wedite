@@ -23,7 +23,7 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
   Routed at `/preview/[slug]/rsvp` (`src/app/preview/[slug]/rsvp/`), which
   follows the same demo/`?draft=1` data rules as `PreviewClient`. The home
   links to it via `rsvpHref`; `?lang=` carries the guest's language both ways.
-- `src/components/templates/ribera/RiberaRsvpForm.tsx` — the RSVP flow: a
+- `src/components/templates/ribera/RiberaRsvpForm.tsx` — the RSVP flow (on a published site, `siteSlug` is set and the answers POST to `/api/rsvp`; previews and the demo only show the thanks screen): a
   full-screen, one-question-per-step wizard grouped into 3 named sections
   (Tu información / Tu asistencia / Tus acompañantes). Rendered only by
   `RiberaRsvpPage`.

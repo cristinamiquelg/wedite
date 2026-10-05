@@ -16,10 +16,13 @@ export default function RiberaRsvpPage({
   data,
   backHref,
   initialLocale,
+  siteSlug,
 }: {
   data: WeddingData;
   backHref: string;
   initialLocale?: string;
+  /** Set on a couple's published site, so the answers are sent to the server. */
+  siteSlug?: string;
 }) {
   const [locale, setLocale] = useState<Locale>(() =>
     data.locales.find((l) => l === initialLocale) ?? data.locales[0] ?? "es",
@@ -64,7 +67,7 @@ export default function RiberaRsvpPage({
         <div className={styles.rsvpCard}>
           <h1 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h1>
           {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
-          <RiberaRsvpForm locale={activeLocale} showBus={hasBus} />
+          <RiberaRsvpForm locale={activeLocale} showBus={hasBus} siteSlug={siteSlug} />
         </div>
       </main>
 
