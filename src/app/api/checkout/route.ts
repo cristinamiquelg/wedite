@@ -20,7 +20,7 @@ function randomSiteSlug(length = 15): string {
 
 const MAX_DRAFT_BYTES = 4_000_000;
 
-// Creates a pending order and a Stripe Checkout Session, and returns its URL.
+// Creates a pending order and an embedded-form Stripe Checkout Session, and returns its client secret.
 // The price always comes from the server-side catalog, never from the client.
 export async function POST(request: NextRequest) {
   let body: { slug?: unknown; email?: unknown; locale?: unknown; data?: unknown };
@@ -106,6 +106,13 @@ export async function POST(request: NextRequest) {
   try {
     const session = await stripe().checkout.sessions.create({
       mode: "payment",
+      // Embedded payment form (Stripe.js initCheckoutFormSdk), mounted on our page.
+      ui_mode: "form",
+      billing_address_collection: "auto",
+      phone_number_collection: { enabled: false },
+      submit_type: "auto",
+      name_collection: { individual: { enabled: true } },
+      integration_identifier: "custom_embedded_web_0001",
       customer_email: email,
       client_reference_id: order.id,
       locale,
@@ -120,18 +127,22 @@ export async function POST(request: NextRequest) {
           },
         },
       ],
-      // Needs Stripe Tax enabled in the dashboard; opt-in so checkout works before that.
-      automatic_tax: { enabled: process.env.STRIPE_AUTOMATIC_TAX === "true" },
+      automatic_tax: { enabled: false },
       invoice_creation: {
         enabled: true,
         invoice_data: { description: `Wedite ${template.name} · pedido ${order.number}` },
       },
       metadata: { order_id: order.id, site_id: site.id, order_number: order.number },
-      success_url: `${origin}/gracias?slug=${template.slug}&site=${site.slug}&order=${order.number}`,
-      cancel_url: `${origin}/personalizar/${template.slug}/confirmar`,
+      // Where Stripe sends the customer after payment (the form has no success_url/cancel_url).
+      return_url: `${origin}/gracias?slug=${template.slug}&site=${site.slug}&order=${order.number}`,
     });
     await db.from("orders").update({ stripe_checkout_session_id: session.id }).eq("id", order.id);
-    return NextResponse.json({ url: session.url });
+    const publishableKey =
+      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? process.env.STRIPE_PUBLISHABLE_KEY;
+    if (!session.client_secret || !publishableKey) {
+      throw new Error("Missing client_secret or publishable key");
+    }
+    return NextResponse.json({ client_secret: session.client_secret, publishable_key: publishableKey });
   } catch (err) {
     console.error("checkout: Stripe session failed", err);
     await db.from("orders").update({ status: "failed" }).eq("id", order.id);

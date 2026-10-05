@@ -112,6 +112,8 @@ type SiteDict = {
     payError: string;
     confirming: string;
     confirmBuy: (price: number) => string;
+    continuePay: string;
+    editEmail: string;
     disclaimer: string;
   };
   wizard: {
@@ -371,8 +373,10 @@ const es: SiteDict = {
     email: "Correo electrónico",
     emailHint: "Aquí recibiréis la factura y el enlace a la tabla con las respuestas de vuestros invitados.",
     payError: "No hemos podido iniciar el pago. Inténtalo de nuevo en unos minutos.",
-    confirming: "Redirigiendo al pago...",
+    confirming: "Preparando el pago...",
     confirmBuy: (price) => `Pagar · ${price} €`,
+    continuePay: "Continuar al pago",
+    editEmail: "Cambiar email",
     disclaimer: "Al pagar aceptáis los términos del servicio. Precio con IVA incluido.",
   },
   wizard: {
@@ -636,8 +640,10 @@ const en: SiteDict = {
     email: "Email",
     emailHint: "We'll send the invoice and the link to the table with your guests' answers here.",
     payError: "We couldn't start the payment. Please try again in a few minutes.",
-    confirming: "Redirecting to payment...",
+    confirming: "Preparing payment...",
     confirmBuy: (price) => `Pay · €${price}`,
+    continuePay: "Continue to payment",
+    editEmail: "Change email",
     disclaimer: "By paying you accept the terms of service. Price includes VAT.",
   },
   wizard: {
