@@ -207,7 +207,16 @@ function stepErrorKeys(step: Step): string[] {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-export default function RiberaRsvpForm({ locale, showBus = true }: { locale?: Locale; showBus?: boolean }) {
+export default function RiberaRsvpForm({
+  locale,
+  showBus = true,
+  siteSlug,
+}: {
+  locale?: Locale;
+  showBus?: boolean;
+  /** Set on a couple's published site: the answers are sent to the server. Previews just show the thanks screen. */
+  siteSlug?: string;
+}) {
   const dict = getDict(locale).ribera.form;
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -222,6 +231,12 @@ export default function RiberaRsvpForm({ locale, showBus = true }: { locale?: Lo
   const [companions, setCompanions] = useState<Companion[]>([]);
   const [nextId, setNextId] = useState(1);
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendFailed, setSendFailed] = useState(false);
+  // Resubmitting from this tab updates the same answer instead of adding another.
+  const [clientRef] = useState(() =>
+    typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2),
+  );
   const [stepIndex, setStepIndex] = useState(0);
   // Errors for the current step only show after that step's first failed
   // "Siguiente" attempt, then recompute live so the message disappears as
@@ -327,6 +342,42 @@ export default function RiberaRsvpForm({ locale, showBus = true }: { locale?: Lo
     setStepTried(false);
   }
 
+  async function sendAnswers() {
+    setSending(true);
+    setSendFailed(false);
+    try {
+      const res = await fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug: siteSlug,
+          clientRef,
+          locale,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          phone: phone.trim(),
+          email: email.trim(),
+          attending,
+          bus: attending && showBus ? bus === "si" : null,
+          dietary: dietary.trim(),
+          companions: companions.map((c) => ({
+            firstName: c.firstName.trim(),
+            lastName: c.lastName.trim(),
+            kid: c.kid,
+            bus: showBus ? c.bus === "si" : null,
+            dietary: c.dietary.trim(),
+          })),
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      setSubmitted(true);
+    } catch {
+      setSendFailed(true);
+    } finally {
+      setSending(false);
+    }
+  }
+
   function onSubmit(ev: React.FormEvent<HTMLFormElement>) {
     ev.preventDefault();
     const e = validate();
@@ -341,9 +392,12 @@ export default function RiberaRsvpForm({ locale, showBus = true }: { locale?: Lo
       return;
     }
     if (isLastStep) {
-      // The template has no backend yet: the real site should POST the
-      // payload here and only switch to the thanks state on success.
-      setSubmitted(true);
+      if (!siteSlug) {
+        // Preview or demo: nothing is stored.
+        setSubmitted(true);
+        return;
+      }
+      void sendAnswers();
       return;
     }
     setStepIndex(stepIdx + 1);
@@ -387,6 +441,11 @@ export default function RiberaRsvpForm({ locale, showBus = true }: { locale?: Lo
       {hasStepErrors ? (
         <p className={styles.formErrorSummary} role="alert">
           {dict.errSummary}
+        </p>
+      ) : null}
+      {sendFailed ? (
+        <p className={styles.formErrorSummary} role="alert">
+          {dict.sendError}
         </p>
       ) : null}
 
@@ -591,8 +650,8 @@ export default function RiberaRsvpForm({ locale, showBus = true }: { locale?: Lo
         >
           {dict.back}
         </button>
-        <button type="submit" className={styles.formSubmit}>
-          {isLastStep ? dict.submit : dict.next}
+        <button type="submit" className={styles.formSubmit} disabled={sending}>
+          {sending ? dict.sending : isLastStep ? dict.submit : dict.next}
         </button>
       </div>
     </form>

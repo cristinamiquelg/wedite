@@ -57,6 +57,8 @@ type Dict = {
       sectionAttendance: string;
       sectionCompanions: string;
       thanks: string;
+      sending: string;
+      sendError: string;
       optional: string;
       attendingQ: string;
       busQ: string;
@@ -141,6 +143,8 @@ const es: Dict = {
       sectionAttendance: "Tu asistencia",
       sectionCompanions: "Tus acompañantes",
       thanks: "¡Gracias! Hemos recibido tu confirmación. 🤍",
+      sending: "Enviando…",
+      sendError: "No hemos podido enviar tu confirmación. Inténtalo de nuevo en unos minutos.",
       optional: "opcional",
       attendingQ: "¿Vienes a la boda?",
       busQ: "¿Necesitas autobús?",
@@ -225,6 +229,8 @@ const en: Dict = {
       sectionAttendance: "Your attendance",
       sectionCompanions: "Your guests",
       thanks: "Thank you! We've received your RSVP. 🤍",
+      sending: "Sending…",
+      sendError: "We couldn't send your RSVP. Please try again in a few minutes.",
       optional: "optional",
       attendingQ: "Are you coming to the wedding?",
       busQ: "Do you need the shuttle bus?",

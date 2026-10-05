@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import type Stripe from "stripe";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { stripe } from "@/lib/stripe";
+import { sendOrderConfirmation } from "@/lib/order-confirmation";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -60,6 +61,9 @@ export async function POST(request: NextRequest) {
             .eq("id", siteId)
             .neq("status", "published");
         }
+        // Confirmation email (site, share links, private link to the guests'
+        // answers). Runs even when this delivery is a retry: it sends only once.
+        if (orderId) await sendOrderConfirmation(db, orderId, request.nextUrl.origin);
         break;
       }
       case "checkout.session.expired":

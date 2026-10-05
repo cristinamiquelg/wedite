@@ -4,8 +4,8 @@ import { loadPublishedSite } from "@/lib/published-site";
 
 export const dynamic = "force-dynamic";
 
-// RSVP page of a published site. By design the answers are NOT sent or stored
-// anywhere: the form only runs in the guest's browser (see RiberaRsvpForm).
+// RSVP page of a published site. The answers are sent to /api/rsvp and shown to
+// the couple on their private responses page (/respuestas/<secret>).
 export default async function PublishedRsvpPage({
   params,
   searchParams,
@@ -17,5 +17,5 @@ export default async function PublishedRsvpPage({
   const site = await loadPublishedSite(slug);
   if (!site || !isKnownTemplateSlug(site.templateSlug)) notFound();
   const { lang } = await searchParams;
-  return renderRsvpPage(site.templateSlug, site.data, { backHref: `/${slug}`, initialLocale: lang });
+  return renderRsvpPage(site.templateSlug, site.data, { backHref: `/${slug}`, initialLocale: lang, siteSlug: slug });
 }

@@ -26,6 +26,8 @@ async function hasStagingAccess(request: NextRequest): Promise<boolean> {
 // production while the rest of the site shows "coming soon", and it must never
 // be indexed (the page also sets noindex; this covers its server actions too).
 const DASHBOARD_PREFIX = "/ops/";
+// The couple's private responses page (secret link): never indexed or cached either.
+const RESPONSES_PREFIX = "/respuestas/";
 
 function withNoIndex(response: NextResponse): NextResponse {
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -63,7 +65,9 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   if (!isComingSoon()) {
-    return pathname.startsWith(DASHBOARD_PREFIX) ? withNoIndex(NextResponse.next()) : NextResponse.next();
+    return pathname.startsWith(DASHBOARD_PREFIX) || pathname.startsWith(RESPONSES_PREFIX)
+      ? withNoIndex(NextResponse.next())
+      : NextResponse.next();
   }
 
   // Production only, and only until LAUNCHED is flipped: every page shows the
