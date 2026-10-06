@@ -1,5 +1,5 @@
 import "server-only";
-import { queryWindow, type DashboardRange } from "@/lib/dashboard-range";
+import { addDays, queryWindow, type DashboardRange } from "@/lib/dashboard-range";
 import { supabaseForSource, type DataSource } from "@/lib/supabase/admin";
 
 export class SourceNotConfiguredError extends Error {}
@@ -39,7 +39,8 @@ export type DashboardStats = {
   countries: ({ country: string } & Count)[];
   devices: ({ device: string } & Count)[];
   locales: ({ locale: string } & Count)[];
-  templates: { template: string; viewed: number; started: number; completed: number }[];
+  // Nested per template; `checkout` is missing until the period-revenue migration is applied.
+  templates: { template: string; viewed: number; started: number; checkout?: number; completed: number }[];
   recent: { created_at: string; name: string; path: string | null; country: string | null; device: string | null; template_slug: string | null }[];
   business: {
     sites_total: number;
@@ -49,6 +50,9 @@ export type DashboardStats = {
     orders_new: number;
     orders_paid: number;
     revenue_cents: number;
+    // Paid inside the chosen period; missing until the period-revenue migration is applied.
+    orders_paid_period?: number;
+    revenue_cents_period?: number;
     invite_codes_used: number;
     ai_generations_new: number;
     ai_cost_cents_new: number;
@@ -83,6 +87,13 @@ export async function loadDashboardStats(range: DashboardRange, source: DataSour
   });
   if (error) throw new Error(error.message);
   return data as DashboardStats;
+}
+
+// Distinct visits over the 30 days ending on the period's last day (the "MAU").
+export async function loadMonthlyVisits(range: DashboardRange, source: DataSource): Promise<number> {
+  const window30: DashboardRange = { from: addDays(range.to, -29), to: range.to, preset: null, days: 30, label: "" };
+  const stats = await loadDashboardStats(window30, source);
+  return stats.kpis.sessions;
 }
 
 export async function loadDashboardSegments(

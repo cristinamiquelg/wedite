@@ -5,6 +5,7 @@ import { parseRange } from "@/lib/dashboard-range";
 import {
   loadDashboardSegments,
   loadDashboardStats,
+  loadMonthlyVisits,
   parseFilter,
   parseSegmentDim,
   SourceNotConfiguredError,
@@ -57,6 +58,19 @@ export default async function DashboardPage({
         : `No se han podido cargar los datos de ${source === "staging" ? "staging" : "producción"}. ¿Está aplicada la migración de analítica en esa base de datos?`;
   }
 
+  // MAU: distinct visits over the 30 days ending on the period's last day.
+  let mau: number | null = null;
+  if (stats) {
+    if (range.days === 30) mau = stats.kpis.sessions;
+    else {
+      try {
+        mau = await loadMonthlyVisits(range, source);
+      } catch {
+        mau = null;
+      }
+    }
+  }
+
   // Segments are optional: if they fail (e.g. their migration isn't applied in
   // this database yet) the rest of the dashboard still shows. Each distinct
   // characteristic is loaded once, even if several charts use it.
@@ -81,6 +95,7 @@ export default async function DashboardPage({
       seg={seg}
       segmentsByDim={segmentsByDim}
       segmentsProblem={segmentsProblem}
+      mau={mau}
       stats={stats}
       problem={problem}
     />
