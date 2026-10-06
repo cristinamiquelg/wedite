@@ -514,40 +514,6 @@ function Body({
         )}
       </Card>
 
-      <Card
-        title="Webs de parejas: invitados"
-        hint="Visitas a wedite.com/<nombre> (no cuentan como visitas a Wedite) y RSVP enviados en el periodo; «Responden» = RSVP enviados entre visitas. Sin identificar a nadie"
-      >
-        {stats.guest_sites.length === 0 ? (
-          <Empty />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
-                <tr>
-                  <th className="py-2 pr-4 font-normal">Web</th>
-                  <th className="py-2 pr-4 text-right font-normal">Visitas</th>
-                  <th className="py-2 pr-4 text-right font-normal">RSVP enviados</th>
-                  <th className="py-2 pr-4 text-right font-normal">Asisten</th>
-                  <th className="py-2 text-right font-normal">Responden</th>
-                </tr>
-              </thead>
-              <tbody>
-                {stats.guest_sites.map((g) => (
-                  <tr key={g.site} className="border-t border-line tabular-nums">
-                    <td className="py-2 pr-4 font-sans">{g.site}</td>
-                    <td className="py-2 pr-4 text-right">{nf.format(g.visits)}</td>
-                    <td className="py-2 pr-4 text-right">{nf.format(g.rsvps)}</td>
-                    <td className="py-2 pr-4 text-right">{nf.format(g.attending)}</td>
-                    <td className="py-2 text-right">{pct(g.rsvps, g.visits)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
       <Card title="Funciones que activan las parejas" hint={`Porcentaje de las ${nf.format(business.features.sites)} webs creadas (sin archivadas) que usan cada bloque; se calcula desde la base de datos`}>
         {business.features.sites === 0 ? (
           <Empty />
@@ -577,7 +543,6 @@ function Body({
               `${nf.format(business.purchased_sites_reedited)} de ${nf.format(business.purchased_sites)}`,
             ],
             ["Códigos de invitación usados", nf.format(business.invite_codes_used)],
-            ["Respuestas RSVP", `${nf.format(business.rsvps_total)} (${nf.format(business.rsvps_new)} nuevas)`],
             ["Ilustraciones IA", nf.format(business.ai_generations_new)],
             ["Coste IA", eur.format(business.ai_cost_cents_new / 100)],
           ].map(([label, value]) => (

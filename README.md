@@ -119,8 +119,8 @@ El panel incluye: embudo de compra y embudo por pasos del asistente (con tiempo
 medio por paso y último paso abierto de quien no llega al pago), filtro por
 origen / idioma / dispositivo / país (uno a la vez, `?fk=<tipo>&fv=<valor>`),
 campañas UTM, funciones que usan las webs (calculado desde la base de datos),
-webs compradas editadas después del pago y visitas + RSVP por web de pareja
-(`wedite.com/<nombre>`; esas visitas no cuentan como visitas a Wedite). Todo se
+webs compradas editadas después del pago. Las visitas a las webs de las parejas
+(`wedite.com/<nombre>`) no se miden: el panel solo mira a los clientes. Todo se
 calcula en la función SQL `dashboard_stats`. Cuando exista la ruta del enlace
 secreto de edición, debe llamar a `recordSiteEditOpen(siteId)`
 (`src/lib/site-edit-tracking.ts`), que guarda solo la fecha, sin identificar a
