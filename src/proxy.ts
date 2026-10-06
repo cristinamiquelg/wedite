@@ -26,6 +26,8 @@ async function hasStagingAccess(request: NextRequest): Promise<boolean> {
 // production while the rest of the site shows "coming soon", and it must never
 // be indexed (the page also sets noindex; this covers its server actions too).
 const DASHBOARD_PREFIX = "/ops/";
+// The couple's private responses page (secret link): never indexed or cached either.
+const RESPONSES_PREFIX = "/respuestas/";
 
 function withNoIndex(response: NextResponse): NextResponse {
   response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
@@ -33,10 +35,28 @@ function withNoIndex(response: NextResponse): NextResponse {
   return response;
 }
 
+// Audit mode (STAGING_PUBLIC=1, set in Vercel for Preview): lets an outside
+// reviewer, such as a lawyer, open the staging pages without the password.
+// Only the pages open up. The API (it costs money: image generation) and the
+// private dashboard stay behind the password; the one exception is the
+// usage-tracking endpoint, which is harmless and keeps the pages working.
+function isOpenForAudit(pathname: string): boolean {
+  if (process.env.STAGING_PUBLIC !== "1") return false;
+  if (pathname === "/api/track") return true;
+  return !pathname.startsWith("/api/") && !pathname.startsWith(DASHBOARD_PREFIX);
+}
+
+// Stripe's servers call this endpoint, so it can't carry the staging password
+// and must stay reachable even while production shows "coming soon". It is
+// protected by the Stripe signature check inside the route itself.
+const STRIPE_WEBHOOK_PATH = "/api/stripe/webhook";
+
 export async function proxy(request: NextRequest) {
+  if (request.nextUrl.pathname === STRIPE_WEBHOOK_PATH) return NextResponse.next();
+
   // Staging and PR previews: nothing is reachable without the password,
-  // pages and API alike.
-  if (isStagingEnv() && !(await hasStagingAccess(request))) {
+  // pages and API alike (unless audit mode opens the pages, see above).
+  if (isStagingEnv() && !isOpenForAudit(request.nextUrl.pathname) && !(await hasStagingAccess(request))) {
     return new NextResponse("Staging — authentication required", {
       status: 401,
       headers: { "WWW-Authenticate": 'Basic realm="Wedite staging", charset="UTF-8"' },
@@ -45,7 +65,9 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   if (!isComingSoon()) {
-    return pathname.startsWith(DASHBOARD_PREFIX) ? withNoIndex(NextResponse.next()) : NextResponse.next();
+    return pathname.startsWith(DASHBOARD_PREFIX) || pathname.startsWith(RESPONSES_PREFIX)
+      ? withNoIndex(NextResponse.next())
+      : NextResponse.next();
   }
 
   // Production only, and only until LAUNCHED is flipped: every page shows the

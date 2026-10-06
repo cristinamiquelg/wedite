@@ -20,6 +20,7 @@ type Dict = {
     hero: { saveTheDate: string; forTheWeddingOf: string };
     countdownTitle: string;
     storyTitleFallback: string;
+    storyIllustrationAiNote: string;
     giftTitle: string;
     itinerary: { title: string; comoLlegar: string };
     details: {
@@ -56,6 +57,8 @@ type Dict = {
       sectionAttendance: string;
       sectionCompanions: string;
       thanks: string;
+      sending: string;
+      sendError: string;
       optional: string;
       attendingQ: string;
       busQ: string;
@@ -103,6 +106,7 @@ const es: Dict = {
     hero: { saveTheDate: "Save the Date", forTheWeddingOf: "la boda de" },
     countdownTitle: "¡Se acerca el gran día!",
     storyTitleFallback: "Nuestra historia",
+    storyIllustrationAiNote: "Ilustración generada con inteligencia artificial",
     giftTitle: "Regalos",
     itinerary: { title: "Itinerario y lugares", comoLlegar: "Cómo llegar" },
     details: {
@@ -139,6 +143,8 @@ const es: Dict = {
       sectionAttendance: "Tu asistencia",
       sectionCompanions: "Tus acompañantes",
       thanks: "¡Gracias! Hemos recibido tu confirmación. 🤍",
+      sending: "Enviando…",
+      sendError: "No hemos podido enviar tu confirmación. Inténtalo de nuevo en unos minutos.",
       optional: "opcional",
       attendingQ: "¿Vienes a la boda?",
       busQ: "¿Necesitas autobús?",
@@ -186,6 +192,7 @@ const en: Dict = {
     hero: { saveTheDate: "Save the Date", forTheWeddingOf: "for the wedding of" },
     countdownTitle: "The big day is getting close!",
     storyTitleFallback: "Our story",
+    storyIllustrationAiNote: "Illustration generated with artificial intelligence",
     giftTitle: "Gifts",
     itinerary: { title: "Itinerary & venues", comoLlegar: "Get directions" },
     details: {
@@ -222,6 +229,8 @@ const en: Dict = {
       sectionAttendance: "Your attendance",
       sectionCompanions: "Your guests",
       thanks: "Thank you! We've received your RSVP. 🤍",
+      sending: "Sending…",
+      sendError: "We couldn't send your RSVP. Please try again in a few minutes.",
       optional: "optional",
       attendingQ: "Are you coming to the wedding?",
       busQ: "Do you need the shuttle bus?",

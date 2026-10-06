@@ -474,6 +474,15 @@
   height: auto;
   margin-inline: auto;
 }
+.storyFigure {
+  margin: 0;
+}
+.storyAiNote {
+  margin-top: 8px;
+  text-align: center;
+  font-size: var(--r-fs-small);
+  opacity: 0.7;
+}
 .storyText {
   max-width: 640px;
   text-align: center;

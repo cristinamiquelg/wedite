@@ -16,11 +16,11 @@ export function isKnownTemplateSlug(slug: string): slug is TemplateSlug {
 export function renderRsvpPage(
   slug: TemplateSlug,
   data: WeddingData,
-  opts: { backHref: string; initialLocale?: string },
+  opts: { backHref: string; initialLocale?: string; siteSlug?: string },
 ) {
   switch (slug) {
     case "ribera":
-      return <RiberaRsvpPage data={data} backHref={opts.backHref} initialLocale={opts.initialLocale} />;
+      return <RiberaRsvpPage data={data} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} />;
   }
 }
 

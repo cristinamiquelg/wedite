@@ -4,6 +4,7 @@ export function Field({
   required = false,
   requiredLabel = "Obligatorio",
   asDiv = false,
+  error,
   children,
 }: {
   label: string;
@@ -12,6 +13,8 @@ export function Field({
   requiredLabel?: string;
   /** Render a <div> instead of a <label>, for controls that aren't a single native input (e.g. the date picker's popover). */
   asDiv?: boolean;
+  /** Shown under the control in place of the hint, e.g. when a required field is left empty. */
+  error?: string;
   children: React.ReactNode;
 }) {
   const Wrapper = asDiv ? "div" : "label";
@@ -26,13 +29,19 @@ export function Field({
         ) : null}
       </span>
       {children}
-      {hint ? <span className="text-xs text-ink-soft">{hint}</span> : null}
+      {error ? (
+        <span role="alert" className="text-xs text-clay-dark">
+          {error}
+        </span>
+      ) : hint ? (
+        <span className="text-xs text-ink-soft">{hint}</span>
+      ) : null}
     </Wrapper>
   );
 }
 
 const baseInputClass =
-  "rounded-lg border border-line bg-paper-raised px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-clay";
+  "rounded-lg border border-line bg-paper-raised px-3.5 py-2.5 text-sm text-ink outline-none transition-colors focus:border-clay aria-[invalid=true]:border-clay-dark";
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
   return <input {...props} className={`${baseInputClass} ${props.className ?? ""}`} />;

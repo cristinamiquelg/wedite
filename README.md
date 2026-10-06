@@ -74,8 +74,11 @@ gasto propio.
 | `OPENAI_API_KEY` | Ilustración de "Nuestra historia" (`/api/story-illustration`) |
 | `OPENAI_IMAGE_MODEL` | Opcional: modelo de imagen (por defecto `gpt-image-1`) |
 | `RESEND_API_KEY` | Envío del formulario de contacto |
+| `EMAIL_FROM` | Remitente de los emails transaccionales, p. ej. `Wedite <hola@wedite.com>`. Hasta verificar el dominio en Resend (SPF y DKIM) solo funciona el remitente de pruebas `onboarding@resend.dev`, que entrega únicamente al dueño de la cuenta de Resend |
+| `RSVP_IP_SALT` | Opcional: sal para el hash de IP del límite anti-abuso del RSVP |
 | `SUPABASE_URL` | URL del proyecto de Supabase de ese entorno |
 | `SUPABASE_SERVICE_ROLE_KEY` | Clave **secreta** de Supabase (solo servidor; nunca en el cliente ni en el repositorio) |
+| `STAGING_PUBLIC` | Solo en **Preview** y solo de forma temporal: con `1`, las páginas de staging se abren sin contraseña (para una auditoría externa). La API y el panel `/ops` siguen protegidos. Quítala al terminar y redespliega |
 | `DASHBOARD_PATH_TOKEN` | Parte secreta de la URL del panel de analítica (`/ops/<token>`); mínimo 24 caracteres aleatorios |
 | `DASHBOARD_STAGING_SUPABASE_URL` / `DASHBOARD_STAGING_SERVICE_ROLE_KEY` | Solo en **Production**: dan al panel acceso a la base de datos de staging para ver ambos entornos desde una única URL (`wedite.com/ops/<token>`). No pongas claves de producción en Preview |
 | `DASHBOARD_PASSWORD` | Contraseña del panel de analítica. Obligatoria en Production; en Preview es opcional (staging ya está tras su propia contraseña) |
@@ -97,6 +100,26 @@ Un proyecto de Supabase por entorno, ambos en Irlanda (`eu-west-1`) por el RGPD:
 - Sin cuentas por ahora: una pareja gestiona su web con un enlace de edición
   secreto enviado por email (en base de datos solo se guarda su hash).
 - Los cobros (`payments`, `stripe_events`) llegan con la integración de Stripe.
+
+### Email de compra y respuestas de los invitados
+
+Cuando Stripe confirma el pago (webhook `checkout.session.completed`), la web de la
+pareja se publica y se envía **un** email de bienvenida (`src/lib/order-confirmation.ts`; la factura
+la manda Stripe): tarjeta con sus nombres y fecha, botón a su web, su dirección
+con botones de compartir por WhatsApp y por email, y un enlace privado a la
+tabla de respuestas. Si el envío
+falla, el webhook responde 500 y Stripe reintenta; `orders.confirmation_email_sent_at`
+evita duplicados.
+
+Las respuestas del formulario RSVP se guardan (`POST /api/rsvp` → tabla `rsvps`, con
+límite anti-abuso por IP hasheada). La pareja las ve en `/respuestas/<token>`
+(una línea por persona, filtros, orden, totales y descarga en CSV). El token es secreto: del enlace solo se
+guarda su hash (`sites.edit_token_hash`). Además la página pide un **código de acceso**
+(`XXXX-XXXX`, también en el email; solo se guarda su hash en `sites.responses_code_hash`):
+protege frente a un enlace que se filtre solo, no frente a reenviar el email entero.
+Tras 5 fallos desde una IP (o 25 por hora en total) el formulario se bloquea.
+No hay cuentas, así que si la pareja pierde el email todavía no hay forma de
+recuperar el enlace (pendiente).
 
 ### Analítica y panel privado
 

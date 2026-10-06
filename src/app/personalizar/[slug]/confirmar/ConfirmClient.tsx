@@ -1,47 +1,53 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 import type { Template } from "@/lib/templates";
 import { useWeddingDraft } from "@/lib/use-wedding-draft";
 import { formatLongDate } from "@/lib/format";
+import { missingAll } from "@/lib/wizard-required";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
-
-const TEST_CARD = {
-  name: "Laura García",
-  number: "4242 4242 4242 4242",
-  expiry: "12/29",
-  cvc: "123",
-};
+import StripeEmbeddedForm from "@/components/site/StripeEmbeddedForm";
 
 export default function ConfirmClient({ template }: { template: Template }) {
   const { data, loaded } = useWeddingDraft(template.slug);
   const [submitting, setSubmitting] = useState(false);
-  const [card, setCard] = useState({ name: "", number: "", expiry: "", cvc: "" });
-  const router = useRouter();
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState(false);
+  const [session, setSession] = useState<{ clientSecret: string; publishableKey: string } | null>(null);
   const { locale } = useSiteLocale();
-  const dict = getSiteDict(locale).checkout;
+  const siteDict = getSiteDict(locale);
+  const dict = siteDict.checkout;
+  // The checkout can be reached by URL, so it re-checks what the wizard enforces.
+  const missing = loaded ? missingAll(data) : [];
+  const missingLabels = missing.map((f) => siteDict.wizard.missing[f]).join(", ");
 
   const names =
     data.partnerA || data.partnerB
       ? `${data.partnerA || "..."} & ${data.partnerB || "..."}`
       : dict.yourWeddingFallback;
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitting(true);
+    setError(false);
     trackEvent("checkout_submit");
-    window.setTimeout(() => {
-      try {
-        window.localStorage.setItem(`wedite:purchased:${template.slug}`, "1");
-      } catch {
-        // storage unavailable — the confirmation still proceeds
-      }
-      router.push(`/gracias?slug=${template.slug}`);
-    }, 900);
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ slug: template.slug, email, locale, data }),
+      });
+      const body = (await res.json()) as { client_secret?: string; publishable_key?: string };
+      if (!res.ok || !body.client_secret || !body.publishable_key) throw new Error("checkout failed");
+      setSession({ clientSecret: body.client_secret, publishableKey: body.publishable_key });
+      setSubmitting(false);
+    } catch {
+      setError(true);
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -105,76 +111,73 @@ export default function ConfirmClient({ template }: { template: Template }) {
             <div className="mb-4 flex items-center justify-between">
               <p className="text-sm font-semibold text-ink">{dict.paymentData}</p>
               <span className="rounded-full bg-sage-light px-3 py-1 text-xs font-medium text-ink-soft">
-                {dict.demoMode}
+                {dict.securePayment}
               </span>
             </div>
-            <button
-              type="button"
-              onClick={() => setCard(TEST_CARD)}
-              className="mb-6 self-start text-sm font-medium text-clay underline underline-offset-4"
-            >
-              {dict.fillTestCard}
-            </button>
+            {missing.length > 0 ? (
+              <div role="alert" className="mb-4 rounded-lg border border-clay-dark/40 bg-clay/5 p-4 text-sm text-clay-dark">
+                <p>{dict.missingRequired(missingLabels)}</p>
+                <Link href={`/personalizar/${template.slug}`} className="mt-2 inline-block font-medium underline underline-offset-4">
+                  {dict.completeNow}
+                </Link>
+              </div>
+            ) : null}
+            {session ? (
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between gap-3 rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm">
+                  <span className="truncate text-ink">{email}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSession(null)}
+                    className="shrink-0 text-xs font-medium text-ink-soft underline underline-offset-4 hover:text-ink"
+                  >
+                    {dict.editEmail}
+                  </button>
+                </div>
+                <StripeEmbeddedForm
+                  clientSecret={session.clientSecret}
+                  publishableKey={session.publishableKey}
+                  onError={() => setError(true)}
+                />
+                {error && (
+                  <p role="alert" className="text-center text-sm text-clay">
+                    {dict.payError}
+                  </p>
+                )}
+                <p className="text-center text-xs text-ink-soft">{dict.disclaimer}</p>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <label className="flex flex-col gap-1.5 text-sm">
-                <span className="font-medium text-ink">{dict.cardName}</span>
+                <span className="font-medium text-ink">{dict.email}</span>
                 <input
                   required
-                  type="text"
-                  placeholder="Laura García"
-                  value={card.name}
-                  onChange={(e) => setCard((c) => ({ ...c, name: e.target.value }))}
+                  type="email"
+                  autoComplete="email"
+                  placeholder="laura@ejemplo.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-clay"
                 />
+                <span className="text-xs text-ink-soft">{dict.emailHint}</span>
               </label>
-              <label className="flex flex-col gap-1.5 text-sm">
-                <span className="font-medium text-ink">{dict.cardNumber}</span>
-                <input
-                  required
-                  inputMode="numeric"
-                  type="text"
-                  placeholder="4242 4242 4242 4242"
-                  value={card.number}
-                  onChange={(e) => setCard((c) => ({ ...c, number: e.target.value }))}
-                  className="rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-clay"
-                />
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <label className="flex flex-col gap-1.5 text-sm">
-                  <span className="font-medium text-ink">{dict.expiry}</span>
-                  <input
-                    required
-                    type="text"
-                    placeholder="MM/AA"
-                    value={card.expiry}
-                    onChange={(e) => setCard((c) => ({ ...c, expiry: e.target.value }))}
-                    className="rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-clay"
-                  />
-                </label>
-                <label className="flex flex-col gap-1.5 text-sm">
-                  <span className="font-medium text-ink">{dict.cvc}</span>
-                  <input
-                    required
-                    inputMode="numeric"
-                    type="text"
-                    placeholder="123"
-                    value={card.cvc}
-                    onChange={(e) => setCard((c) => ({ ...c, cvc: e.target.value }))}
-                    className="rounded-lg border border-line bg-paper px-3.5 py-2.5 text-sm outline-none focus:border-clay"
-                  />
-                </label>
-              </div>
               <button
                 type="submit"
-                disabled={submitting}
+                disabled={submitting || missing.length > 0}
                 className="mt-4 w-full rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
               >
-                {submitting ? dict.confirming : dict.confirmBuy(template.price)}
+                {submitting ? dict.confirming : dict.continuePay}
               </button>
+              {error && (
+                <p role="alert" className="text-center text-sm text-clay">
+                  {dict.payError}
+                </p>
+              )}
               <p className="text-center text-xs text-ink-soft">
                 {dict.disclaimer}
               </p>
             </form>
+            )}
           </div>
         </div>
       </div>

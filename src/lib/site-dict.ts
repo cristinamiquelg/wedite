@@ -74,8 +74,8 @@ type SiteDict = {
     bodyPre: string;
     templateFallback: string;
     bodyPost: string;
+    rsvpEmail: string;
     viewSite: string;
-    keepEditing: string;
     backToCatalog: string;
   };
   contact: {
@@ -95,6 +95,8 @@ type SiteDict = {
   };
   checkout: {
     backEdit: string;
+    missingRequired: (labels: string) => string;
+    completeNow: string;
     summary: string;
     yourWeddingFallback: string;
     design: string;
@@ -104,14 +106,14 @@ type SiteDict = {
     totalOnce: string;
     reviewBeforeBuy: string;
     paymentData: string;
-    demoMode: string;
-    fillTestCard: string;
-    cardName: string;
-    cardNumber: string;
-    expiry: string;
-    cvc: string;
+    securePayment: string;
+    email: string;
+    emailHint: string;
+    payError: string;
     confirming: string;
     confirmBuy: (price: number) => string;
+    continuePay: string;
+    editEmail: string;
     disclaimer: string;
   };
   wizard: {
@@ -125,6 +127,8 @@ type SiteDict = {
     back: string;
     next: string;
     reviewAndBuy: string;
+    completeToContinue: (labels: string) => string;
+    missing: { partnerA: string; partnerB: string; date: string };
     stepLabels: {
       language: string;
       couple: string;
@@ -134,6 +138,7 @@ type SiteDict = {
       details: string;
     };
     required: string;
+    fieldRequired: string;
     remove: string;
     maxChars: (n: number) => string;
     stepLanguage: { intro: string; included: string };
@@ -329,9 +334,10 @@ const es: SiteDict = {
     h1: "¡Enhorabuena! Vuestra web ya está lista",
     bodyPre: "Hemos generado vuestra web de boda con el diseño",
     templateFallback: "elegido",
-    bodyPost: "Podéis seguir editándola cuando queráis y compartirla con vuestros invitados.",
+    bodyPost: ". Ya podéis compartirla con vuestros invitados.",
+    rsvpEmail:
+      "Recibiréis en vuestro email el enlace a la tabla donde llegarán las respuestas de vuestros invitados al formulario de confirmación.",
     viewSite: "Ver vuestra web",
-    keepEditing: "Seguir editando",
     backToCatalog: "← Volver al catálogo",
   },
   contact: {
@@ -352,6 +358,8 @@ const es: SiteDict = {
   },
   checkout: {
     backEdit: "← Seguir editando",
+    missingRequired: (labels) => `Antes de comprar, completad: ${labels}.`,
+    completeNow: "Completar ahora",
     summary: "Resumen",
     yourWeddingFallback: "Vuestra boda",
     design: "Diseño",
@@ -360,16 +368,16 @@ const es: SiteDict = {
     venueTBD: "Por confirmar",
     totalOnce: "Total, pago único",
     reviewBeforeBuy: "Revisar la vista previa antes de comprar",
-    paymentData: "Datos de pago",
-    demoMode: "Modo demo · sin cobro real",
-    fillTestCard: "Rellenar con tarjeta de prueba",
-    cardName: "Nombre en la tarjeta",
-    cardNumber: "Número de tarjeta",
-    expiry: "Caducidad",
-    cvc: "CVC",
-    confirming: "Confirmando...",
-    confirmBuy: (price) => `Confirmar compra · ${price} €`,
-    disclaimer: "Al confirmar aceptáis los términos del servicio. Sin llamadas, sin papeleo: vuestra web queda lista al instante.",
+    paymentData: "Pago",
+    securePayment: "Pago seguro con Stripe",
+    email: "Correo electrónico",
+    emailHint: "Aquí recibiréis la factura y el enlace a la tabla con las respuestas de vuestros invitados.",
+    payError: "No hemos podido iniciar el pago. Inténtalo de nuevo en unos minutos.",
+    confirming: "Preparando el pago...",
+    confirmBuy: (price) => `Pagar · ${price} €`,
+    continuePay: "Continuar al pago",
+    editEmail: "Cambiar email",
+    disclaimer: "Al pagar aceptáis los términos del servicio. Precio con IVA incluido.",
   },
   wizard: {
     savingAuto: "Guardado automáticamente",
@@ -382,6 +390,8 @@ const es: SiteDict = {
     back: "Atrás",
     next: "Siguiente",
     reviewAndBuy: "Revisar y comprar",
+    completeToContinue: (labels) => `Para continuar, completad: ${labels}.`,
+    missing: { partnerA: "vuestro nombre", partnerB: "el nombre de tu pareja", date: "la fecha de la boda" },
     stepLabels: {
       language: "Idioma",
       couple: "Pareja y fecha",
@@ -391,6 +401,7 @@ const es: SiteDict = {
       details: "Detalles",
     },
     required: "Obligatorio",
+    fieldRequired: "Este dato es obligatorio",
     remove: "Quitar",
     maxChars: (n) => `Máx. ${n} caracteres`,
     stepLanguage: {
@@ -416,7 +427,7 @@ const es: SiteDict = {
       yourStoryHint: "Cómo os conocisteis, algún hito importante, por qué os casáis.",
       yourStoryPlaceholder: "Nos conocimos...",
       storyImage: "Foto (opcional)",
-      storyImageHint: "Convertiremos vuestra foto en una ilustración a trazo para acompañar vuestra historia.",
+      storyImageHint: "Convertiremos vuestra foto en una ilustración a trazo, generada con inteligencia artificial (OpenAI), para acompañar vuestra historia. La foto se envía a OpenAI solo para crearla y se indicará en la web que la ilustración está generada con IA.",
       storyImageChoose: "Elegir imagen",
       storyImageRemove: "Quitar",
       storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto.",
@@ -590,9 +601,10 @@ const en: SiteDict = {
     h1: "Congratulations! Your website is ready",
     bodyPre: "We've generated your wedding website with the",
     templateFallback: "chosen",
-    bodyPost: "design. You can keep editing it whenever you like and share it with your guests.",
+    bodyPost: " design. You can now share it with your guests.",
+    rsvpEmail:
+      "You'll receive an email with the link to the table where your guests' answers to the RSVP form will arrive.",
     viewSite: "View your website",
-    keepEditing: "Keep editing",
     backToCatalog: "← Back to the catalog",
   },
   contact: {
@@ -613,6 +625,8 @@ const en: SiteDict = {
   },
   checkout: {
     backEdit: "← Keep editing",
+    missingRequired: (labels) => `Before buying, please fill in: ${labels}.`,
+    completeNow: "Complete now",
     summary: "Summary",
     yourWeddingFallback: "Your wedding",
     design: "Design",
@@ -621,16 +635,16 @@ const en: SiteDict = {
     venueTBD: "To be confirmed",
     totalOnce: "Total, one-time payment",
     reviewBeforeBuy: "Review the preview before buying",
-    paymentData: "Payment details",
-    demoMode: "Demo mode · no real charge",
-    fillTestCard: "Fill in with a test card",
-    cardName: "Name on card",
-    cardNumber: "Card number",
-    expiry: "Expiry",
-    cvc: "CVC",
-    confirming: "Confirming...",
-    confirmBuy: (price) => `Confirm purchase · €${price}`,
-    disclaimer: "By confirming you accept the terms of service. No calls, no paperwork: your website is ready instantly.",
+    paymentData: "Payment",
+    securePayment: "Secure payment with Stripe",
+    email: "Email",
+    emailHint: "We'll send the invoice and the link to the table with your guests' answers here.",
+    payError: "We couldn't start the payment. Please try again in a few minutes.",
+    confirming: "Preparing payment...",
+    confirmBuy: (price) => `Pay · €${price}`,
+    continuePay: "Continue to payment",
+    editEmail: "Change email",
+    disclaimer: "By paying you accept the terms of service. Price includes VAT.",
   },
   wizard: {
     savingAuto: "Saved automatically",
@@ -643,6 +657,8 @@ const en: SiteDict = {
     back: "Back",
     next: "Next",
     reviewAndBuy: "Review and buy",
+    completeToContinue: (labels) => `To continue, please fill in: ${labels}.`,
+    missing: { partnerA: "your name", partnerB: "your partner's name", date: "the wedding date" },
     stepLabels: {
       language: "Language",
       couple: "Couple and date",
@@ -652,6 +668,7 @@ const en: SiteDict = {
       details: "Details",
     },
     required: "Required",
+    fieldRequired: "This field is required",
     remove: "Remove",
     maxChars: (n) => `Max. ${n} characters`,
     stepLanguage: {
@@ -677,7 +694,7 @@ const en: SiteDict = {
       yourStoryHint: "How you met, a key milestone, why you're getting married.",
       yourStoryPlaceholder: "We met...",
       storyImage: "Photo (optional)",
-      storyImageHint: "We'll turn your photo into a line illustration to go alongside your story.",
+      storyImageHint: "We'll turn your photo into a line illustration, generated with artificial intelligence (OpenAI), to go alongside your story. The photo is sent to OpenAI only to create it, and your site will state that the illustration is AI-generated.",
       storyImageChoose: "Choose image",
       storyImageRemove: "Remove",
       storyImageDrawing: "Drawing your illustration… this can take up to a minute.",
