@@ -135,74 +135,42 @@ function Funnel({ funnel }: { funnel: DashboardStats["funnel"] }) {
   );
 }
 
-// The purchase funnel in detail: per stage, who gets there, who moves on, who stays,
-// and how long it takes to move on (median first, since a few slow visits skew an average).
-function StageTable({ times }: { times: StageTimes }) {
-  const r = times.reached;
-  const stages = [
-    { key: "visited", label: "Visitan la web", reached: r.visited, next: r.viewed_template },
-    { key: "viewed_template", label: "Ven una plantilla", reached: r.viewed_template, next: r.started },
-    { key: "started", label: "Empiezan a configurar", reached: r.started, next: r.checkout },
-    { key: "checkout", label: "Llegan al pago", reached: r.checkout, next: r.completed },
-    { key: "completed", label: "Compran", reached: r.completed, next: null },
+// How long visits take to move between purchase-funnel stages. Median first, since a
+// few very slow visits skew an average.
+function StageTimeTable({ times }: { times: StageTimes }) {
+  const rows = [
+    { key: "visited", label: "Visitan la web → ven una plantilla" },
+    { key: "viewed_template", label: "Ven una plantilla → empiezan a configurar" },
+    { key: "started", label: "Empiezan a configurar → llegan al pago" },
+    { key: "checkout", label: "Llegan al pago → compran" },
+    { key: "total", label: "De la primera visita a la compra" },
   ] as const;
-  const total = times.gaps.total;
-  if (r.visited === 0) return <Empty />;
+  if (Object.keys(times.gaps).length === 0) return <Empty />;
   return (
     <div className="overflow-x-auto">
       <table className="w-full min-w-max text-left text-sm">
         <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
           <tr>
-            <th className="py-2 pr-4 font-normal">Etapa</th>
-            <th className="py-2 pr-4 text-right font-normal">Llegan</th>
-            <th className="py-2 pr-4 text-right font-normal">Pasan a la siguiente</th>
-            <th className="py-2 pr-4 text-right font-normal">Se quedan aquí</th>
-            <th className="py-2 pr-4 text-right font-normal">Tiempo hasta la siguiente</th>
-            <th className="py-2 text-right font-normal">Media</th>
+            <th className="py-2 pr-4 font-normal">Tramo</th>
+            <th className="py-2 pr-4 text-right font-normal">Mediana</th>
+            <th className="py-2 pr-4 text-right font-normal">Media</th>
+            <th className="py-2 text-right font-normal">Visitas</th>
           </tr>
         </thead>
         <tbody>
-          {stages.map((st) => {
-            const gap = st.key === "completed" ? undefined : times.gaps[st.key];
+          {rows.map((r) => {
+            const gap = times.gaps[r.key];
             return (
-              <tr key={st.key} className="border-t border-line tabular-nums">
-                <td className="py-2 pr-4 font-sans">{st.label}</td>
-                <td className="py-2 pr-4 text-right">{nf.format(st.reached)}</td>
-                <td className="py-2 pr-4 text-right">
-                  {st.next === null ? "–" : (
-                    <>
-                      {nf.format(st.next)} <span className="text-ink-soft">· {pct1(st.next, st.reached)}</span>
-                    </>
-                  )}
-                </td>
-                <td className="py-2 pr-4 text-right">
-                  {st.next === null ? "–" : (
-                    <>
-                      {nf.format(Math.max(st.reached - st.next, 0))}{" "}
-                      <span className="text-ink-soft">· {pct1(Math.max(st.reached - st.next, 0), st.reached)}</span>
-                    </>
-                  )}
-                </td>
-                <td className="py-2 pr-4 text-right">
-                  {st.next === null ? "–" : gap ? (
-                    <>
-                      {duration(gap.median_seconds)} <span className="text-ink-soft">· {nf.format(gap.n)} {gap.n === 1 ? "visita" : "visitas"}</span>
-                    </>
-                  ) : (
-                    <span className="text-ink-soft">sin datos</span>
-                  )}
-                </td>
-                <td className="py-2 text-right">{st.next === null ? "–" : gap ? duration(gap.avg_seconds) : "–"}</td>
+              <tr key={r.key} className={`tabular-nums ${r.key === "total" ? "border-t-2 border-line font-medium" : "border-t border-line"}`}>
+                <td className="py-2 pr-4 font-sans">{r.label}</td>
+                <td className="py-2 pr-4 text-right">{gap ? duration(gap.median_seconds) : <span className="font-normal text-ink-soft">sin datos</span>}</td>
+                <td className="py-2 pr-4 text-right">{gap ? duration(gap.avg_seconds) : "–"}</td>
+                <td className="py-2 text-right text-ink-soft">{gap ? nf.format(gap.n) : "–"}</td>
               </tr>
             );
           })}
         </tbody>
       </table>
-      <p className="mt-3 text-xs text-ink-soft">
-        {total
-          ? `De la primera visita a la compra: ${duration(total.median_seconds)} de mediana (${duration(total.avg_seconds)} de media), en ${nf.format(total.n)} ${total.n === 1 ? "compra" : "compras"}.`
-          : "Aún no hay compras con las que medir el tiempo de la primera visita a la compra."}
-      </p>
     </div>
   );
 }
@@ -432,11 +400,11 @@ function Body({
       </Card>
 
       <Card
-        title="Tiempo y abandono por etapa"
-        hint={`${filterText ? `${filterText} · ` : ""}Embudo de compra en detalle: quién llega, quién pasa a la siguiente etapa, quién se queda y cuánto tarda. Tiempo = de la primera vez que llega a una etapa a la primera vez que llega a la siguiente (se ignoran pausas de más de 2 h)`}
+        title="Tiempo por etapa"
+        hint={`${filterText ? `${filterText} · ` : ""}Cuánto tarda una visita en pasar de una etapa del embudo de compra a la siguiente: de la primera vez que llega a una a la primera vez que llega a la siguiente (se ignoran pausas de más de 2 h). Mira la mediana: unas pocas visitas muy lentas inflan la media`}
       >
         {stageTimes ? (
-          <StageTable times={stageTimes} />
+          <StageTimeTable times={stageTimes} />
         ) : (
           <p className="text-sm text-ink-soft">Falta aplicar la migración «dashboard_stage_times» en esta base de datos.</p>
         )}
