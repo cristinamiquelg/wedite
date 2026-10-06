@@ -36,7 +36,8 @@ a couple's own site (`wedite.com/<name>`) is deliberately not reported.
 4. UI: `src/app/ops/[token]/` — `page.tsx` (auth, URL params, loading),
    `Dashboard.tsx` (layout, cards, funnels), `charts.tsx` (tooltip bubble, bar list,
    stacked daily chart, segment table), `PeriodMenu.tsx` (client: period button +
-   shortcuts + start/end calendars, reuses `components/customize/DatePicker`).
+   shortcuts + start/end calendars, reuses `components/customize/DatePicker`),
+   `SegmentMenu.tsx` (client: per-chart segment dropdown).
 5. Helpers: `src/lib/dashboard-range.ts` (period parsing, Madrid days, DST-safe
    `startOfDayMadrid`, `queryWindow`), `src/lib/dashboard-url.ts` (`dashHref`:
    every control keeps the others' choices). Auth: `src/lib/dashboard-auth.ts`.
@@ -47,7 +48,7 @@ a couple's own site (`wedite.com/<name>`) is deliberately not reported.
 `?env=production|staging` · `?r=today|yesterday|7d|30d|90d|month|lastmonth` or
 `?from=YYYY-MM-DD&to=YYYY-MM-DD` (Madrid days, max 366, `to` ≤ today; old `?d=30`
 still works; default 7d) · `?fk=<source|locale|device|country>&fv=<value>` (filter,
-one at a time) · `?gb=<same kinds>` (segment).
+one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-visits chart, the purchase funnel and the wizard funnel; each chart has its own, set from the icon in its card header via `SegmentMenu.tsx`).
 
 ## Definitions (keep them consistent)
 
