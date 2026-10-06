@@ -17,6 +17,8 @@ const COPY = {
     summary: { responses: "Respuestas recibidas", attending: "Personas que vienen", declined: "No vienen", bus: "Necesitan autobús" },
     download: "Descargar Excel",
     viewSite: "Ver vuestra web",
+    retention:
+      "Por privacidad de vuestros invitados, estas respuestas se borran automáticamente 90 días después de la boda. Descargad el Excel antes si queréis conservarlas.",
     table: {
       filters: { all: "Todos", yes: "Vienen", no: "No vienen", bus: "Autobús", diet: "Alergias o dieta" },
       sortLabel: "Ordenar por",
@@ -35,6 +37,8 @@ const COPY = {
     summary: { responses: "Answers received", attending: "People coming", declined: "Not coming", bus: "Need the bus" },
     download: "Download Excel",
     viewSite: "View your website",
+    retention:
+      "To protect your guests' privacy, these answers are deleted automatically 90 days after the wedding. Download the Excel first if you want to keep them.",
     table: {
       filters: { all: "Everyone", yes: "Coming", no: "Not coming", bus: "Bus", diet: "Allergies or diet" },
       sortLabel: "Sort by",
@@ -100,6 +104,8 @@ export default async function ResponsesPage({ params }: { params: Promise<{ toke
       <div className="mt-6">
         <ResponsesTable rows={view.people} locale={view.locale} copy={t.table} />
       </div>
+
+      <p className="mt-6 text-xs text-ink-soft">{t.retention}</p>
     </main>
   );
 }
