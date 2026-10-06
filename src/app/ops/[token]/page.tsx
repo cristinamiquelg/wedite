@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { dashboardConfig, dashboardIsPasswordless, hasDashboardSession, tokenMatches } from "@/lib/dashboard-auth";
+import { dashboardConfig, hasDashboardSession, tokenMatches } from "@/lib/dashboard-auth";
 import { parseRange } from "@/lib/dashboard-range";
 import {
   loadDashboardSegments,
@@ -70,7 +70,6 @@ export default async function DashboardPage({
   return (
     <Dashboard
       token={token}
-      canLogout={!dashboardIsPasswordless()}
       source={source}
       range={range}
       filter={filter}
