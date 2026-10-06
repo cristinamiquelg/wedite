@@ -15,6 +15,14 @@ function CalendarIcon() {
   );
 }
 
+function CheckIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 text-clay">
+      <path d="M5 10.5l3.2 3.2L15 6.8" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 const PICKER_LABELS = { locale: "es-ES", prevMonthLabel: "Mes anterior", nextMonthLabel: "Mes siguiente" };
 
 // One button that says which period is on (e.g. "Últimos 7 días · 30 sept – 6 oct")
@@ -87,51 +95,59 @@ export default function PeriodMenu({
           id={panelId}
           role="dialog"
           aria-label="Cambiar el periodo"
-          className="absolute right-0 top-full z-30 mt-2 w-[20rem] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-line bg-paper-raised p-4 shadow-[0_24px_50px_-24px_rgba(33,29,26,0.35)]"
+          className="absolute right-0 top-full z-30 mt-2 w-[34rem] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-line bg-paper-raised p-5 shadow-[0_24px_50px_-24px_rgba(33,29,26,0.35)]"
         >
-          <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Atajos</p>
-          <nav aria-label="Atajos de periodo" className="mt-2 flex flex-wrap gap-1.5">
-            {PRESETS.map((p) => {
-              const on = view.range.preset === p.key;
-              return (
-                <a
-                  key={p.key}
-                  href={dashHref(token, view, { range: { from: view.range.from, to: view.range.to, preset: p.key } })}
-                  aria-current={on ? "true" : undefined}
-                  className={`rounded-full border px-3 py-1.5 text-sm transition-colors ${
-                    on ? "border-ink bg-ink text-paper" : "border-line text-ink-soft hover:border-ink hover:text-ink"
-                  }`}
-                >
-                  {p.label}
-                </a>
-              );
-            })}
-          </nav>
+          <div className="grid gap-6 sm:grid-cols-[10.5rem_1fr]">
+            <nav aria-label="Atajos de periodo">
+              <p className="px-3 text-xs uppercase tracking-[0.14em] text-ink-soft">Atajos</p>
+              <ul className="mt-2 space-y-0.5">
+                {PRESETS.map((p) => {
+                  const on = view.range.preset === p.key;
+                  return (
+                    <li key={p.key}>
+                      <a
+                        href={dashHref(token, view, { range: { from: view.range.from, to: view.range.to, preset: p.key } })}
+                        aria-current={on ? "true" : undefined}
+                        className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors ${
+                          on ? "bg-sage-light font-medium text-ink" : "text-ink-soft hover:bg-sage-light hover:text-ink"
+                        }`}
+                      >
+                        {p.label}
+                        {on ? <CheckIcon /> : null}
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            </nav>
 
-          <p className="mt-4 text-xs uppercase tracking-[0.14em] text-ink-soft">Personalizado</p>
-          <div className="mt-2 grid gap-2.5">
-            <div className="flex flex-col gap-1 text-xs text-ink-soft">
-              <span>Desde</span>
-              <DatePicker
-                value={from}
-                max={to}
-                onChange={(v) => v && go(v, to)}
-                placeholder="Inicio"
-                ariaLabel="Fecha de inicio"
-                {...PICKER_LABELS}
-              />
-            </div>
-            <div className="flex flex-col gap-1 text-xs text-ink-soft">
-              <span>Hasta</span>
-              <DatePicker
-                value={to}
-                min={from}
-                max={today}
-                onChange={(v) => v && go(from, v)}
-                placeholder="Fin"
-                ariaLabel="Fecha de fin"
-                {...PICKER_LABELS}
-              />
+            <div className="sm:border-l sm:border-line sm:pl-6">
+              <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Personalizado</p>
+              <div className="mt-3 grid gap-4">
+                <div className="flex flex-col gap-1.5 text-xs text-ink-soft">
+                  <span>Desde</span>
+                  <DatePicker
+                    value={from}
+                    max={to}
+                    onChange={(v) => v && go(v, to)}
+                    placeholder="Inicio"
+                    ariaLabel="Fecha de inicio"
+                    {...PICKER_LABELS}
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5 text-xs text-ink-soft">
+                  <span>Hasta</span>
+                  <DatePicker
+                    value={to}
+                    min={from}
+                    max={today}
+                    onChange={(v) => v && go(from, v)}
+                    placeholder="Fin"
+                    ariaLabel="Fecha de fin"
+                    {...PICKER_LABELS}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>

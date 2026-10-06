@@ -6,11 +6,13 @@ import {
   loadDashboardSegments,
   loadDashboardStats,
   loadMonthlyVisits,
+  loadStageTimes,
   parseFilter,
   parseSegmentDim,
   SourceNotConfiguredError,
   type DashboardSegments,
   type DashboardStats,
+  type StageTimes,
   type SegmentDim,
 } from "@/lib/dashboard-stats";
 import { currentSource, type DataSource } from "@/lib/supabase/admin";
@@ -30,7 +32,7 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ r?: string; from?: string; to?: string; d?: string; env?: string; fk?: string; fv?: string; sd?: string; sf?: string; sw?: string }>;
+  searchParams: Promise<{ r?: string; from?: string; to?: string; d?: string; env?: string; fk?: string; fv?: string; sd?: string; sf?: string }>;
 }) {
   const { token } = await params;
   // Unconfigured, or a wrong token: exactly like any page that doesn't exist.
@@ -38,12 +40,12 @@ export default async function DashboardPage({
 
   if (!(await hasDashboardSession())) return <LoginForm token={token} />;
 
-  const { r, from, to, d, env, fk, fv, sd, sf, sw } = await searchParams;
+  const { r, from, to, d, env, fk, fv, sd, sf } = await searchParams;
   const range = parseRange({ r, from, to, d });
   const source: DataSource = env === "staging" || env === "production" ? env : currentSource();
 
   const filter = parseFilter(fk, fv);
-  const seg: SegmentSelection = { daily: parseSegmentDim(sd), purchase: parseSegmentDim(sf), wizard: parseSegmentDim(sw) };
+  const seg: SegmentSelection = { daily: parseSegmentDim(sd), purchase: parseSegmentDim(sf) };
 
   let stats: DashboardStats | null = null;
   let problem: string | null = null;
@@ -56,6 +58,17 @@ export default async function DashboardPage({
         : err instanceof SourceNotConfiguredError
         ? `Este despliegue no tiene acceso a la base de datos de ${source === "staging" ? "staging" : "producción"}. Faltan las variables DASHBOARD_${source.toUpperCase()}_SUPABASE_URL y DASHBOARD_${source.toUpperCase()}_SERVICE_ROLE_KEY.`
         : `No se han podido cargar los datos de ${source === "staging" ? "staging" : "producción"}. ¿Está aplicada la migración de analítica en esa base de datos?`;
+  }
+
+  // Time and drop-off per funnel stage. Optional, like the segments: if its migration
+  // isn't applied the rest of the dashboard still shows.
+  let stageTimes: StageTimes | null = null;
+  if (stats) {
+    try {
+      stageTimes = await loadStageTimes(range, source, filter);
+    } catch {
+      stageTimes = null;
+    }
   }
 
   // MAU: distinct visits over the 30 days ending on the period's last day.
@@ -96,6 +109,7 @@ export default async function DashboardPage({
       segmentsByDim={segmentsByDim}
       segmentsProblem={segmentsProblem}
       mau={mau}
+      stageTimes={stageTimes}
       stats={stats}
       problem={problem}
     />

@@ -48,7 +48,7 @@ a couple's own site (`wedite.com/<name>`) is deliberately not reported.
 `?env=production|staging` · `?r=today|yesterday|7d|30d|90d|month|lastmonth` or
 `?from=YYYY-MM-DD&to=YYYY-MM-DD` (Madrid days, max 366, `to` ≤ today; old `?d=30`
 still works; default 7d) · `?fk=<source|locale|device|country>&fv=<value>` (filter,
-one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-visits chart, the purchase funnel and the wizard funnel; each chart has its own, set from the icon in its card header via `SegmentMenu.tsx`).
+one at a time) · `?sd=` / `?sf=<same kinds>` (segment of the daily-visits chart and the purchase funnel; each chart has its own, set from the icon in its card header via `SegmentMenu.tsx`).
 
 ## Definitions (keep them consistent)
 
@@ -58,7 +58,7 @@ one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-vis
   **nested**: a visit counts at a stage if it reached that stage or a later one, so
   no step exceeds the previous one. "Llegan al pago" = opened the payment page, not
   paid. Real payment truth is `orders.status = 'paid'` (set only by the Stripe webhook).
-- **Wizard funnel**: steps `language` (which languages the couple's site offers),
+- **Wizard funnel**: *removed from the dashboard at the owner's request* (the data — `steps`, per-step time, drop-off — is still computed). Steps `language` (which languages the couple's site offers),
   `couple`, `story`, `itinerary`, `details`, `rsvp`; "reached" = opened that step or a
   later one. Time per step uses the gap to the visit's next event, ignoring gaps over
   30 min. Drop-off = last step opened by visits that never reach payment.
@@ -73,8 +73,9 @@ one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-vis
   sum of `amount_cents` of orders paid in the period (by `paid_at`, VAT included); Ticket
   medio = facturación / paid orders. `business.*_period` fields only exist after the
   `period_revenue` migration; the UI shows "–" until then.
+- **Tiempo y abandono por etapa** (`dashboard_stage_times`, migration `20261008000001_stage_times`): per purchase-funnel stage — reach (nested), pass to next, stay, median/mean time to the next stage (first time on each stage's page; gaps > 2 h ignored; zero/negative gaps ignored). Optional like segments: if the function is missing the card says so. It replaced the old wizard-step time and drop-off cards.
 - **Plantillas table**: per template, nested like the funnel (la ven → empiezan a configurar
-  → llegan al pago → compran), % over those who see it.
+  → llegan al pago → compran), % over those who see it (the "la ven" column itself is not shown).
 - Business numbers come from product tables (`sites`, `orders`, …), not events.
 - With few visits (< 30) the dashboard says percentages aren't reliable; keep that.
 
@@ -89,7 +90,7 @@ one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-vis
 - Order: code can go first only if the app tolerates the DB lagging (segments are
   optional and caught; `dashboard_stats` additions are not). Apply the migration to
   **staging**, check, then **production**, then merge.
-- Migrations so far: `…0001_mvp_core`, `…0002_analytics`, `20261004000001_analytics_insights`, `…000002_nested_funnel`, `20261006000001_dashboard_segments`, `20261007000001_period_revenue` (replaces `dashboard_stats`; also drops guest/RSVP data).
+- Migrations so far: `…0001_mvp_core`, `…0002_analytics`, `20261004000001_analytics_insights`, `…000002_nested_funnel`, `20261006000001_dashboard_segments`, `20261008000001_stage_times` (new function), `20261007000001_period_revenue` (replaces `dashboard_stats`; also drops guest/RSVP data).
 - The user applies migrations by pasting the file into the Supabase **SQL Editor**
   (`wedite-staging` = `lglyotjdmfyvnikjjsva`, `wedite-prod` = `hbtpmguhjfrflrwzsoqr`).
   Known gotchas to tell them: paste the *contents*, not the path; select-all before
