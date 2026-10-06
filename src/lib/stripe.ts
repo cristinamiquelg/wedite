@@ -8,10 +8,7 @@ let client: Stripe | null = null;
 export function stripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error("STRIPE_SECRET_KEY is not set for this environment.");
-  // Pinned version + preview flag required by the embedded payment form (ui_mode "form").
-  client ??= new Stripe(key, {
-    apiVersion: "2026-03-25.dahlia; custom_checkout_payment_form_preview=v1" as Stripe.LatestApiVersion,
-  });
+  client ??= new Stripe(key);
   return client;
 }
 

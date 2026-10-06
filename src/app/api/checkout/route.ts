@@ -106,13 +106,14 @@ export async function POST(request: NextRequest) {
   try {
     const session = await stripe().checkout.sessions.create({
       mode: "payment",
-      // Embedded payment form (Stripe.js initCheckoutFormSdk), mounted on our page.
-      ui_mode: "form",
+      // Stripe-hosted payment page (the customer is redirected to session.url).
+      ui_mode: "hosted_page",
       billing_address_collection: "auto",
       phone_number_collection: { enabled: false },
+      allow_promotion_codes: false,
       submit_type: "auto",
       name_collection: { individual: { enabled: true } },
-      integration_identifier: "custom_embedded_web_0001",
+      origin_context: "web",
       customer_email: email,
       client_reference_id: order.id,
       locale,
@@ -133,16 +134,12 @@ export async function POST(request: NextRequest) {
         invoice_data: { description: `Wedite ${template.name} · pedido ${order.number}` },
       },
       metadata: { order_id: order.id, site_id: site.id, order_number: order.number },
-      // Where Stripe sends the customer after payment (the form has no success_url/cancel_url).
-      return_url: `${origin}/gracias?slug=${template.slug}&site=${site.slug}&order=${order.number}`,
+      success_url: `${origin}/gracias?slug=${template.slug}&site=${site.slug}&order=${order.number}`,
+      cancel_url: `${origin}/personalizar/${template.slug}/confirmar`,
     });
     await db.from("orders").update({ stripe_checkout_session_id: session.id }).eq("id", order.id);
-    const publishableKey =
-      process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? process.env.STRIPE_PUBLISHABLE_KEY;
-    if (!session.client_secret || !publishableKey) {
-      throw new Error("Missing client_secret or publishable key");
-    }
-    return NextResponse.json({ client_secret: session.client_secret, publishable_key: publishableKey });
+    if (!session.url) throw new Error("Checkout Session has no url");
+    return NextResponse.json({ url: session.url });
   } catch (err) {
     console.error("checkout: Stripe session failed", err);
     await db.from("orders").update({ status: "failed" }).eq("id", order.id);
