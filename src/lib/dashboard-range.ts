@@ -6,13 +6,13 @@ export const TZ = "Europe/Madrid";
 export const MAX_RANGE_DAYS = 366;
 
 export const PRESETS = [
-  { key: "today", label: "Hoy" },
-  { key: "yesterday", label: "Ayer" },
-  { key: "7d", label: "7 días" },
-  { key: "30d", label: "30 días" },
-  { key: "90d", label: "90 días" },
-  { key: "month", label: "Este mes" },
-  { key: "lastmonth", label: "Mes pasado" },
+  { key: "today", label: "Hoy", full: "Hoy" },
+  { key: "yesterday", label: "Ayer", full: "Ayer" },
+  { key: "7d", label: "7 días", full: "Últimos 7 días" },
+  { key: "30d", label: "30 días", full: "Últimos 30 días" },
+  { key: "90d", label: "90 días", full: "Últimos 90 días" },
+  { key: "month", label: "Este mes", full: "Este mes" },
+  { key: "lastmonth", label: "Mes pasado", full: "Mes pasado" },
 ] as const;
 export type PresetKey = (typeof PRESETS)[number]["key"];
 
