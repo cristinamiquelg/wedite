@@ -68,8 +68,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           data-config="https://golexvibe.com/api/widget-config/9c792a55-4811-499c-bd5a-a61abb57aa9c"
           data-ingest="https://golexvibe.com/api/consent"
           data-policy="https://golexvibe.com/p/9c792a55-4811-499c-bd5a-a61abb57aa9c/privacy"
-          data-accent="#4f46e5"
-          data-position="bottom-right"
           defer
         />
       </head>
