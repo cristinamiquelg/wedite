@@ -53,6 +53,9 @@ const COPY = {
     order: "Pedido",
     design: "Diseño",
     footer: "Wedite · Webs de boda que enamoran",
+    privacy: "Política de privacidad",
+    contact: "Contacto",
+    footerHelp: "¿Necesitáis ayuda? Escribidnos y os respondemos encantados.",
   },
   en: {
     subject: "Welcome to Wedite! Your wedding website is live",
@@ -81,6 +84,9 @@ const COPY = {
     order: "Order",
     design: "Design",
     footer: "Wedite · Wedding websites people love",
+    privacy: "Privacy policy",
+    contact: "Contact",
+    footerHelp: "Need a hand? Write to us and we'll be happy to help.",
   },
 } as const;
 
@@ -94,6 +100,9 @@ const SAGE_LIGHT = "#eef0e7";
 // The card mirrors the template's own look (Ribera: navy ink on cream, coral line art).
 const CARD_BG = "#efece3";
 const CARD_INK = "#0e1453";
+// Hero background: the brand's near-black (same as INK).
+const HERO_BG = "#211d1a";
+const SUPPORT_EMAIL = "hello@wedite.com";
 const SERIF = "Georgia,'Times New Roman',serif";
 const SANS = "Arial,Helvetica,sans-serif";
 
@@ -151,7 +160,7 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid ${LINE};border-radius:20px;overflow:hidden;">
 
 <!-- hero -->
-<tr><td align="center" style="background:${CLAY};padding:36px 32px 40px;">
+<tr><td align="center" style="background:${HERO_BG};padding:36px 32px 40px;">
 <p style="margin:0 0 26px;font:700 24px ${SERIF};color:#ffffff;">wedite<span style="color:#f6d9cc;">&#10022;</span></p>
 <p style="margin:0 0 12px;font:600 12px ${SANS};letter-spacing:3px;text-transform:uppercase;color:#f6d9cc;">${escapeHtml(t.eyebrow)}</p>
 <h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;">${escapeHtml(t.title)}</h1>
@@ -194,7 +203,15 @@ ${step(
 </td></tr>
 
 <!-- footer -->
-<tr><td align="center" style="padding:26px 32px 30px;">
+<tr><td align="center" style="padding:26px 32px 30px;border-top:1px solid ${LINE};">
+<p style="margin:0 0 14px;font:13px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.footerHelp)}</p>
+<p style="margin:0 0 16px;font:13px ${SANS};">
+<a href="${escapeHtml(input.origin)}" style="color:${INK};text-decoration:underline;">${escapeHtml(input.origin.replace(/^https?:\/\//, ""))}</a>
+<span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
+<a href="${escapeHtml(`${input.origin}/privacidad`)}" style="color:${INK};text-decoration:underline;">${escapeHtml(t.privacy)}</a>
+<span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
+<a href="mailto:${SUPPORT_EMAIL}" style="color:${INK};text-decoration:underline;">${SUPPORT_EMAIL}</a>
+</p>
 <p style="margin:0 0 6px;font:12px ${SANS};color:#7a7168;">${escapeHtml(t.order)} ${escapeHtml(input.orderNumber)} &middot; ${escapeHtml(t.design)} ${escapeHtml(input.templateName)}</p>
 <p style="margin:0;font:12px ${SANS};color:#7a7168;">${escapeHtml(t.footer)}</p>
 </td></tr>
@@ -225,6 +242,9 @@ ${step(
     `${t.signoff} ${t.team}`,
     "",
     `${t.order} ${input.orderNumber} · ${t.design} ${input.templateName}`,
+    "",
+    t.footerHelp,
+    `${input.origin} · ${input.origin}/privacidad · ${SUPPORT_EMAIL}`,
   ].join("\n");
 
   return { subject: t.subject, html, text };
