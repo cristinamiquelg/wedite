@@ -163,9 +163,9 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
 <!-- hero -->
 <tr><td align="center" bgcolor="${HERO_BG}" style="background-color:${HERO_BG};padding:36px 32px 40px;">
 <a href="${escapeHtml(input.origin)}" style="text-decoration:none;"><img src="${escapeHtml(logoUrl)}" width="140" alt="wedite" style="display:block;margin:0 auto 26px;width:140px;height:auto;border:0;"></a>
-<p style="margin:0 0 12px;font:600 12px ${SANS};letter-spacing:3px;text-transform:uppercase;color:#f6d9cc;">${escapeHtml(t.eyebrow)}</p>
+<p style="margin:0 0 12px;font:600 12px ${SANS};letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${escapeHtml(t.eyebrow)}</p>
 <h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;">${escapeHtml(t.title)}</h1>
-<p style="margin:0;font:16px/1.6 ${SANS};color:#fbe9e0;">${escapeHtml(t.intro)}</p>
+<p style="margin:0;font:16px/1.6 ${SANS};color:#ffffff;">${escapeHtml(t.intro)}</p>
 </td></tr>
 
 <!-- their invitation -->
