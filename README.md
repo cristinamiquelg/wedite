@@ -134,9 +134,9 @@ a `EVENT_NAMES` en `src/lib/analytics.ts` y llámalo con `trackEvent`.
 
 El periodo se elige con atajos (hoy, ayer, 7/30/90 días, este mes, mes pasado) o
 con un calendario de inicio y fin (`?r=<atajo>` o `?from=&to=`, días de Madrid).
-La gráfica de visitas y los dos embudos se segmentan cada una por su cuenta, con
-el icono de su tarjeta, por origen, idioma, dispositivo o país (`?sd=`, `?sf=`,
-`?sw=<tipo>`; los 5 grupos mayores y «Otros»), lo que usa la función SQL
+La gráfica de visitas y el embudo de compra se segmentan cada uno por su cuenta,
+con el icono de su tarjeta, por origen, idioma, dispositivo o país (`?sd=`,
+`?sf=<tipo>`; los 5 grupos mayores y «Otros»), lo que usa la función SQL
 `dashboard_segments`.
 
 El panel incluye: embudo de compra y embudo por pasos del asistente (con tiempo

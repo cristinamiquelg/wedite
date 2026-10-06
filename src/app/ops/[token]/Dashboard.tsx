@@ -18,20 +18,11 @@ import PeriodMenu from "./PeriodMenu";
 import { todayMadrid, type DashboardRange } from "@/lib/dashboard-range";
 import SegmentMenu from "./SegmentMenu";
 import { dashHref, type DashboardView, type SegmentChart, type SegmentSelection } from "@/lib/dashboard-url";
-import type { DashboardSegments, DashboardStats, FilterKind, SegmentDim, StatsFilter } from "@/lib/dashboard-stats";
+import type { DashboardSegments, DashboardStats, FilterKind, SegmentDim, StageTimes, StatsFilter } from "@/lib/dashboard-stats";
 import type { DataSource } from "@/lib/supabase/admin";
 
 const eur = new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" });
 
-const STEP_ORDER = ["language", "couple", "story", "itinerary", "details", "rsvp"];
-const STEP_LABEL: Record<string, string> = {
-  language: "1 · Idioma",
-  couple: "2 · Pareja",
-  story: "3 · Historia",
-  itinerary: "4 · Itinerario",
-  details: "5 · Detalles",
-  rsvp: "6 · RSVP y regalo",
-};
 const EVENT_LABEL: Record<string, string> = {
   page_view: "Página vista",
   wizard_step: "Paso del asistente",
@@ -55,9 +46,14 @@ function dayLabel(iso: string): string {
 
 function duration(seconds: number): string {
   if (seconds < 60) return `${seconds} s`;
-  const m = Math.floor(seconds / 60);
-  const sec = seconds % 60;
-  return sec ? `${m} min ${sec} s` : `${m} min`;
+  if (seconds < 3600) {
+    const m = Math.floor(seconds / 60);
+    const sec = seconds % 60;
+    return sec ? `${m} min ${sec} s` : `${m} min`;
+  }
+  const h = Math.floor(seconds / 3600);
+  const m = Math.round((seconds % 3600) / 60);
+  return m ? `${h} h ${m} min` : `${h} h`;
 }
 
 function pct(part: number, whole: number): string {
@@ -139,40 +135,79 @@ function Funnel({ funnel }: { funnel: DashboardStats["funnel"] }) {
   );
 }
 
-function StepFunnel({ steps, checkout }: { steps: DashboardStats["steps"]; checkout: number }) {
-  const byStep = new Map(steps.map((s) => [s.step, s.reached]));
+// The purchase funnel in detail: per stage, who gets there, who moves on, who stays,
+// and how long it takes to move on (median first, since a few slow visits skew an average).
+function StageTable({ times }: { times: StageTimes }) {
+  const r = times.reached;
   const stages = [
-    ...STEP_ORDER.map((step) => ({ label: STEP_LABEL[step], value: byStep.get(step) ?? 0 })),
-    { label: "Llegan al pago", value: checkout },
-  ];
-  const top = Math.max(stages[0].value, 1);
-  if (stages[0].value === 0) return <Empty />;
+    { key: "visited", label: "Visitan la web", reached: r.visited, next: r.viewed_template },
+    { key: "viewed_template", label: "Ven una plantilla", reached: r.viewed_template, next: r.started },
+    { key: "started", label: "Empiezan a configurar", reached: r.started, next: r.checkout },
+    { key: "checkout", label: "Llegan al pago", reached: r.checkout, next: r.completed },
+    { key: "completed", label: "Compran", reached: r.completed, next: null },
+  ] as const;
+  const total = times.gaps.total;
+  if (r.visited === 0) return <Empty />;
   return (
-    <ol className="space-y-2.5">
-      {stages.map((s, i) => {
-        const next = stages[i + 1];
-        return (
-          <li key={s.label}>
-            <div className="flex items-baseline justify-between gap-3 text-sm">
-              <span>{s.label}</span>
-              <span className="tabular-nums">
-                <span className="text-ink">{nf.format(s.value)}</span>
-                <span className="text-ink-soft">
-                  {next ? ` · ${pct(Math.min(next.value, s.value), s.value)} pasan al siguiente` : ""}
-                </span>
-              </span>
-            </div>
-            <div className="mt-1 h-2.5 overflow-hidden rounded-full bg-sage-light">
-              <div className="h-full rounded-full bg-sage" style={{ width: `${(s.value / top) * 100}%` }} />
-            </div>
-          </li>
-        );
-      })}
-    </ol>
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-max text-left text-sm">
+        <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
+          <tr>
+            <th className="py-2 pr-4 font-normal">Etapa</th>
+            <th className="py-2 pr-4 text-right font-normal">Llegan</th>
+            <th className="py-2 pr-4 text-right font-normal">Pasan a la siguiente</th>
+            <th className="py-2 pr-4 text-right font-normal">Se quedan aquí</th>
+            <th className="py-2 pr-4 text-right font-normal">Tiempo hasta la siguiente</th>
+            <th className="py-2 text-right font-normal">Media</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stages.map((st) => {
+            const gap = st.key === "completed" ? undefined : times.gaps[st.key];
+            return (
+              <tr key={st.key} className="border-t border-line tabular-nums">
+                <td className="py-2 pr-4 font-sans">{st.label}</td>
+                <td className="py-2 pr-4 text-right">{nf.format(st.reached)}</td>
+                <td className="py-2 pr-4 text-right">
+                  {st.next === null ? "–" : (
+                    <>
+                      {nf.format(st.next)} <span className="text-ink-soft">· {pct1(st.next, st.reached)}</span>
+                    </>
+                  )}
+                </td>
+                <td className="py-2 pr-4 text-right">
+                  {st.next === null ? "–" : (
+                    <>
+                      {nf.format(Math.max(st.reached - st.next, 0))}{" "}
+                      <span className="text-ink-soft">· {pct1(Math.max(st.reached - st.next, 0), st.reached)}</span>
+                    </>
+                  )}
+                </td>
+                <td className="py-2 pr-4 text-right">
+                  {st.next === null ? "–" : gap ? (
+                    <>
+                      {duration(gap.median_seconds)} <span className="text-ink-soft">· {nf.format(gap.n)} {gap.n === 1 ? "visita" : "visitas"}</span>
+                    </>
+                  ) : (
+                    <span className="text-ink-soft">sin datos</span>
+                  )}
+                </td>
+                <td className="py-2 text-right">{st.next === null ? "–" : gap ? duration(gap.avg_seconds) : "–"}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <p className="mt-3 text-xs text-ink-soft">
+        {total
+          ? `De la primera visita a la compra: ${duration(total.median_seconds)} de mediana (${duration(total.avg_seconds)} de media), en ${nf.format(total.n)} ${total.n === 1 ? "compra" : "compras"}.`
+          : "Aún no hay compras con las que medir el tiempo de la primera visita a la compra."}
+      </p>
+    </div>
   );
 }
 
-// Narrows the purchase funnel and the wizard funnel to one group.
+// Narrows the purchase funnel (and the time / drop-off per step) to one group.
 function FilterBar({ stats, token, view }: { stats: DashboardStats; token: string; view: DashboardView }) {
   const groups: { kind: FilterKind; options: { value: string; sessions: number }[] }[] = [
     { kind: "source", options: stats.sources.map((o) => ({ value: o.source, sessions: o.sessions })) },
@@ -227,6 +262,7 @@ export default function Dashboard({
   segmentsByDim,
   segmentsProblem,
   mau,
+  stageTimes,
   stats,
   problem,
 }: {
@@ -238,6 +274,7 @@ export default function Dashboard({
   segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>>;
   segmentsProblem: string | null;
   mau: number | null;
+  stageTimes: StageTimes | null;
   stats: DashboardStats | null;
   problem: string | null;
 }) {
@@ -277,7 +314,7 @@ export default function Dashboard({
           {problem}
         </p>
       ) : (
-        <Body stats={stats} range={range} token={token} view={view} segmentsByDim={segmentsByDim} segmentsProblem={segmentsProblem} mau={mau} />
+        <Body stats={stats} range={range} token={token} view={view} segmentsByDim={segmentsByDim} segmentsProblem={segmentsProblem} mau={mau} stageTimes={stageTimes} />
       )}
     </main>
   );
@@ -291,6 +328,7 @@ function Body({
   segmentsByDim,
   segmentsProblem,
   mau,
+  stageTimes,
 }: {
   stats: DashboardStats;
   range: DashboardRange;
@@ -299,19 +337,11 @@ function Body({
   segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>>;
   segmentsProblem: string | null;
   mau: number | null;
+  stageTimes: StageTimes | null;
 }) {
   const { kpis, business } = stats;
   const filter = stats.filter;
   const filterText = filter ? `${DIM_LABEL[filter.kind]}: ${valueLabel(filter.kind, filter.value)}` : null;
-  const stepTime = new Map(stats.step_times.map((t) => [t.step, t]));
-  const dropoffRows = [...stats.dropoff]
-    .sort((a, b) => b.sessions - a.sessions)
-    .map((d) => ({ label: STEP_LABEL[d.step] ?? d.step, value: d.sessions }));
-  const timeRows = STEP_ORDER.filter((step) => stepTime.has(step)).map((step) => {
-    const t = stepTime.get(step)!;
-    return { label: STEP_LABEL[step], value: t.avg_seconds, shown: duration(t.avg_seconds), sub: `${nf.format(t.sessions)} visitas` };
-  });
-
   // Headline numbers. DAU/MAU count visits (one per browser tab), never people.
   const dau = stats.daily.length > 0 ? stats.daily.reduce((n, d) => n + d.sessions, 0) / stats.daily.length : 0;
   const paid = business.orders_paid_period ?? null;
@@ -346,19 +376,6 @@ function Body({
     label: r.label,
     values: Object.fromEntries((purchaseSeries ?? []).map((s) => [s.segment, byFunnel.get(s.segment)?.[r.key] ?? 0])),
   }));
-
-  const wizard = dataFor("wizard");
-  const wizardSeries = seriesOf(wizard);
-  const wizardFunnel = new Map((wizard?.funnel ?? []).map((f) => [f.segment, f]));
-  const stepRows = [
-    ...STEP_ORDER.map((step) => ({
-      label: STEP_LABEL[step],
-      values: Object.fromEntries(
-        (wizardSeries ?? []).map((s) => [s.segment, wizard?.steps.find((x) => x.segment === s.segment && x.step === step)?.reached ?? 0]),
-      ),
-    })),
-    { label: "Llegan al pago", values: Object.fromEntries((wizardSeries ?? []).map((s) => [s.segment, wizardFunnel.get(s.segment)?.checkout ?? 0])) },
-  ];
 
   return (
     <div className="mt-8 space-y-6">
@@ -406,31 +423,24 @@ function Body({
         </p>
       ) : null}
 
-      <div className={`grid gap-6 ${purchaseSeries || wizardSeries ? "" : "lg:grid-cols-2"}`}>
-        <Card
-          title={purchaseSeries ? `Embudo de compra · por ${dimWordOf(purchase)}` : "Embudo de compra"}
-          hint={`${filterText ? `${filterText} · ` : ""}${purchaseSeries ? "Visitas de cada grupo que llegan a cada paso o a uno posterior, y su % sobre las visitas del grupo" : "Visitas que llegan a cada paso o a uno posterior"}`}
-          action={menu("purchase")}
-        >
-          {purchaseSeries ? <SegmentCompare series={purchaseSeries} rows={purchaseRows} /> : <Funnel funnel={stats.funnel} />}
-        </Card>
-        <Card
-          title={wizardSeries ? `Embudo del asistente · por ${dimWordOf(wizard)}` : "Embudo del asistente"}
-          hint={`${filterText ? `${filterText} · ` : ""}${wizardSeries ? "Visitas de cada grupo que llegan a cada paso (o a uno posterior), y su % sobre las que abren el primero" : "Visitas que llegan a cada paso (o a uno posterior) y cuántas pasan al siguiente"}`}
-          action={menu("wizard")}
-        >
-          {wizardSeries ? <SegmentCompare series={wizardSeries} rows={stepRows} /> : <StepFunnel steps={stats.steps} checkout={stats.funnel.checkout} />}
-        </Card>
-      </div>
+      <Card
+        title={purchaseSeries ? `Embudo de compra · por ${dimWordOf(purchase)}` : "Embudo de compra"}
+        hint={`${filterText ? `${filterText} · ` : ""}${purchaseSeries ? "Visitas de cada grupo que llegan a cada paso o a uno posterior, y su % sobre las visitas del grupo" : "Visitas que llegan a cada paso o a uno posterior"}`}
+        action={menu("purchase")}
+      >
+        {purchaseSeries ? <SegmentCompare series={purchaseSeries} rows={purchaseRows} /> : <Funnel funnel={stats.funnel} />}
+      </Card>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card title="Tiempo en cada paso" hint="Tiempo medio por visita desde que abre el paso hasta su siguiente acción (pausas de más de 30 min no cuentan)">
-          <BarList rows={timeRows} />
-        </Card>
-        <Card title="Dónde abandonan" hint="Último paso abierto por las visitas que no llegan al pago">
-          <BarList rows={dropoffRows} />
-        </Card>
-      </div>
+      <Card
+        title="Tiempo y abandono por etapa"
+        hint={`${filterText ? `${filterText} · ` : ""}Embudo de compra en detalle: quién llega, quién pasa a la siguiente etapa, quién se queda y cuánto tarda. Tiempo = de la primera vez que llega a una etapa a la primera vez que llega a la siguiente (se ignoran pausas de más de 2 h)`}
+      >
+        {stageTimes ? (
+          <StageTable times={stageTimes} />
+        ) : (
+          <p className="text-sm text-ink-soft">Falta aplicar la migración «dashboard_stage_times» en esta base de datos.</p>
+        )}
+      </Card>
 
       <Card title="Plantillas" hint="Visitas que llegan a cada paso (o a uno posterior) y su % sobre las que ven la plantilla; «Compran» es la conversión">
         {stats.templates.length === 0 ? (
@@ -441,7 +451,6 @@ function Body({
               <thead className="text-xs uppercase tracking-[0.14em] text-ink-soft">
                 <tr>
                   <th className="py-2 pr-4 font-normal">Plantilla</th>
-                  <th className="py-2 pr-4 text-right font-normal">La ven</th>
                   <th className="py-2 pr-4 text-right font-normal">Empiezan a configurar</th>
                   <th className="py-2 pr-4 text-right font-normal">Llegan al pago</th>
                   <th className="py-2 text-right font-normal">Compran</th>
@@ -460,7 +469,6 @@ function Body({
                   return (
                     <tr key={t.template} className="border-t border-line tabular-nums">
                       <td className="py-2 pr-4 font-sans">{t.template}</td>
-                      <td className="py-2 pr-4 text-right">{nf.format(t.viewed)}</td>
                       <td className="py-2 pr-4 text-right">{cell(t.started)}</td>
                       <td className="py-2 pr-4 text-right">{cell(t.checkout)}</td>
                       <td className="py-2 text-right">{cell(t.completed)}</td>
