@@ -40,7 +40,6 @@ export type DashboardStats = {
   devices: ({ device: string } & Count)[];
   locales: ({ locale: string } & Count)[];
   templates: { template: string; viewed: number; started: number; completed: number }[];
-  guest_sites: { site: string; visits: number; rsvps: number; attending: number }[];
   recent: { created_at: string; name: string; path: string | null; country: string | null; device: string | null; template_slug: string | null }[];
   business: {
     sites_total: number;
@@ -50,8 +49,6 @@ export type DashboardStats = {
     orders_new: number;
     orders_paid: number;
     revenue_cents: number;
-    rsvps_total: number;
-    rsvps_new: number;
     invite_codes_used: number;
     ai_generations_new: number;
     ai_cost_cents_new: number;
