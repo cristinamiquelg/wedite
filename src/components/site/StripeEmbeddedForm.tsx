@@ -46,13 +46,15 @@ const appearance = {
   labels: "auto",
   inputs: "spaced",
   variables: {
-    borderRadius: "4px",
+    borderRadius: "8px",
     colorBackground: "#ffffff",
     colorDanger: "#df1b41",
     colorPrimary: "#b5583a",
     colorSuccess: "#5f6b4f",
     colorText: "#211d1a",
-    fontFamily: "Inter",
+    // The form lives in Stripe's iframe, which can't see the page's fonts: a bare
+    // "Inter" falls back to the browser's default serif. A system stack always resolves.
+    fontFamily: 'Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
     fontSizeBase: "16px",
     spacingUnit: "4px",
   },
