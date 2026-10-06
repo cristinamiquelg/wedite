@@ -38,11 +38,11 @@ export function segmentColor(index: number, segment: string): string {
 
 // Instant tooltip in the Wedite style. The parent needs `group relative`; the
 // text stays in the DOM, so screen readers read it after the row.
-export function Bubble({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+export function Bubble({ children, className = "", wrap = false }: { children: React.ReactNode; className?: string; wrap?: boolean }) {
   return (
     <span
       role="tooltip"
-      className={`pointer-events-none absolute z-20 whitespace-nowrap rounded-lg bg-ink px-2.5 py-1.5 text-left font-sans text-xs font-medium leading-snug text-paper opacity-0 shadow-[0_12px_28px_-12px_rgba(33,29,26,0.55)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100 ${className}`}
+      className={`pointer-events-none absolute z-20 ${wrap ? "whitespace-normal" : "whitespace-nowrap"} rounded-lg bg-ink px-2.5 py-1.5 text-left font-sans text-xs font-medium leading-snug text-paper opacity-0 shadow-[0_12px_28px_-12px_rgba(33,29,26,0.55)] transition-opacity duration-75 group-hover:opacity-100 group-focus-within:opacity-100 ${className}`}
     >
       {children}
     </span>
