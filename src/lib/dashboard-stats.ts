@@ -1,4 +1,5 @@
 import "server-only";
+import { queryWindow, type DashboardRange } from "@/lib/dashboard-range";
 import { supabaseForSource, type DataSource } from "@/lib/supabase/admin";
 
 export class SourceNotConfiguredError extends Error {}
@@ -9,6 +10,17 @@ export type Count = { sessions: number };
 export const FILTER_KINDS = ["source", "locale", "device", "country"] as const;
 export type FilterKind = (typeof FILTER_KINDS)[number];
 export type StatsFilter = { kind: FilterKind; value: string };
+
+// Segments split the main charts by one characteristic instead of filtering.
+export type SegmentDim = FilterKind;
+export const OTHER_SEGMENT = "__other";
+export type DashboardSegments = {
+  dim: SegmentDim;
+  segments: { segment: string; sessions: number }[];
+  daily: { day: string; segment: string; sessions: number }[];
+  funnel: { segment: string; visited: number; viewed_template: number; started: number; checkout: number; completed: number }[];
+  steps: { segment: string; step: string; reached: number }[];
+};
 
 export type DashboardStats = {
   from: string;
@@ -55,17 +67,41 @@ export function parseFilter(kind: string | undefined, value: string | undefined)
   return { kind: kind as FilterKind, value: value.slice(0, 80) };
 }
 
-export async function loadDashboardStats(days: number, source: DataSource, filter: StatsFilter | null = null): Promise<DashboardStats> {
+export function parseSegmentDim(value: string | undefined): SegmentDim | null {
+  return (FILTER_KINDS as readonly string[]).includes(value ?? "") ? (value as SegmentDim) : null;
+}
+
+function window(range: DashboardRange) {
+  const { from, to } = queryWindow(range);
+  return { p_from: from.toISOString(), p_to: to.toISOString() };
+}
+
+export async function loadDashboardStats(range: DashboardRange, source: DataSource, filter: StatsFilter | null = null): Promise<DashboardStats> {
   const db = supabaseForSource(source);
   if (!db) throw new SourceNotConfiguredError(source);
-  const to = new Date();
-  const from = new Date(to.getTime() - days * 86_400_000);
   const { data, error } = await db.rpc("dashboard_stats", {
-    p_from: from.toISOString(),
-    p_to: to.toISOString(),
+    ...window(range),
     p_filter_kind: filter?.kind ?? null,
     p_filter_value: filter?.value ?? null,
   });
   if (error) throw new Error(error.message);
   return data as DashboardStats;
+}
+
+export async function loadDashboardSegments(
+  range: DashboardRange,
+  source: DataSource,
+  dim: SegmentDim,
+  filter: StatsFilter | null = null,
+): Promise<DashboardSegments> {
+  const db = supabaseForSource(source);
+  if (!db) throw new SourceNotConfiguredError(source);
+  const { data, error } = await db.rpc("dashboard_segments", {
+    ...window(range),
+    p_dim: dim,
+    p_filter_kind: filter?.kind ?? null,
+    p_filter_value: filter?.value ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return data as DashboardSegments;
 }
