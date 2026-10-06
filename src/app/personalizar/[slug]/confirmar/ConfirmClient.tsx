@@ -40,10 +40,10 @@ export default function ConfirmClient({ template }: { template: Template }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: template.slug, email, locale, data }),
       });
-      const body = (await res.json()) as { client_secret?: string; publishable_key?: string };
-      if (!res.ok || !body.client_secret || !body.publishable_key) throw new Error("checkout failed");
-      setSession({ clientSecret: body.client_secret, publishableKey: body.publishable_key });
-      setSubmitting(false);
+      const body = (await res.json()) as { url?: string };
+      if (!res.ok || !body.url) throw new Error("checkout failed");
+      // Stripe-hosted payment page.
+      window.location.assign(body.url);
     } catch {
       setError(true);
       setSubmitting(false);

@@ -24,7 +24,7 @@ export const templates: Template[] = [
     summary: "Elegante, náutica y con carácter, para bodas que no empiezan el día de la boda.",
     description:
       "Para bodas con varias fases: preboda, ceremonia, celebración y postboda, todo en una misma web, con paleta navy y coral y detalles ilustrados que le dan carácter.",
-    price: 45,
+    price: 59,
     tags: ["Elegante", "Con carácter", "Multi-evento"],
     colors: ["Navy", "Coral"],
     tools: ["RSVP", "Itinerario", "Regalo"],
