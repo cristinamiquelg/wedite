@@ -22,7 +22,7 @@ function subscribe(callback: () => void) {
 
 function LockIcon({ locked }: { locked: boolean }) {
   return (
-    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4">
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-3 w-3">
       <rect x="4.5" y="9" width="11" height="8" rx="2" fill="none" stroke="currentColor" strokeWidth={1.5} />
       <path
         d={locked ? "M7 9V6.5a3 3 0 0 1 6 0V9" : "M7 9V6.5a3 3 0 0 1 5.8-1"}
@@ -59,7 +59,7 @@ export default function OptOutToggle() {
       onClick={toggle}
       aria-pressed={excluded}
       aria-label="Excluir mis visitas en este navegador"
-      className={`group relative flex h-8 w-8 shrink-0 items-center justify-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-clay/50 ${
+      className={`group relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full border outline-none transition-colors focus-visible:ring-2 focus-visible:ring-clay/50 ${
         excluded ? "border-clay bg-clay/10 text-clay" : "border-line text-ink-soft hover:border-ink hover:text-ink"
       }`}
     >

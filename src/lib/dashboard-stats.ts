@@ -89,6 +89,26 @@ export async function loadDashboardStats(range: DashboardRange, source: DataSour
   return data as DashboardStats;
 }
 
+// The purchase funnel in detail: visits reaching each stage (nested) and how long they
+// take to reach the next one. `gaps` is keyed by the stage they start from.
+export type StageGap = { n: number; median_seconds: number; avg_seconds: number };
+export type StageTimes = {
+  reached: { visited: number; viewed_template: number; started: number; checkout: number; completed: number };
+  gaps: Partial<Record<"visited" | "viewed_template" | "started" | "checkout" | "total", StageGap>>;
+};
+
+export async function loadStageTimes(range: DashboardRange, source: DataSource, filter: StatsFilter | null = null): Promise<StageTimes> {
+  const db = supabaseForSource(source);
+  if (!db) throw new SourceNotConfiguredError(source);
+  const { data, error } = await db.rpc("dashboard_stage_times", {
+    ...window(range),
+    p_filter_kind: filter?.kind ?? null,
+    p_filter_value: filter?.value ?? null,
+  });
+  if (error) throw new Error(error.message);
+  return data as StageTimes;
+}
+
 // Distinct visits over the 30 days ending on the period's last day (the "MAU").
 export async function loadMonthlyVisits(range: DashboardRange, source: DataSource): Promise<number> {
   const window30: DashboardRange = { from: addDays(range.to, -29), to: range.to, preset: null, days: 30, label: "" };

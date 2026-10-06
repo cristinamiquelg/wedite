@@ -3,12 +3,12 @@ import type { FilterKind } from "@/lib/dashboard-stats";
 
 export type DataEnv = "production" | "staging";
 
-// Each main chart is segmented on its own: the daily visits chart, the purchase
-// funnel and the wizard funnel can each use a different characteristic.
-export const SEGMENT_CHARTS = ["daily", "purchase", "wizard"] as const;
+// Each main chart is segmented on its own: the daily visits chart and the purchase
+// funnel can each use a different characteristic.
+export const SEGMENT_CHARTS = ["daily", "purchase"] as const;
 export type SegmentChart = (typeof SEGMENT_CHARTS)[number];
 export type SegmentSelection = Record<SegmentChart, FilterKind | null>;
-export const SEGMENT_PARAM: Record<SegmentChart, string> = { daily: "sd", purchase: "sf", wizard: "sw" };
+export const SEGMENT_PARAM: Record<SegmentChart, string> = { daily: "sd", purchase: "sf" };
 
 export type DashboardView = {
   env: DataEnv;
