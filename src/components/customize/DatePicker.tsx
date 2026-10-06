@@ -64,6 +64,7 @@ export default function DatePicker({
   value: rawValue,
   onChange,
   min,
+  max,
   locale,
   placeholder,
   prevMonthLabel,
@@ -80,6 +81,8 @@ export default function DatePicker({
   onChange: (value: string) => void;
   /** Earliest selectable day (inclusive). */
   min?: ISO;
+  /** Latest selectable day (inclusive). */
+  max?: ISO;
   locale: string;
   placeholder: string;
   prevMonthLabel: string;
@@ -182,6 +185,8 @@ export default function DatePicker({
 
   const minParsed = min ? parseISO(min) : null;
   const canGoPrev = !minParsed || view.y > minParsed.y || (view.y === minParsed.y && view.m > minParsed.m);
+  const maxParsed = max ? parseISO(max) : null;
+  const canGoNext = !maxParsed || view.y < maxParsed.y || (view.y === maxParsed.y && view.m < maxParsed.m);
 
   function shiftMonth(delta: number) {
     const dt = new Date(view.y, view.m + delta, 1);
@@ -190,7 +195,7 @@ export default function DatePicker({
   }
 
   function moveFocus(next: ISO) {
-    if (min && next < min) return;
+    if ((min && next < min) || (max && next > max)) return;
     const p = parseISO(next)!;
     setView({ y: p.y, m: p.m });
     setFocusISO(next);
@@ -260,8 +265,9 @@ export default function DatePicker({
               <button
                 type="button"
                 onClick={() => shiftMonth(1)}
+                disabled={!canGoNext}
                 aria-label={nextMonthLabel}
-                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sage-light hover:text-ink"
+                className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-sage-light hover:text-ink disabled:cursor-default disabled:opacity-30 disabled:hover:bg-transparent"
               >
                 <ChevronIcon dir="right" />
               </button>
@@ -276,7 +282,7 @@ export default function DatePicker({
             ))}
             {cells.map((iso, i) => {
               if (!iso) return <span key={`pad-${i}`} />;
-              const disabled = Boolean(min && iso < min);
+              const disabled = Boolean((min && iso < min) || (max && iso > max));
               const isSelected = iso === value;
               const isToday = iso === today;
               const day = Number(iso.slice(8));
