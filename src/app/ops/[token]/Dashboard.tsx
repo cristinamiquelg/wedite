@@ -39,6 +39,18 @@ function dashHref(token: string, env: DataSource, days: number, filter: StatsFil
   return `/ops/${token}?${q.toString()}`;
 }
 
+const countryNames = new Intl.DisplayNames(["es"], { type: "region" });
+
+// "ES" -> "España". The edge gives an ISO code, or "??" when it doesn't know.
+function countryName(code: string): string {
+  if (!/^[A-Za-z]{2}$/.test(code)) return "Desconocido";
+  try {
+    return countryNames.of(code.toUpperCase()) ?? code;
+  } catch {
+    return code;
+  }
+}
+
 function filterValueLabel(kind: FilterKind, value: string): string {
   if (kind === "device") return DEVICE_LABEL[value] ?? value;
   if (kind === "locale") return value.toUpperCase();
@@ -91,13 +103,13 @@ function Empty() {
 }
 
 // A ranked list with a proportional bar behind each row.
-function BarList({ rows }: { rows: { label: string; value: number; shown?: string; sub?: string }[] }) {
+function BarList({ rows }: { rows: { label: string; value: number; shown?: string; sub?: string; tooltip?: string }[] }) {
   if (rows.length === 0) return <Empty />;
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
     <ul className="space-y-1.5">
       {rows.map((r) => (
-        <li key={r.label} className="relative overflow-hidden rounded-md text-sm">
+        <li key={r.label} title={r.tooltip} className="relative overflow-hidden rounded-md text-sm">
           <span
             aria-hidden="true"
             className="absolute inset-y-0 left-0 rounded-md bg-sage-light"
@@ -255,6 +267,7 @@ function FilterBar({ stats, token, source, days }: { stats: DashboardStats; toke
                     key={o.value}
                     href={dashHref(token, source, days, { kind: g.kind, value: o.value })}
                     aria-current={on ? "true" : undefined}
+                    title={g.kind === "country" ? countryName(o.value) : undefined}
                     className={chip(on)}
                   >
                     {filterValueLabel(g.kind, o.value)} <span className="tabular-nums opacity-70">{nf.format(o.sessions)}</span>
@@ -450,7 +463,7 @@ function Body({ stats, days, token, source }: { stats: DashboardStats; days: num
           <BarList rows={stats.sources.map((s) => ({ label: s.source, value: s.sessions }))} />
         </Card>
         <Card title="Países">
-          <BarList rows={stats.countries.map((c) => ({ label: c.country, value: c.sessions }))} />
+          <BarList rows={stats.countries.map((c) => ({ label: c.country, value: c.sessions, tooltip: countryName(c.country) }))} />
         </Card>
         <Card title="Dispositivo">
           <BarList rows={stats.devices.map((d) => ({ label: DEVICE_LABEL[d.device] ?? d.device, value: d.sessions }))} />
