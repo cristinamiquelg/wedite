@@ -15,7 +15,8 @@ import {
 import OptOutToggle from "./OptOutToggle";
 import PeriodMenu from "./PeriodMenu";
 import { todayMadrid, type DashboardRange } from "@/lib/dashboard-range";
-import { dashHref, type DashboardView } from "@/lib/dashboard-url";
+import SegmentMenu from "./SegmentMenu";
+import { dashHref, type DashboardView, type SegmentChart, type SegmentSelection } from "@/lib/dashboard-url";
 import type { DashboardSegments, DashboardStats, FilterKind, SegmentDim, StatsFilter } from "@/lib/dashboard-stats";
 import type { DataSource } from "@/lib/supabase/admin";
 
@@ -59,11 +60,16 @@ function clock(iso: string): string {
     .replace(/\./g, "");
 }
 
-function Card({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+function Card({ title, hint, action, children }: { title: string; hint?: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
     <section className="rounded-2xl border border-line bg-paper-raised p-5">
-      <h2 className="font-display text-lg">{title}</h2>
-      {hint ? <p className="mt-0.5 text-xs text-ink-soft">{hint}</p> : null}
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="font-display text-lg">{title}</h2>
+          {hint ? <p className="mt-0.5 text-xs text-ink-soft">{hint}</p> : null}
+        </div>
+        {action}
+      </div>
       <div className="mt-4">{children}</div>
     </section>
   );
@@ -145,45 +151,13 @@ function StepFunnel({ steps, checkout }: { steps: DashboardStats["steps"]; check
   );
 }
 
-const chip = (on: boolean, tone: "ink" | "clay" = "clay") =>
-  `rounded-full border px-3 py-1.5 text-sm transition-colors ${
-    on
-      ? tone === "ink"
-        ? "border-ink bg-ink text-paper"
-        : "border-clay bg-clay text-paper"
-      : "border-line text-ink-soft hover:border-ink hover:text-ink"
-  }`;
-
-// Period (one button with the active range) and the segment control.
+// The period: one button with the active range that opens shortcuts and calendars.
 function Toolbar({ token, view, today, rangeLabel }: { token: string; view: DashboardView; today: string; rangeLabel: string }) {
   return (
-    <section aria-label="Periodo y segmentación" className="mt-6 rounded-2xl border border-line bg-paper-raised p-5">
-      <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Periodo</p>
-          <div className="mt-2">
-            <PeriodMenu key={`${view.range.from}|${view.range.to}`} token={token} view={view} today={today} rangeLabel={rangeLabel} />
-          </div>
-        </div>
-
-        <div>
-          <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Segmentar por</p>
-          <nav aria-label="Segmentar por" className="mt-2 flex flex-wrap items-center gap-1.5">
-            <a href={dashHref(token, view, { groupBy: null })} aria-current={!view.groupBy ? "true" : undefined} className={chip(!view.groupBy)}>
-              Sin segmentar
-            </a>
-            {(Object.keys(DIM_LABEL) as FilterKind[]).map((k) => (
-              <a
-                key={k}
-                href={dashHref(token, view, { groupBy: k })}
-                aria-current={view.groupBy === k ? "true" : undefined}
-                className={chip(view.groupBy === k)}
-              >
-                {DIM_LABEL[k]}
-              </a>
-            ))}
-          </nav>
-        </div>
+    <section aria-label="Periodo" className="mt-6">
+      <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Periodo</p>
+      <div className="mt-2">
+        <PeriodMenu key={`${view.range.from}|${view.range.to}`} token={token} view={view} today={today} rangeLabel={rangeLabel} />
       </div>
     </section>
   );
@@ -240,8 +214,8 @@ export default function Dashboard({
   source,
   range,
   filter,
-  groupBy,
-  segments,
+  seg,
+  segmentsByDim,
   segmentsProblem,
   stats,
   problem,
@@ -250,13 +224,13 @@ export default function Dashboard({
   source: DataSource;
   range: DashboardRange;
   filter: StatsFilter | null;
-  groupBy: SegmentDim | null;
-  segments: DashboardSegments | null;
+  seg: SegmentSelection;
+  segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>>;
   segmentsProblem: string | null;
   stats: DashboardStats | null;
   problem: string | null;
 }) {
-  const view: DashboardView = { env: source, range, filter, groupBy };
+  const view: DashboardView = { env: source, range, filter, seg };
 
   return (
     <main className="mx-auto max-w-6xl px-5 pb-8 pt-14 sm:px-8 sm:pt-20">
@@ -294,7 +268,7 @@ export default function Dashboard({
           {problem}
         </p>
       ) : (
-        <Body stats={stats} range={range} token={token} view={view} segments={segments} segmentsProblem={segmentsProblem} />
+        <Body stats={stats} range={range} token={token} view={view} segmentsByDim={segmentsByDim} segmentsProblem={segmentsProblem} />
       )}
     </main>
   );
@@ -305,14 +279,14 @@ function Body({
   range,
   token,
   view,
-  segments,
+  segmentsByDim,
   segmentsProblem,
 }: {
   stats: DashboardStats;
   range: DashboardRange;
   token: string;
   view: DashboardView;
-  segments: DashboardSegments | null;
+  segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>>;
   segmentsProblem: string | null;
 }) {
   const { kpis, business } = stats;
@@ -327,33 +301,48 @@ function Body({
     return { label: STEP_LABEL[step], value: t.avg_seconds, shown: duration(t.avg_seconds), sub: `${nf.format(t.sessions)} visitas` };
   });
 
-  // Segmented view: one series per group, shared by the chart and both tables.
-  const series: Series[] | null = segments
-    ? segments.segments.map((s, i) => ({ segment: s.segment, label: valueLabel(segments.dim, s.segment), color: segmentColor(i, s.segment) }))
-    : null;
-  const segTotals = new Map((segments?.segments ?? []).map((s) => [s.segment, s.sessions]));
-  const byFunnel = new Map((segments?.funnel ?? []).map((f) => [f.segment, f]));
-  const funnelRows = [
-    { label: "Visitan la web", key: "visited" },
-    { label: "Ven una plantilla", key: "viewed_template" },
-    { label: "Empiezan a personalizar", key: "started" },
-    { label: "Llegan al pago", key: "checkout" },
-    { label: "Completan la compra", key: "completed" },
-  ] as const;
-  const purchaseRows = funnelRows.map((r) => ({
+  // Each main chart has its own segment (or none): one series per group.
+  const dataFor = (chart: SegmentChart): DashboardSegments | null => {
+    const kind = view.seg[chart];
+    return kind ? (segmentsByDim[kind] ?? null) : null;
+  };
+  const seriesOf = (data: DashboardSegments | null): Series[] | null =>
+    data ? data.segments.map((s, i) => ({ segment: s.segment, label: valueLabel(data.dim, s.segment), color: segmentColor(i, s.segment) })) : null;
+  const dimWordOf = (data: DashboardSegments | null) => (data ? DIM_LABEL[data.dim].toLowerCase() : "");
+  const menu = (chart: SegmentChart) => <SegmentMenu token={token} view={view} chart={chart} />;
+
+  const daily = dataFor("daily");
+  const dailySeries = seriesOf(daily);
+  const dailyTotals = new Map((daily?.segments ?? []).map((s) => [s.segment, s.sessions]));
+
+  const purchase = dataFor("purchase");
+  const purchaseSeries = seriesOf(purchase);
+  const byFunnel = new Map((purchase?.funnel ?? []).map((f) => [f.segment, f]));
+  const purchaseRows = (
+    [
+      { label: "Visitan la web", key: "visited" },
+      { label: "Ven una plantilla", key: "viewed_template" },
+      { label: "Empiezan a personalizar", key: "started" },
+      { label: "Llegan al pago", key: "checkout" },
+      { label: "Completan la compra", key: "completed" },
+    ] as const
+  ).map((r) => ({
     label: r.label,
-    values: Object.fromEntries((series ?? []).map((s) => [s.segment, byFunnel.get(s.segment)?.[r.key] ?? 0])),
+    values: Object.fromEntries((purchaseSeries ?? []).map((s) => [s.segment, byFunnel.get(s.segment)?.[r.key] ?? 0])),
   }));
+
+  const wizard = dataFor("wizard");
+  const wizardSeries = seriesOf(wizard);
+  const wizardFunnel = new Map((wizard?.funnel ?? []).map((f) => [f.segment, f]));
   const stepRows = [
     ...STEP_ORDER.map((step) => ({
       label: STEP_LABEL[step],
       values: Object.fromEntries(
-        (series ?? []).map((s) => [s.segment, segments?.steps.find((x) => x.segment === s.segment && x.step === step)?.reached ?? 0]),
+        (wizardSeries ?? []).map((s) => [s.segment, wizard?.steps.find((x) => x.segment === s.segment && x.step === step)?.reached ?? 0]),
       ),
     })),
-    { label: "Llegan al pago", values: Object.fromEntries((series ?? []).map((s) => [s.segment, byFunnel.get(s.segment)?.checkout ?? 0])) },
+    { label: "Llegan al pago", values: Object.fromEntries((wizardSeries ?? []).map((s) => [s.segment, wizardFunnel.get(s.segment)?.checkout ?? 0])) },
   ];
-  const dimWord = segments ? DIM_LABEL[segments.dim].toLowerCase() : "";
 
   return (
     <div className="mt-8 space-y-6">
@@ -370,11 +359,12 @@ function Body({
 
       <Card
         title="Visitas por día"
-        hint={`${range.label} · una visita = una sesión de navegación${series ? ` · por ${dimWord}` : ""}`}
+        hint={`${range.label} · una visita = una sesión de navegación${dailySeries ? ` · por ${dimWordOf(daily)}` : ""}`}
+        action={menu("daily")}
       >
         {segmentsProblem ? <p role="alert" className="mb-3 text-sm text-clay-dark">{segmentsProblem}</p> : null}
-        <DailyChart daily={stats.daily} series={series ?? undefined} segmentDaily={segments?.daily} />
-        {series ? <Legend series={series} totals={segTotals} /> : null}
+        <DailyChart daily={stats.daily} series={dailySeries ?? undefined} segmentDaily={daily?.daily} />
+        {dailySeries ? <Legend series={dailySeries} totals={dailyTotals} /> : null}
       </Card>
 
       <FilterBar stats={stats} token={token} view={view} />
@@ -385,18 +375,20 @@ function Body({
         </p>
       ) : null}
 
-      <div className={`grid gap-6 ${series ? "" : "lg:grid-cols-2"}`}>
+      <div className={`grid gap-6 ${purchaseSeries || wizardSeries ? "" : "lg:grid-cols-2"}`}>
         <Card
-          title={series ? `Embudo de compra · por ${dimWord}` : "Embudo de compra"}
-          hint={`${filterText ? `${filterText} · ` : ""}${series ? "Visitas de cada grupo que llegan a cada paso o a uno posterior, y su % sobre las visitas del grupo" : "Visitas que llegan a cada paso o a uno posterior"}`}
+          title={purchaseSeries ? `Embudo de compra · por ${dimWordOf(purchase)}` : "Embudo de compra"}
+          hint={`${filterText ? `${filterText} · ` : ""}${purchaseSeries ? "Visitas de cada grupo que llegan a cada paso o a uno posterior, y su % sobre las visitas del grupo" : "Visitas que llegan a cada paso o a uno posterior"}`}
+          action={menu("purchase")}
         >
-          {series ? <SegmentCompare series={series} rows={purchaseRows} /> : <Funnel funnel={stats.funnel} />}
+          {purchaseSeries ? <SegmentCompare series={purchaseSeries} rows={purchaseRows} /> : <Funnel funnel={stats.funnel} />}
         </Card>
         <Card
-          title={series ? `Embudo del asistente · por ${dimWord}` : "Embudo del asistente"}
-          hint={`${filterText ? `${filterText} · ` : ""}${series ? "Visitas de cada grupo que llegan a cada paso (o a uno posterior), y su % sobre las que abren el primero" : "Visitas que llegan a cada paso (o a uno posterior) y cuántas pasan al siguiente"}`}
+          title={wizardSeries ? `Embudo del asistente · por ${dimWordOf(wizard)}` : "Embudo del asistente"}
+          hint={`${filterText ? `${filterText} · ` : ""}${wizardSeries ? "Visitas de cada grupo que llegan a cada paso (o a uno posterior), y su % sobre las que abren el primero" : "Visitas que llegan a cada paso (o a uno posterior) y cuántas pasan al siguiente"}`}
+          action={menu("wizard")}
         >
-          {series ? <SegmentCompare series={series} rows={stepRows} /> : <StepFunnel steps={stats.steps} checkout={stats.funnel.checkout} />}
+          {wizardSeries ? <SegmentCompare series={wizardSeries} rows={stepRows} /> : <StepFunnel steps={stats.steps} checkout={stats.funnel.checkout} />}
         </Card>
       </div>
 

@@ -10,8 +10,10 @@ import {
   SourceNotConfiguredError,
   type DashboardSegments,
   type DashboardStats,
+  type SegmentDim,
 } from "@/lib/dashboard-stats";
 import { currentSource, type DataSource } from "@/lib/supabase/admin";
+import { type SegmentSelection } from "@/lib/dashboard-url";
 import Dashboard from "./Dashboard";
 import LoginForm from "./LoginForm";
 
@@ -27,7 +29,7 @@ export default async function DashboardPage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ r?: string; from?: string; to?: string; d?: string; env?: string; fk?: string; fv?: string; gb?: string }>;
+  searchParams: Promise<{ r?: string; from?: string; to?: string; d?: string; env?: string; fk?: string; fv?: string; sd?: string; sf?: string; sw?: string }>;
 }) {
   const { token } = await params;
   // Unconfigured, or a wrong token: exactly like any page that doesn't exist.
@@ -35,12 +37,12 @@ export default async function DashboardPage({
 
   if (!(await hasDashboardSession())) return <LoginForm token={token} />;
 
-  const { r, from, to, d, env, fk, fv, gb } = await searchParams;
+  const { r, from, to, d, env, fk, fv, sd, sf, sw } = await searchParams;
   const range = parseRange({ r, from, to, d });
   const source: DataSource = env === "staging" || env === "production" ? env : currentSource();
 
   const filter = parseFilter(fk, fv);
-  const groupBy = parseSegmentDim(gb);
+  const seg: SegmentSelection = { daily: parseSegmentDim(sd), purchase: parseSegmentDim(sf), wizard: parseSegmentDim(sw) };
 
   let stats: DashboardStats | null = null;
   let problem: string | null = null;
@@ -56,12 +58,15 @@ export default async function DashboardPage({
   }
 
   // Segments are optional: if they fail (e.g. their migration isn't applied in
-  // this database yet) the rest of the dashboard still shows.
-  let segments: DashboardSegments | null = null;
+  // this database yet) the rest of the dashboard still shows. Each distinct
+  // characteristic is loaded once, even if several charts use it.
+  const segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>> = {};
   let segmentsProblem: string | null = null;
-  if (stats && groupBy) {
+  if (stats) {
+    const dims = [...new Set(Object.values(seg).filter((k): k is SegmentDim => k !== null))];
     try {
-      segments = await loadDashboardSegments(range, source, groupBy, filter);
+      const loaded = await Promise.all(dims.map((dim) => loadDashboardSegments(range, source, dim, filter)));
+      dims.forEach((dim, i) => (segmentsByDim[dim] = loaded[i]));
     } catch {
       segmentsProblem = "No se han podido cargar los segmentos. ¿Está aplicada la migración «dashboard_segments» en esa base de datos?";
     }
@@ -73,8 +78,8 @@ export default async function DashboardPage({
       source={source}
       range={range}
       filter={filter}
-      groupBy={groupBy}
-      segments={segments}
+      seg={seg}
+      segmentsByDim={segmentsByDim}
       segmentsProblem={segmentsProblem}
       stats={stats}
       problem={problem}
