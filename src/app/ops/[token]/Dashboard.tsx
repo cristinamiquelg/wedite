@@ -1,4 +1,3 @@
-import { logout } from "./actions";
 import {
   BarList,
   DailyChart,
@@ -14,8 +13,8 @@ import {
   type Series,
 } from "./charts";
 import OptOutToggle from "./OptOutToggle";
-import RangePicker from "./RangePicker";
-import { PRESETS, todayMadrid, type DashboardRange } from "@/lib/dashboard-range";
+import PeriodMenu from "./PeriodMenu";
+import { todayMadrid, type DashboardRange } from "@/lib/dashboard-range";
 import { dashHref, type DashboardView } from "@/lib/dashboard-url";
 import type { DashboardSegments, DashboardStats, FilterKind, SegmentDim, StatsFilter } from "@/lib/dashboard-stats";
 import type { DataSource } from "@/lib/supabase/admin";
@@ -155,49 +154,36 @@ const chip = (on: boolean, tone: "ink" | "clay" = "clay") =>
       : "border-line text-ink-soft hover:border-ink hover:text-ink"
   }`;
 
-// Period (shortcuts + start/end calendar) and the segment control.
-function Toolbar({ token, view, today }: { token: string; view: DashboardView; today: string }) {
+// Period (one button with the active range) and the segment control.
+function Toolbar({ token, view, today, rangeLabel }: { token: string; view: DashboardView; today: string; rangeLabel: string }) {
   return (
-    <section aria-label="Periodo y segmentación" className="mt-6 space-y-5 rounded-2xl border border-line bg-paper-raised p-5">
-      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-4">
+    <section aria-label="Periodo y segmentación" className="mt-6 rounded-2xl border border-line bg-paper-raised p-5">
+      <div className="flex flex-wrap items-end gap-x-10 gap-y-4">
         <div>
           <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Periodo</p>
-          <nav aria-label="Atajos de periodo" className="mt-2 flex flex-wrap gap-1.5">
-            {PRESETS.map((p) => (
+          <div className="mt-2">
+            <PeriodMenu key={`${view.range.from}|${view.range.to}`} token={token} view={view} today={today} rangeLabel={rangeLabel} />
+          </div>
+        </div>
+
+        <div>
+          <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Segmentar por</p>
+          <nav aria-label="Segmentar por" className="mt-2 flex flex-wrap items-center gap-1.5">
+            <a href={dashHref(token, view, { groupBy: null })} aria-current={!view.groupBy ? "true" : undefined} className={chip(!view.groupBy)}>
+              Sin segmentar
+            </a>
+            {(Object.keys(DIM_LABEL) as FilterKind[]).map((k) => (
               <a
-                key={p.key}
-                href={dashHref(token, view, { range: { from: view.range.from, to: view.range.to, preset: p.key } })}
-                aria-current={view.range.preset === p.key ? "true" : undefined}
-                className={chip(view.range.preset === p.key, "ink")}
+                key={k}
+                href={dashHref(token, view, { groupBy: k })}
+                aria-current={view.groupBy === k ? "true" : undefined}
+                className={chip(view.groupBy === k)}
               >
-                {p.label}
+                {DIM_LABEL[k]}
               </a>
             ))}
           </nav>
         </div>
-        <RangePicker key={`${view.range.from}|${view.range.to}`} token={token} view={view} today={today} />
-      </div>
-
-      <div>
-        <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Segmentar por</p>
-        <nav aria-label="Segmentar por" className="mt-2 flex flex-wrap items-center gap-1.5">
-          <a href={dashHref(token, view, { groupBy: null })} aria-current={!view.groupBy ? "true" : undefined} className={chip(!view.groupBy)}>
-            Sin segmentar
-          </a>
-          {(Object.keys(DIM_LABEL) as FilterKind[]).map((k) => (
-            <a
-              key={k}
-              href={dashHref(token, view, { groupBy: k })}
-              aria-current={view.groupBy === k ? "true" : undefined}
-              className={chip(view.groupBy === k)}
-            >
-              {DIM_LABEL[k]}
-            </a>
-          ))}
-        </nav>
-        <p className="mt-2 text-xs text-ink-soft">
-          Divide la gráfica de visitas y los dos embudos en grupos: los 5 mayores y «Otros».
-        </p>
       </div>
     </section>
   );
@@ -251,7 +237,6 @@ function FilterBar({ stats, token, view }: { stats: DashboardStats; token: strin
 
 export default function Dashboard({
   token,
-  canLogout,
   source,
   range,
   filter,
@@ -262,7 +247,6 @@ export default function Dashboard({
   problem,
 }: {
   token: string;
-  canLogout: boolean;
   source: DataSource;
   range: DashboardRange;
   filter: StatsFilter | null;
@@ -272,11 +256,10 @@ export default function Dashboard({
   stats: DashboardStats | null;
   problem: string | null;
 }) {
-  const logoutAction = logout.bind(null, token);
   const view: DashboardView = { env: source, range, filter, groupBy };
 
   return (
-    <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-6xl px-5 pb-8 pt-14 sm:px-8 sm:pt-20">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-clay">Wedite · Panel privado</p>
@@ -297,17 +280,10 @@ export default function Dashboard({
               </a>
             ))}
           </nav>
-          {canLogout ? (
-            <form action={logoutAction}>
-              <button type="submit" className="rounded-full border border-line px-4 py-1.5 text-sm text-ink-soft hover:border-ink hover:text-ink">
-                Salir
-              </button>
-            </form>
-          ) : null}
         </div>
       </header>
 
-      <Toolbar token={token} view={view} today={todayMadrid()} />
+      <Toolbar token={token} view={view} today={todayMadrid()} rangeLabel={range.label} />
 
       <div className="mt-4">
         <OptOutToggle />
