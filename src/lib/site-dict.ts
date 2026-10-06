@@ -113,6 +113,7 @@ type SiteDict = {
     confirming: string;
     confirmBuy: (price: number) => string;
     continuePay: string;
+    opensNewTab: string;
     editEmail: string;
     disclaimer: string;
   };
@@ -376,6 +377,7 @@ const es: SiteDict = {
     confirming: "Preparando el pago...",
     confirmBuy: (price) => `Pagar · ${price} €`,
     continuePay: "Continuar al pago",
+    opensNewTab: "(se abre en una pestaña nueva)",
     editEmail: "Cambiar email",
     disclaimer: "Al pagar aceptáis los términos del servicio. Precio con IVA incluido.",
   },
@@ -643,6 +645,7 @@ const en: SiteDict = {
     confirming: "Preparing payment...",
     confirmBuy: (price) => `Pay · €${price}`,
     continuePay: "Continue to payment",
+    opensNewTab: "(opens in a new tab)",
     editEmail: "Change email",
     disclaimer: "By paying you accept the terms of service. Price includes VAT.",
   },
