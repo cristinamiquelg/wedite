@@ -73,7 +73,7 @@ one at a time) · `?sd=` / `?sf=<same kinds>` (segment of the daily-visits chart
   sum of `amount_cents` of orders paid in the period (by `paid_at`, VAT included); Ticket
   medio = facturación / paid orders. `business.*_period` fields only exist after the
   `period_revenue` migration; the UI shows "–" until then.
-- **Tiempo y abandono por etapa** (`dashboard_stage_times`, migration `20261008000001_stage_times`): per purchase-funnel stage — reach (nested), pass to next, stay, median/mean time to the next stage (first time on each stage's page; gaps > 2 h ignored; zero/negative gaps ignored). Optional like segments: if the function is missing the card says so. It replaced the old wizard-step time and drop-off cards.
+- **Tiempo por etapa** (`dashboard_stage_times`, migration `20261008000001_stage_times`): time-only table, one row per transition of the purchase funnel (visit → template → configuring → payment → buy, plus visit → buy) with median, mean and number of visits. Time = first time on one stage's page to first time on the next; gaps over 2 h and zero/negative gaps are ignored. No conversion/pass/stay columns on purpose: conversion lives in the funnel and templates cards. The function still returns `reached` counts (unused by the UI). Optional like segments: if the function is missing the card says so. It replaced the old wizard-step time and drop-off cards.
 - **Plantillas table**: per template, nested like the funnel (la ven → empiezan a configurar
   → llegan al pago → compran), % over those who see it (the "la ven" column itself is not shown).
 - Business numbers come from product tables (`sites`, `orders`, …), not events.
