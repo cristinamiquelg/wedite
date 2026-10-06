@@ -41,7 +41,7 @@ a couple's own site (`wedite.com/<name>`) is deliberately not reported.
 5. Helpers: `src/lib/dashboard-range.ts` (period parsing, Madrid days, DST-safe
    `startOfDayMadrid`, `queryWindow`), `src/lib/dashboard-url.ts` (`dashHref`:
    every control keeps the others' choices). Auth: `src/lib/dashboard-auth.ts`.
-6. Opt-out: `OptOutToggle` keeps your own browser out of the numbers.
+6. Opt-out: `OptOutToggle` (a padlock next to the title; closed = excluded) keeps your own browser out of the numbers.
 
 ## URL params
 
@@ -66,6 +66,15 @@ one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-vis
   page view. Source = `utm_source`, else referrer host, else `directo`.
 - Paths whose first segment is a couple's `sites.slug` are excluded from Wedite's
   visits (they are guests, not clients). They are not reported anywhere.
+- **Headline cards**: DAU = average visits per day in the period; MAU = distinct visits in
+  the 30 days ending on the period's last day (a second `dashboard_stats` call, reused when
+  the period is exactly 30 days); both are *visits* (one per tab), never people — say so in
+  tooltips. Conversión = paid orders in the period / visits in the period. Facturación =
+  sum of `amount_cents` of orders paid in the period (by `paid_at`, VAT included); Ticket
+  medio = facturación / paid orders. `business.*_period` fields only exist after the
+  `period_revenue` migration; the UI shows "–" until then.
+- **Plantillas table**: per template, nested like the funnel (la ven → empiezan a configurar
+  → llegan al pago → compran), % over those who see it.
 - Business numbers come from product tables (`sites`, `orders`, …), not events.
 - With few visits (< 30) the dashboard says percentages aren't reliable; keep that.
 
@@ -80,6 +89,7 @@ one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-vis
 - Order: code can go first only if the app tolerates the DB lagging (segments are
   optional and caught; `dashboard_stats` additions are not). Apply the migration to
   **staging**, check, then **production**, then merge.
+- Migrations so far: `…0001_mvp_core`, `…0002_analytics`, `20261004000001_analytics_insights`, `…000002_nested_funnel`, `20261006000001_dashboard_segments`, `20261007000001_period_revenue` (replaces `dashboard_stats`; also drops guest/RSVP data).
 - The user applies migrations by pasting the file into the Supabase **SQL Editor**
   (`wedite-staging` = `lglyotjdmfyvnikjjsva`, `wedite-prod` = `hbtpmguhjfrflrwzsoqr`).
   Known gotchas to tell them: paste the *contents*, not the path; select-all before
@@ -112,5 +122,3 @@ one at a time) · `?sd=` / `?sf=` / `?sw=<same kinds>` (segment of the daily-vis
   `checkout.session.completed` (needs the endpoint registered in Stripe and
   `STRIPE_WEBHOOK_SECRET` in Vercel Preview). Production `main` still has the
   simulated test-card payment page.
-- `dashboard_stats` still computes guest-site and RSVP data the UI no longer shows;
-  drop it in the next migration that touches the function.

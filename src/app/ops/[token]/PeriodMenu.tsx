@@ -75,7 +75,7 @@ export default function PeriodMenu({
         aria-expanded={open}
         aria-controls={open ? panelId : undefined}
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2.5 rounded-full border border-line bg-paper-raised px-4 py-2 text-sm text-ink outline-none transition-colors hover:border-ink focus-visible:border-clay"
+        className="flex items-center gap-2.5 rounded-full border border-line bg-paper-raised px-4 py-1.5 text-sm text-ink outline-none transition-colors hover:border-ink focus-visible:border-clay"
       >
         <CalendarIcon />
         <span className="font-medium">{title}</span>
@@ -87,7 +87,7 @@ export default function PeriodMenu({
           id={panelId}
           role="dialog"
           aria-label="Cambiar el periodo"
-          className="absolute left-0 top-full z-30 mt-2 w-[20rem] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-line bg-paper-raised p-4 shadow-[0_24px_50px_-24px_rgba(33,29,26,0.35)]"
+          className="absolute right-0 top-full z-30 mt-2 w-[20rem] max-w-[calc(100vw-2.5rem)] rounded-2xl border border-line bg-paper-raised p-4 shadow-[0_24px_50px_-24px_rgba(33,29,26,0.35)]"
         >
           <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Atajos</p>
           <nav aria-label="Atajos de periodo" className="mt-2 flex flex-wrap gap-1.5">

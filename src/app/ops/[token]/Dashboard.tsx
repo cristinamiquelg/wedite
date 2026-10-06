@@ -3,6 +3,7 @@ import {
   DailyChart,
   DEVICE_LABEL,
   DIM_LABEL,
+  Bubble,
   Empty,
   Legend,
   nf,
@@ -36,6 +37,21 @@ const EVENT_LABEL: Record<string, string> = {
   wizard_step: "Paso del asistente",
   checkout_submit: "Pago enviado",
 };
+
+const nf1 = new Intl.NumberFormat("es-ES", { maximumFractionDigits: 1 });
+const NO_PEOPLE_HINT = "Sin cookies no se reconoce a quien vuelve: una visita = una pestaña. Son visitas únicas, no personas.";
+const MIGRATION_SUB = "Falta aplicar la migración del panel";
+
+function pct1(part: number, whole: number): string {
+  return whole > 0 ? `${nf1.format((part / whole) * 100)} %` : "–";
+}
+
+function dayLabel(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("es-ES", { day: "numeric", month: "short", timeZone: "UTC" })
+    .format(new Date(Date.UTC(y, m - 1, d)))
+    .replace(/\./g, "");
+}
 
 function duration(seconds: number): string {
   if (seconds < 60) return `${seconds} s`;
@@ -75,12 +91,17 @@ function Card({ title, hint, action, children }: { title: string; hint?: string;
   );
 }
 
-function Kpi({ label, value, sub }: { label: string; value: string; sub?: string }) {
+function Kpi({ label, value, sub, hint }: { label: string; value: string; sub?: string; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-line bg-paper-raised p-5">
-      <p className="text-xs uppercase tracking-[0.18em] text-ink-soft">{label}</p>
-      <p className="mt-2 font-display text-4xl leading-none">{value}</p>
+    <div tabIndex={hint ? 0 : undefined} className="group relative rounded-2xl border border-line bg-paper-raised p-5 outline-none focus-visible:ring-2 focus-visible:ring-clay/50">
+      <p className={`text-xs uppercase tracking-[0.18em] text-ink-soft ${hint ? "cursor-help" : ""}`}>{label}</p>
+      <p className="mt-2 font-display text-3xl leading-none">{value}</p>
       {sub ? <p className="mt-2 text-xs text-ink-soft">{sub}</p> : null}
+      {hint ? (
+        <Bubble wrap className="left-5 top-full mt-1 w-60">
+          {hint}
+        </Bubble>
+      ) : null}
     </div>
   );
 }
@@ -151,18 +172,6 @@ function StepFunnel({ steps, checkout }: { steps: DashboardStats["steps"]; check
   );
 }
 
-// The period: one button with the active range that opens shortcuts and calendars.
-function Toolbar({ token, view, today, rangeLabel }: { token: string; view: DashboardView; today: string; rangeLabel: string }) {
-  return (
-    <section aria-label="Periodo" className="mt-6">
-      <p className="text-xs uppercase tracking-[0.14em] text-ink-soft">Periodo</p>
-      <div className="mt-2">
-        <PeriodMenu key={`${view.range.from}|${view.range.to}`} token={token} view={view} today={today} rangeLabel={rangeLabel} />
-      </div>
-    </section>
-  );
-}
-
 // Narrows the purchase funnel and the wizard funnel to one group.
 function FilterBar({ stats, token, view }: { stats: DashboardStats; token: string; view: DashboardView }) {
   const groups: { kind: FilterKind; options: { value: string; sessions: number }[] }[] = [
@@ -217,6 +226,7 @@ export default function Dashboard({
   seg,
   segmentsByDim,
   segmentsProblem,
+  mau,
   stats,
   problem,
 }: {
@@ -227,6 +237,7 @@ export default function Dashboard({
   seg: SegmentSelection;
   segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>>;
   segmentsProblem: string | null;
+  mau: number | null;
   stats: DashboardStats | null;
   problem: string | null;
 }) {
@@ -237,9 +248,12 @@ export default function Dashboard({
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-clay">Wedite · Panel privado</p>
-          <h1 className="mt-2 font-display text-3xl">
-            Analítica <span className="text-clay">· {source === "production" ? "producción" : "staging"}</span>
-          </h1>
+          <div className="mt-2 flex items-center gap-3">
+            <h1 className="font-display text-3xl">
+              Analítica <span className="text-clay">· {source === "production" ? "producción" : "staging"}</span>
+            </h1>
+            <OptOutToggle />
+          </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <nav aria-label="Entorno" className="flex overflow-hidden rounded-full border border-line text-sm">
@@ -254,21 +268,16 @@ export default function Dashboard({
               </a>
             ))}
           </nav>
+          <PeriodMenu key={`${range.from}|${range.to}`} token={token} view={view} today={todayMadrid()} rangeLabel={range.label} />
         </div>
       </header>
-
-      <Toolbar token={token} view={view} today={todayMadrid()} rangeLabel={range.label} />
-
-      <div className="mt-4">
-        <OptOutToggle />
-      </div>
 
       {problem || !stats ? (
         <p role="alert" className="mt-8 rounded-2xl border border-line bg-paper-raised p-5 text-sm text-clay-dark">
           {problem}
         </p>
       ) : (
-        <Body stats={stats} range={range} token={token} view={view} segmentsByDim={segmentsByDim} segmentsProblem={segmentsProblem} />
+        <Body stats={stats} range={range} token={token} view={view} segmentsByDim={segmentsByDim} segmentsProblem={segmentsProblem} mau={mau} />
       )}
     </main>
   );
@@ -281,6 +290,7 @@ function Body({
   view,
   segmentsByDim,
   segmentsProblem,
+  mau,
 }: {
   stats: DashboardStats;
   range: DashboardRange;
@@ -288,6 +298,7 @@ function Body({
   view: DashboardView;
   segmentsByDim: Partial<Record<SegmentDim, DashboardSegments>>;
   segmentsProblem: string | null;
+  mau: number | null;
 }) {
   const { kpis, business } = stats;
   const filter = stats.filter;
@@ -300,6 +311,11 @@ function Body({
     const t = stepTime.get(step)!;
     return { label: STEP_LABEL[step], value: t.avg_seconds, shown: duration(t.avg_seconds), sub: `${nf.format(t.sessions)} visitas` };
   });
+
+  // Headline numbers. DAU/MAU count visits (one per browser tab), never people.
+  const dau = stats.daily.length > 0 ? stats.daily.reduce((n, d) => n + d.sessions, 0) / stats.daily.length : 0;
+  const paid = business.orders_paid_period ?? null;
+  const revenue = business.revenue_cents_period ?? null;
 
   // Each main chart has its own segment (or none): one series per group.
   const dataFor = (chart: SegmentChart): DashboardSegments | null => {
@@ -346,14 +362,29 @@ function Body({
 
   return (
     <div className="mt-8 space-y-6">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <Kpi label="Visitas" value={nf.format(kpis.sessions)} sub={`${nf.format(kpis.page_views)} páginas vistas`} />
-        <Kpi label="Han empezado" value={nf.format(kpis.started)} sub={`${pct(kpis.started, kpis.sessions)} de las visitas`} />
-        <Kpi label="Han comprado" value={nf.format(kpis.completed)} sub={`${pct(kpis.completed, kpis.sessions)} de las visitas`} />
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
+        <Kpi label="DAU" value={nf1.format(dau)} sub="visitas únicas al día, de media" hint={NO_PEOPLE_HINT} />
         <Kpi
-          label="Ingresos"
-          value={eur.format(business.revenue_cents / 100)}
-          sub={`${nf.format(business.orders_paid)} pedidos pagados`}
+          label="MAU"
+          value={mau === null ? "–" : nf.format(mau)}
+          sub={`visitas únicas · 30 días hasta el ${dayLabel(range.to)}`}
+          hint={NO_PEOPLE_HINT}
+        />
+        <Kpi
+          label="Conversión"
+          value={paid === null ? "–" : pct1(paid, kpis.sessions)}
+          sub={paid === null ? MIGRATION_SUB : `${nf.format(paid)} ${paid === 1 ? "compra" : "compras"} de ${nf.format(kpis.sessions)} visitas`}
+          hint="De visita a compra: pedidos pagados en el periodo entre las visitas del periodo."
+        />
+        <Kpi
+          label="Facturación"
+          value={revenue === null ? "–" : eur.format(revenue / 100)}
+          sub={revenue === null ? MIGRATION_SUB : `${nf.format(paid ?? 0)} pedidos pagados · IVA incl.`}
+        />
+        <Kpi
+          label="Ticket medio"
+          value={revenue === null || !paid ? "–" : eur.format(revenue / paid / 100)}
+          sub={revenue === null ? MIGRATION_SUB : "por pedido pagado"}
         />
       </div>
 
@@ -401,7 +432,7 @@ function Body({
         </Card>
       </div>
 
-      <Card title="Plantillas">
+      <Card title="Plantillas" hint="Visitas que llegan a cada paso (o a uno posterior) y su % sobre las que ven la plantilla; «Compran» es la conversión">
         {stats.templates.length === 0 ? (
           <Empty />
         ) : (
@@ -411,19 +442,31 @@ function Body({
                 <tr>
                   <th className="py-2 pr-4 font-normal">Plantilla</th>
                   <th className="py-2 pr-4 text-right font-normal">La ven</th>
-                  <th className="py-2 pr-4 text-right font-normal">Empiezan</th>
+                  <th className="py-2 pr-4 text-right font-normal">Empiezan a configurar</th>
+                  <th className="py-2 pr-4 text-right font-normal">Llegan al pago</th>
                   <th className="py-2 text-right font-normal">Compran</th>
                 </tr>
               </thead>
               <tbody>
-                {stats.templates.map((t) => (
-                  <tr key={t.template} className="border-t border-line tabular-nums">
-                    <td className="py-2 pr-4 font-sans">{t.template}</td>
-                    <td className="py-2 pr-4 text-right">{nf.format(t.viewed)}</td>
-                    <td className="py-2 pr-4 text-right">{nf.format(t.started)}</td>
-                    <td className="py-2 text-right">{nf.format(t.completed)}</td>
-                  </tr>
-                ))}
+                {stats.templates.map((t) => {
+                  const cell = (n: number | undefined) =>
+                    n === undefined ? (
+                      "–"
+                    ) : (
+                      <>
+                        {nf.format(n)} <span className="text-ink-soft">· {pct1(n, t.viewed)}</span>
+                      </>
+                    );
+                  return (
+                    <tr key={t.template} className="border-t border-line tabular-nums">
+                      <td className="py-2 pr-4 font-sans">{t.template}</td>
+                      <td className="py-2 pr-4 text-right">{nf.format(t.viewed)}</td>
+                      <td className="py-2 pr-4 text-right">{cell(t.started)}</td>
+                      <td className="py-2 pr-4 text-right">{cell(t.checkout)}</td>
+                      <td className="py-2 text-right">{cell(t.completed)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
