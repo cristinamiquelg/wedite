@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { sendEmail } from "@/lib/email/resend";
+import { isStagingEnv } from "@/lib/environment";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -8,7 +9,9 @@ export const dynamic = "force-dynamic";
 // Where the "your legal texts may need updating" alerts go.
 const ALERT_TO = process.env.LEGAL_ALERT_EMAIL || "crismiquelg@gmail.com";
 
-// One event per visitor choice: far too noisy to email, and not actionable.
+// One event per visitor choice: far too noisy to email in production, and not
+// actionable. Staging still emails them so LexVibe's test delivery (a sample
+// consent.recorded) proves the whole chain works.
 const IGNORED_EVENTS = new Set(["consent.recorded"]);
 
 function escapeHtml(value: string): string {
@@ -46,7 +49,7 @@ export async function POST(request: NextRequest) {
   }
 
   const type = typeof event.type === "string" ? event.type.slice(0, 80) : "unknown";
-  if (IGNORED_EVENTS.has(type)) return new NextResponse(null, { status: 204 });
+  if (!isStagingEnv() && IGNORED_EVENTS.has(type)) return new NextResponse(null, { status: 204 });
 
   const details = JSON.stringify(event, null, 2).slice(0, 4000);
   try {
