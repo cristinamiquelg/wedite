@@ -144,7 +144,7 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
   const t = COPY[input.locale];
   const siteUrl = `${input.origin}/${input.siteSlug}`;
   const responsesUrl = `${input.origin}/respuestas/${input.responsesToken}`;
-  const logoUrl = `${input.origin}/email/wedite-logo-light.png`;
+  const logoUrl = `${input.origin}/email/wedite-logo-white.png`;
   const bouquetUrl = `${input.origin}/email/ribera-bouquet.png`;
   const names = [input.partnerA, input.partnerB].filter((n): n is string => Boolean(n && n.trim())).map((n) => n.trim()).join(" & ");
   const date = input.weddingDate ? longDate(input.weddingDate, input.locale) : null;
