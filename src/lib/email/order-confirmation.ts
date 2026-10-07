@@ -30,7 +30,7 @@ const COPY = {
     subject: "¡Bienvenidos a Wedite! Vuestra web de boda ya está online",
     preheader: "Compartidla con vuestros invitados y seguid sus respuestas en una tabla.",
     title: "Vuestra web de boda\nya está en el aire",
-    intro: "Gracias por confiar en nosotros. Vuestra web ya está publicada y lista para enseñarla a todo el mundo.",
+    intro: "Gracias por confiar en nosotros. Vuestra web ya está publicada\ny lista para enseñarla a todo el mundo.",
     cardKicker: "La boda de",
     fallbackNames: "Vuestra boda",
     viewSite: "Ver vuestra web",
@@ -60,7 +60,7 @@ const COPY = {
     subject: "Welcome to Wedite! Your wedding website is live",
     preheader: "Share it with your guests and follow their answers in a table.",
     title: "Your wedding website\nis live",
-    intro: "Thank you for trusting us. Your website is published and ready to show to everyone.",
+    intro: "Thank you for trusting us. Your website is published\nand ready to show to everyone.",
     cardKicker: "The wedding of",
     fallbackNames: "Your wedding",
     viewSite: "View your website",
@@ -115,7 +115,7 @@ export function escapeHtml(value: string): string {
 
 /** Escapes text and glues the last two words so a paragraph never wraps a single word onto its own line. */
 function prose(value: string): string {
-  return escapeHtml(value).replace(/ (\S+)$/, "&nbsp;$1");
+  return escapeHtml(value).replace(/\n/g, "<br>").replace(/ (\S+)$/, "&nbsp;$1");
 }
 
 function longDate(iso: string, locale: Locale): string | null {
@@ -169,7 +169,7 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
 <tr><td align="center" bgcolor="${HERO_BG}" style="background-color:${HERO_BG};padding:36px 32px 40px;">
 <a href="${escapeHtml(input.origin)}" style="text-decoration:none;"><img src="${escapeHtml(logoUrl)}" width="140" alt="wedite" style="display:block;margin:0 auto 26px;width:140px;height:auto;border:0;"></a>
 <h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;text-wrap:balance;">${escapeHtml(t.title).replace(/\n/g, "<br>")}</h1>
-<p style="margin:0;font:16px/1.6 ${SANS};color:#ffffff;text-wrap:balance;">${prose(t.intro)}</p>
+<p style="margin:0;font:16px/1.6 ${SANS};color:#ffffff;">${prose(t.intro)}</p>
 </td></tr>
 
 <!-- their invitation -->
@@ -225,7 +225,7 @@ ${step(
   const text = [
     t.title.replace("\n", " "),
     "",
-    t.intro,
+    t.intro.replace("\n", " "),
     "",
     [t.cardKicker, names || t.fallbackNames, date, where].filter(Boolean).join(" · "),
     `${t.viewSite}: ${siteUrl}`,
