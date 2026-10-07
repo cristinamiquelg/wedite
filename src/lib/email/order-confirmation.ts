@@ -29,9 +29,8 @@ const COPY = {
   es: {
     subject: "¡Bienvenidos a Wedite! Vuestra web de boda ya está online",
     preheader: "Compartidla con vuestros invitados y seguid sus respuestas en una tabla.",
-    eyebrow: "Bienvenidos a Wedite",
-    title: "Vuestra web de boda ya está en el aire",
-    intro: "Gracias por confiar en nosotros. Ya está publicada y lista para enseñarla a todo el mundo.",
+    title: "Vuestra web de boda\nya está en el aire",
+    intro: "Gracias por confiar en nosotros. Vuestra web ya está publicada y lista para enseñarla a todo el mundo.",
     cardKicker: "La boda de",
     fallbackNames: "Vuestra boda",
     viewSite: "Ver vuestra web",
@@ -60,9 +59,8 @@ const COPY = {
   en: {
     subject: "Welcome to Wedite! Your wedding website is live",
     preheader: "Share it with your guests and follow their answers in a table.",
-    eyebrow: "Welcome to Wedite",
-    title: "Your wedding website is live",
-    intro: "Thank you for trusting us. It's published and ready to show to everyone.",
+    title: "Your wedding website\nis live",
+    intro: "Thank you for trusting us. Your website is published and ready to show to everyone.",
     cardKicker: "The wedding of",
     fallbackNames: "Your wedding",
     viewSite: "View your website",
@@ -115,6 +113,11 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Escapes text and glues the last two words so a paragraph never wraps a single word onto its own line. */
+function prose(value: string): string {
+  return escapeHtml(value).replace(/ (\S+)$/, "&nbsp;$1");
+}
+
 function longDate(iso: string, locale: Locale): string | null {
   const d = new Date(`${iso}T00:00:00Z`);
   if (Number.isNaN(d.getTime())) return null;
@@ -144,6 +147,8 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
   const t = COPY[input.locale];
   const siteUrl = `${input.origin}/${input.siteSlug}`;
   const responsesUrl = `${input.origin}/respuestas/${input.responsesToken}`;
+  // Tagged so visits from the email footer show up under "Campañas (UTM)" in the dashboard.
+  const footerWebUrl = `${input.origin}/?utm_source=email&utm_medium=transactional&utm_campaign=order_confirmation`;
   const logoUrl = `${input.origin}/email/wedite-logo-white.png`;
   const bouquetUrl = `${input.origin}/email/ribera-bouquet.png`;
   const names = [input.partnerA, input.partnerB].filter((n): n is string => Boolean(n && n.trim())).map((n) => n.trim()).join(" & ");
@@ -163,9 +168,8 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
 <!-- hero -->
 <tr><td align="center" bgcolor="${HERO_BG}" style="background-color:${HERO_BG};padding:36px 32px 40px;">
 <a href="${escapeHtml(input.origin)}" style="text-decoration:none;"><img src="${escapeHtml(logoUrl)}" width="140" alt="wedite" style="display:block;margin:0 auto 26px;width:140px;height:auto;border:0;"></a>
-<p style="margin:0 0 12px;font:600 12px ${SANS};letter-spacing:3px;text-transform:uppercase;color:#ffffff;">${escapeHtml(t.eyebrow)}</p>
-<h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;">${escapeHtml(t.title)}</h1>
-<p style="margin:0;font:16px/1.6 ${SANS};color:#ffffff;">${escapeHtml(t.intro)}</p>
+<h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;text-wrap:balance;">${escapeHtml(t.title).replace(/\n/g, "<br>")}</h1>
+<p style="margin:0;font:16px/1.6 ${SANS};color:#ffffff;text-wrap:balance;">${prose(t.intro)}</p>
 </td></tr>
 
 <!-- their invitation -->
@@ -184,30 +188,30 @@ ${where ? `<p style="margin:0;font:italic 17px ${SERIF};color:${CARD_INK};">${es
 ${step(
     1,
     t.step1,
-    `<p style="margin:0 0 10px;font:15px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.step1Text)}</p>
+    `<p style="margin:0 0 10px;font:15px/1.6 ${SANS};color:${SOFT};">${prose(t.step1Text)}</p>
 <p style="margin:0 0 16px;font:600 15px ${SANS};word-break:break-all;"><a href="${escapeHtml(siteUrl)}" style="color:${CLAY};text-decoration:underline;">${escapeHtml(siteUrl)}</a></p>
 <p style="margin:0;">${button(whatsappUrl, t.whatsapp, false)}${button(mailUrl, t.mail, false)}</p>`,
   )}
 ${step(
     2,
     t.step2,
-    `<p style="margin:0 0 16px;font:15px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.step2Text)}</p>
+    `<p style="margin:0 0 16px;font:15px/1.6 ${SANS};color:${SOFT};">${prose(t.step2Text)}</p>
 <p style="margin:0 0 16px;">${button(responsesUrl, t.responses, true)}</p>
 <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;background-color:${SAGE_LIGHT};border-radius:14px;"><tr><td style="padding:14px 20px;">
 <p style="margin:0 0 4px;font:600 11px ${SANS};letter-spacing:2px;text-transform:uppercase;color:${SAGE};">${escapeHtml(t.codeLabel)}</p>
 <p style="margin:0 0 4px;font:700 26px 'Courier New',Courier,monospace;letter-spacing:5px;color:${INK};">${escapeHtml(input.accessCode)}</p>
-<p style="margin:0;font:13px ${SANS};color:${SOFT};">${escapeHtml(t.codeHelp)}</p>
+<p style="margin:0;font:13px ${SANS};color:${SOFT};">${prose(t.codeHelp)}</p>
 </td></tr></table>
-<p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${escapeHtml(t.private)}</p>`,
+<p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${prose(t.private)}</p>`,
   )}
 <p style="margin:10px 0 0;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
 </td></tr>
 
 <!-- footer -->
 <tr><td align="center" style="padding:26px 32px 30px;border-top:1px solid ${LINE};">
-<p style="margin:0 0 14px;font:13px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.footerHelp)}</p>
+<p style="margin:0 0 14px;font:13px/1.6 ${SANS};color:${SOFT};">${prose(t.footerHelp)}</p>
 <p style="margin:0 0 16px;font:13px ${SANS};">
-<a href="${escapeHtml(input.origin)}" style="color:${INK};text-decoration:underline;">${escapeHtml(input.origin.replace(/^https?:\/\//, ""))}</a>
+<a href="${escapeHtml(footerWebUrl)}" style="color:${INK};text-decoration:underline;">www.wedite.com</a>
 <span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
 <a href="${escapeHtml(`${input.origin}/privacidad`)}" style="color:${INK};text-decoration:underline;">${escapeHtml(t.privacy)}</a>
 <span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
@@ -219,8 +223,7 @@ ${step(
 </table></td></tr></table></body></html>`;
 
   const text = [
-    t.eyebrow.toUpperCase(),
-    t.title,
+    t.title.replace("\n", " "),
     "",
     t.intro,
     "",
@@ -245,7 +248,7 @@ ${step(
     `${t.order} ${input.orderNumber} · ${t.design} ${input.templateName}`,
     "",
     t.footerHelp,
-    `${input.origin} · ${input.origin}/privacidad · ${SUPPORT_EMAIL}`,
+    `www.wedite.com: ${footerWebUrl} · ${input.origin}/privacidad · ${SUPPORT_EMAIL}`,
   ].join("\n");
 
   return { subject: t.subject, html, text };
