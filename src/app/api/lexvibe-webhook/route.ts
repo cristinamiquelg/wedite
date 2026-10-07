@@ -37,7 +37,18 @@ export async function POST(request: NextRequest) {
   }
 
   const rawBody = await request.text();
-  if (rawBody.length > 20_000 || !validSignature(rawBody, request.headers.get("x-lexvibe-signature"), secret)) {
+  const signature = request.headers.get("x-lexvibe-signature");
+  if (rawBody.length > 20_000 || !validSignature(rawBody, signature, secret)) {
+    // Diagnostics only: lengths and shape, never the secret or the signature.
+    console.error("LexVibe webhook: invalid signature", {
+      hasSignatureHeader: signature !== null,
+      signatureLength: signature?.length ?? 0,
+      bodyLength: rawBody.length,
+      secretLength: secret.length,
+      secretHasWhsecPrefix: secret.startsWith("whsec_"),
+      secretHasOuterWhitespaceOrQuotes: secret !== secret.trim() || /^["']|["']$/.test(secret),
+      vercelEnv: process.env.VERCEL_ENV,
+    });
     return NextResponse.json({ error: "invalid_signature" }, { status: 401 });
   }
 
