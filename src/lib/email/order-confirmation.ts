@@ -29,9 +29,8 @@ const COPY = {
   es: {
     subject: "¡Bienvenidos a Wedite! Vuestra web de boda ya está online",
     preheader: "Compartidla con vuestros invitados y seguid sus respuestas en una tabla.",
-    eyebrow: "Bienvenidos a Wedite",
-    title: "Vuestra web de boda ya está en el aire",
-    intro: "Gracias por confiar en nosotros. Ya está publicada y lista para enseñarla a todo el mundo.",
+    title: "Vuestra web de boda\nya está en el aire",
+    intro: "Gracias por confiar en nosotros. Vuestra web ya está publicada\ny lista para enseñarla a todo el mundo.",
     cardKicker: "La boda de",
     fallbackNames: "Vuestra boda",
     viewSite: "Ver vuestra web",
@@ -53,13 +52,15 @@ const COPY = {
     order: "Pedido",
     design: "Diseño",
     footer: "Wedite · Webs de boda que enamoran",
+    privacy: "Política de privacidad",
+    contact: "Contacto",
+    footerHelp: "¿Necesitáis ayuda? Escribidnos y os respondemos encantados.",
   },
   en: {
     subject: "Welcome to Wedite! Your wedding website is live",
     preheader: "Share it with your guests and follow their answers in a table.",
-    eyebrow: "Welcome to Wedite",
-    title: "Your wedding website is live",
-    intro: "Thank you for trusting us. It's published and ready to show to everyone.",
+    title: "Your wedding website\nis live",
+    intro: "Thank you for trusting us. Your website is published\nand ready to show to everyone.",
     cardKicker: "The wedding of",
     fallbackNames: "Your wedding",
     viewSite: "View your website",
@@ -81,6 +82,9 @@ const COPY = {
     order: "Order",
     design: "Design",
     footer: "Wedite · Wedding websites people love",
+    privacy: "Privacy policy",
+    contact: "Contact",
+    footerHelp: "Need a hand? Write to us and we'll be happy to help.",
   },
 } as const;
 
@@ -94,6 +98,9 @@ const SAGE_LIGHT = "#eef0e7";
 // The card mirrors the template's own look (Ribera: navy ink on cream, coral line art).
 const CARD_BG = "#efece3";
 const CARD_INK = "#0e1453";
+// Hero background: the brand's near-black (same as INK).
+const HERO_BG = "#211d1a";
+const SUPPORT_EMAIL = "hello@wedite.com";
 const SERIF = "Georgia,'Times New Roman',serif";
 const SANS = "Arial,Helvetica,sans-serif";
 
@@ -104,6 +111,11 @@ export function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/** Escapes text and glues the last two words so a paragraph never wraps a single word onto its own line. */
+function prose(value: string): string {
+  return escapeHtml(value).replace(/\n/g, "<br>").replace(/ (\S+)$/, "&nbsp;$1");
 }
 
 function longDate(iso: string, locale: Locale): string | null {
@@ -121,12 +133,12 @@ function button(href: string, label: string, primary: boolean): string {
   const bg = primary ? INK : "#ffffff";
   const color = primary ? "#ffffff" : INK;
   const border = primary ? INK : "#cfcdc8";
-  return `<a href="${escapeHtml(href)}" style="display:inline-block;padding:14px 28px;border-radius:999px;background:${bg};color:${color};border:1px solid ${border};font:600 14px/1 ${SANS};text-decoration:none;margin:0 8px 10px 0;">${escapeHtml(label)}</a>`;
+  return `<a href="${escapeHtml(href)}" style="display:inline-block;padding:14px 28px;border-radius:999px;background-color:${bg};color:${color};border:1px solid ${border};font:600 14px/1 ${SANS};text-decoration:none;margin:0 8px 10px 0;">${escapeHtml(label)}</a>`;
 }
 
 function step(n: number, title: string, body: string): string {
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 30px;"><tr>
-<td width="52" valign="top" style="padding:2px 14px 0 0;"><div style="width:38px;height:38px;border-radius:19px;background:${SAGE_LIGHT};color:${SAGE};font:700 17px/38px ${SERIF};text-align:center;">${n}</div></td>
+<td width="52" valign="top" style="padding:2px 14px 0 0;"><div style="width:38px;height:38px;border-radius:19px;background-color:${SAGE_LIGHT};color:${SAGE};font:700 17px/38px ${SERIF};text-align:center;">${n}</div></td>
 <td valign="top"><h2 style="margin:0 0 8px;font:400 22px/1.25 ${SERIF};color:${INK};">${escapeHtml(title)}</h2>${body}</td>
 </tr></table>`;
 }
@@ -135,6 +147,9 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
   const t = COPY[input.locale];
   const siteUrl = `${input.origin}/${input.siteSlug}`;
   const responsesUrl = `${input.origin}/respuestas/${input.responsesToken}`;
+  // Tagged so visits from the email footer show up under "Campañas (UTM)" in the dashboard.
+  const footerWebUrl = `${input.origin}/?utm_source=email&utm_medium=transactional&utm_campaign=order_confirmation`;
+  const logoUrl = `${input.origin}/email/wedite-logo-white.png`;
   const bouquetUrl = `${input.origin}/email/ribera-bouquet.png`;
   const names = [input.partnerA, input.partnerB].filter((n): n is string => Boolean(n && n.trim())).map((n) => n.trim()).join(" & ");
   const date = input.weddingDate ? longDate(input.weddingDate, input.locale) : null;
@@ -145,21 +160,20 @@ export function buildOrderConfirmationEmail(input: OrderEmailInput): { subject: 
 
   const html = `<!doctype html>
 <html lang="${input.locale}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(t.subject)}</title></head>
-<body style="margin:0;padding:0;background:${PAPER};">
+<body bgcolor="${PAPER}" style="margin:0;padding:0;background-color:${PAPER};">
 <span style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(t.preheader)}</span>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${PAPER};"><tr><td align="center" style="padding:24px 12px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:1px solid ${LINE};border-radius:20px;overflow:hidden;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:${PAPER};"><tr><td align="center" style="padding:24px 12px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:1px solid ${LINE};border-radius:20px;overflow:hidden;">
 
 <!-- hero -->
-<tr><td align="center" style="background:${CLAY};padding:36px 32px 40px;">
-<p style="margin:0 0 26px;font:700 24px ${SERIF};color:#ffffff;">wedite<span style="color:#f6d9cc;">&#10022;</span></p>
-<p style="margin:0 0 12px;font:600 12px ${SANS};letter-spacing:3px;text-transform:uppercase;color:#f6d9cc;">${escapeHtml(t.eyebrow)}</p>
-<h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;">${escapeHtml(t.title)}</h1>
-<p style="margin:0;font:16px/1.6 ${SANS};color:#fbe9e0;">${escapeHtml(t.intro)}</p>
+<tr><td align="center" bgcolor="${HERO_BG}" style="background-color:${HERO_BG};padding:36px 32px 40px;">
+<a href="${escapeHtml(input.origin)}" style="text-decoration:none;"><img src="${escapeHtml(logoUrl)}" width="140" alt="wedite" style="display:block;margin:0 auto 26px;width:140px;height:auto;border:0;"></a>
+<h1 style="margin:0 0 14px;font:400 36px/1.15 ${SERIF};color:#ffffff;text-wrap:balance;">${escapeHtml(t.title).replace(/\n/g, "<br>")}</h1>
+<p style="margin:0;font:16px/1.6 ${SANS};color:#ffffff;">${prose(t.intro)}</p>
 </td></tr>
 
 <!-- their invitation -->
-<tr><td align="center" style="background:${CARD_BG};padding:40px 24px 36px;border-bottom:1px solid ${LINE};">
+<tr><td align="center" bgcolor="${CARD_BG}" style="background-color:${CARD_BG};padding:40px 24px 36px;border-bottom:1px solid ${LINE};">
 <p style="margin:0 0 10px;font:600 12px ${SANS};letter-spacing:4px;text-transform:uppercase;color:${CARD_INK};">${escapeHtml(t.cardKicker)}</p>
 <p style="margin:0 0 22px;font:700 34px/1.2 ${SERIF};letter-spacing:3px;text-transform:uppercase;color:${CARD_INK};">${escapeHtml(names || t.fallbackNames)}</p>
 <img src="${escapeHtml(bouquetUrl)}" width="110" alt="" style="display:block;margin:0 auto 22px;width:110px;height:auto;border:0;">
@@ -174,37 +188,44 @@ ${where ? `<p style="margin:0;font:italic 17px ${SERIF};color:${CARD_INK};">${es
 ${step(
     1,
     t.step1,
-    `<p style="margin:0 0 10px;font:15px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.step1Text)}</p>
+    `<p style="margin:0 0 10px;font:15px/1.6 ${SANS};color:${SOFT};">${prose(t.step1Text)}</p>
 <p style="margin:0 0 16px;font:600 15px ${SANS};word-break:break-all;"><a href="${escapeHtml(siteUrl)}" style="color:${CLAY};text-decoration:underline;">${escapeHtml(siteUrl)}</a></p>
 <p style="margin:0;">${button(whatsappUrl, t.whatsapp, false)}${button(mailUrl, t.mail, false)}</p>`,
   )}
 ${step(
     2,
     t.step2,
-    `<p style="margin:0 0 16px;font:15px/1.6 ${SANS};color:${SOFT};">${escapeHtml(t.step2Text)}</p>
+    `<p style="margin:0 0 16px;font:15px/1.6 ${SANS};color:${SOFT};">${prose(t.step2Text)}</p>
 <p style="margin:0 0 16px;">${button(responsesUrl, t.responses, true)}</p>
-<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;background:${SAGE_LIGHT};border-radius:14px;"><tr><td style="padding:14px 20px;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;background-color:${SAGE_LIGHT};border-radius:14px;"><tr><td style="padding:14px 20px;">
 <p style="margin:0 0 4px;font:600 11px ${SANS};letter-spacing:2px;text-transform:uppercase;color:${SAGE};">${escapeHtml(t.codeLabel)}</p>
 <p style="margin:0 0 4px;font:700 26px 'Courier New',Courier,monospace;letter-spacing:5px;color:${INK};">${escapeHtml(input.accessCode)}</p>
-<p style="margin:0;font:13px ${SANS};color:${SOFT};">${escapeHtml(t.codeHelp)}</p>
+<p style="margin:0;font:13px ${SANS};color:${SOFT};">${prose(t.codeHelp)}</p>
 </td></tr></table>
-<p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${escapeHtml(t.private)}</p>`,
+<p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${prose(t.private)}</p>`,
   )}
 <p style="margin:10px 0 0;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
 </td></tr>
 
 <!-- footer -->
-<tr><td align="center" style="padding:26px 32px 30px;">
+<tr><td align="center" style="padding:26px 32px 30px;border-top:1px solid ${LINE};">
+<p style="margin:0 0 14px;font:13px/1.6 ${SANS};color:${SOFT};">${prose(t.footerHelp)}</p>
+<p style="margin:0 0 16px;font:13px ${SANS};">
+<a href="${escapeHtml(footerWebUrl)}" style="color:${INK};text-decoration:underline;">www.wedite.com</a>
+<span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
+<a href="${escapeHtml(`${input.origin}/privacidad`)}" style="color:${INK};text-decoration:underline;">${escapeHtml(t.privacy)}</a>
+<span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
+<a href="mailto:${SUPPORT_EMAIL}" style="color:${INK};text-decoration:underline;">${SUPPORT_EMAIL}</a>
+</p>
 <p style="margin:0 0 6px;font:12px ${SANS};color:#7a7168;">${escapeHtml(t.order)} ${escapeHtml(input.orderNumber)} &middot; ${escapeHtml(t.design)} ${escapeHtml(input.templateName)}</p>
 <p style="margin:0;font:12px ${SANS};color:#7a7168;">${escapeHtml(t.footer)}</p>
 </td></tr>
 </table></td></tr></table></body></html>`;
 
   const text = [
-    t.eyebrow.toUpperCase(),
-    t.title,
+    t.title.replace("\n", " "),
     "",
-    t.intro,
+    t.intro.replace("\n", " "),
     "",
     [t.cardKicker, names || t.fallbackNames, date, where].filter(Boolean).join(" · "),
     `${t.viewSite}: ${siteUrl}`,
@@ -225,6 +246,9 @@ ${step(
     `${t.signoff} ${t.team}`,
     "",
     `${t.order} ${input.orderNumber} · ${t.design} ${input.templateName}`,
+    "",
+    t.footerHelp,
+    `www.wedite.com: ${footerWebUrl} · ${input.origin}/privacidad · ${SUPPORT_EMAIL}`,
   ].join("\n");
 
   return { subject: t.subject, html, text };

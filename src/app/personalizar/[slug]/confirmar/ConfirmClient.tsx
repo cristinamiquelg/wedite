@@ -84,11 +84,6 @@ export default function ConfirmClient({ template }: { template: Template }) {
             </div>
           </dl>
 
-          <div className="mt-8 flex items-center justify-between rounded-xl bg-sage-light px-5 py-4">
-            <span className="text-sm text-ink">{dict.totalOnce}</span>
-            <span className="font-display text-2xl">{template.price} €</span>
-          </div>
-
           <Link
             href={`/preview/${template.slug}?draft=1`}
             target="_blank"
@@ -96,14 +91,19 @@ export default function ConfirmClient({ template }: { template: Template }) {
             // which is where the configured draft lives; without it the tab
             // opens the generic demo instead of the couple's own site.
             rel="opener"
-            className="mt-4 flex items-center justify-center gap-2 rounded-full border border-line px-5 py-3 text-center text-sm font-medium text-ink transition-colors hover:border-ink"
+            className="mt-8 flex min-h-11 items-center justify-center gap-2 rounded-full border border-ink-soft px-5 py-3 text-center text-sm font-medium text-ink transition-colors hover:border-ink hover:bg-ink hover:text-paper focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-clay-dark"
           >
-            <svg viewBox="0 0 20 20" className="h-4 w-4 text-ink-soft" fill="none" stroke="currentColor" strokeWidth="1.6">
+            <svg aria-hidden="true" viewBox="0 0 20 20" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6">
               <path d="M2 10s3-5.5 8-5.5S18 10 18 10s-3 5.5-8 5.5S2 10 2 10z" strokeLinecap="round" strokeLinejoin="round" />
               <circle cx="10" cy="10" r="2.3" />
             </svg>
             {dict.reviewBeforeBuy}
+            <span className="sr-only"> {dict.opensNewTab}</span>
           </Link>
+          <div className="mt-4 flex items-center justify-between rounded-xl bg-sage-light px-5 py-4">
+            <span className="text-sm text-ink">{dict.totalOnce}</span>
+            <span className="font-display text-2xl">{template.price} €</span>
+          </div>
         </div>
 
         <div>
