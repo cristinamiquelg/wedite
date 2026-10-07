@@ -33,6 +33,7 @@ export default function Footer() {
       links: [
         { label: dict.footer.whoWeAre, href: "/quienes-somos" },
         { label: dict.footer.privacy, href: "/privacidad" },
+        { label: dict.footer.terms, href: "/terminos" },
       ],
     },
   ];

@@ -144,7 +144,12 @@ export default function ConfirmClient({ template }: { template: Template }) {
                     {dict.payError}
                   </p>
                 )}
-                <p className="text-center text-xs text-ink-soft">{dict.disclaimer}</p>
+                <p className="text-center text-xs text-ink-soft">
+                  {dict.disclaimer}{" "}
+                  <Link href="/terminos" target="_blank" className="underline underline-offset-2">
+                    {dict.termsLink}
+                  </Link>
+                </p>
               </div>
             ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -174,7 +179,10 @@ export default function ConfirmClient({ template }: { template: Template }) {
                 </p>
               )}
               <p className="text-center text-xs text-ink-soft">
-                {dict.disclaimer}
+                {dict.disclaimer}{" "}
+                <Link href="/terminos" target="_blank" className="underline underline-offset-2">
+                  {dict.termsLink}
+                </Link>
               </p>
             </form>
             )}
