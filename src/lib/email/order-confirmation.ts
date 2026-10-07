@@ -52,6 +52,7 @@ const COPY = {
     design: "Diseño",
     footer: "Wedite · Webs de boda que enamoran",
     privacy: "Política de privacidad",
+    terms: "Términos y condiciones",
     contact: "Contacto",
     footerHelp: "¿Necesitáis ayuda? Escribidnos y os respondemos encantados.",
   },
@@ -81,6 +82,7 @@ const COPY = {
     design: "Design",
     footer: "Wedite · Wedding websites people love",
     privacy: "Privacy policy",
+    terms: "Terms and conditions",
     contact: "Contact",
     footerHelp: "Need a hand? Write to us and we'll be happy to help.",
   },
@@ -212,6 +214,8 @@ ${step(
 <span style="color:#8a8279;">&nbsp;&middot;&nbsp;</span>
 <a href="${escapeHtml(`${input.origin}/privacidad`)}" style="color:#ffffff;text-decoration:underline;">${escapeHtml(t.privacy)}</a>
 <span style="color:#8a8279;">&nbsp;&middot;&nbsp;</span>
+<a href="${escapeHtml(`${input.origin}/terminos`)}" style="color:#ffffff;text-decoration:underline;">${escapeHtml(t.terms)}</a>
+<span style="color:#8a8279;">&nbsp;&middot;&nbsp;</span>
 <a href="mailto:${SUPPORT_EMAIL}" style="color:#ffffff;text-decoration:underline;">${SUPPORT_EMAIL}</a>
 </p>
 <p style="margin:0 0 6px;font:12px ${SANS};color:#a39b92;">${escapeHtml(t.order)} ${escapeHtml(input.orderNumber)} &middot; ${escapeHtml(t.design)} ${escapeHtml(input.templateName)}</p>
@@ -244,7 +248,7 @@ ${step(
     `${t.order} ${input.orderNumber} · ${t.design} ${input.templateName}`,
     "",
     t.footerHelp,
-    `www.wedite.com: ${footerWebUrl} · ${input.origin}/privacidad · ${SUPPORT_EMAIL}`,
+    `www.wedite.com: ${footerWebUrl} · ${input.origin}/privacidad · ${input.origin}/terminos · ${SUPPORT_EMAIL}`,
   ].join("\n");
 
   return { subject: t.subject, html, text };

@@ -12,6 +12,7 @@ type SiteDict = {
     contact: string;
     whoWeAre: string;
     privacy: string;
+    terms: string;
     rights: (year: number) => string;
   };
   home: {
@@ -116,6 +117,7 @@ type SiteDict = {
     opensNewTab: string;
     editEmail: string;
     disclaimer: string;
+    termsLink: string;
   };
   wizard: {
     savingAuto: string;
@@ -237,6 +239,7 @@ const es: SiteDict = {
     contact: "Contacto",
     whoWeAre: "Quiénes somos",
     privacy: "Política de privacidad",
+    terms: "Términos y condiciones",
     rights: (year) => `© ${year} Wedite. Todos los derechos reservados.`,
   },
   home: {
@@ -353,7 +356,7 @@ const es: SiteDict = {
     errorMissing: "Rellenad nombre, email y mensaje.",
     errorInvalidEmail: "Ese email no parece válido.",
     errorNotConfigured:
-      "No hemos podido enviar el mensaje ahora mismo. Escríbenos directamente a crismiquelg@gmail.com.",
+      "No hemos podido enviar el mensaje ahora mismo. Escríbenos directamente a hello@wedite.com.",
     errorSendFailed: "No hemos podido enviar el mensaje ahora mismo. Inténtalo de nuevo en un momento.",
     success: "¡Gracias! Os responderemos en cuanto podamos.",
   },
@@ -380,6 +383,7 @@ const es: SiteDict = {
     opensNewTab: "(se abre en una pestaña nueva)",
     editEmail: "Cambiar email",
     disclaimer: "Al pagar aceptáis los términos del servicio. Precio con IVA incluido.",
+    termsLink: "Ver términos y condiciones",
   },
   wizard: {
     savingAuto: "Guardado automáticamente",
@@ -505,6 +509,7 @@ const en: SiteDict = {
     contact: "Contact",
     whoWeAre: "About us",
     privacy: "Privacy policy",
+    terms: "Terms and conditions",
     rights: (year) => `© ${year} Wedite. All rights reserved.`,
   },
   home: {
@@ -621,7 +626,7 @@ const en: SiteDict = {
     errorMissing: "Please fill in name, email and message.",
     errorInvalidEmail: "That email doesn't look valid.",
     errorNotConfigured:
-      "We couldn't send the message right now. Write to us directly at crismiquelg@gmail.com.",
+      "We couldn't send the message right now. Write to us directly at hello@wedite.com.",
     errorSendFailed: "We couldn't send the message right now. Please try again in a moment.",
     success: "Thanks! We'll get back to you as soon as we can.",
   },
@@ -648,6 +653,7 @@ const en: SiteDict = {
     opensNewTab: "(opens in a new tab)",
     editEmail: "Change email",
     disclaimer: "By paying you accept the terms of service. Price includes VAT.",
+    termsLink: "Read the terms and conditions",
   },
   wizard: {
     savingAuto: "Saved automatically",
