@@ -50,9 +50,12 @@ function isOpenForAudit(pathname: string): boolean {
 // and must stay reachable even while production shows "coming soon". It is
 // protected by the Stripe signature check inside the route itself.
 const STRIPE_WEBHOOK_PATH = "/api/stripe/webhook";
+// Same for LexVibe's webhook (HMAC-signed, checked inside the route).
+const LEXVIBE_WEBHOOK_PATH = "/api/lexvibe-webhook";
 
 export async function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname === STRIPE_WEBHOOK_PATH) return NextResponse.next();
+  const webhookPath = request.nextUrl.pathname;
+  if (webhookPath === STRIPE_WEBHOOK_PATH || webhookPath === LEXVIBE_WEBHOOK_PATH) return NextResponse.next();
 
   // Staging and PR previews: nothing is reachable without the password,
   // pages and API alike (unless audit mode opens the pages, see above).
