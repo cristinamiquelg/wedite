@@ -4,7 +4,9 @@ export type ContactFormState = {
   status: "idle" | "success" | "missing" | "invalid-email" | "not-configured" | "send-failed";
 };
 
-const CONTACT_TO = "crismiquelg@gmail.com";
+const CONTACT_TO = "hello@wedite.com";
+// Same sender as the transactional emails (see src/lib/email/resend.ts).
+const DEFAULT_FROM = "Wedite <onboarding@resend.dev>";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const subjectByLocale = {
@@ -46,7 +48,7 @@ export async function sendContactMessage(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "Wedite <onboarding@resend.dev>",
+        from: process.env.EMAIL_FROM || DEFAULT_FROM,
         to: [CONTACT_TO],
         reply_to: email,
         subject: subject(name),
