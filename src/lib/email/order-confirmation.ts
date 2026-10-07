@@ -201,7 +201,7 @@ ${step(
 </td></tr></table>
 <p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${prose(t.private)}</p>`,
   )}
-<p style="margin:24px 0 48px;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
+<p style="margin:48px 0 48px;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
 </td></tr>
 
 <!-- footer -->
