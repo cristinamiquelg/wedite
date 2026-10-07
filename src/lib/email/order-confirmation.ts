@@ -45,8 +45,7 @@ const COPY = {
     step2Text: "Cada vez que un invitado confirme, aparecerá en una tabla: quién viene, con cuántos acompañantes, si necesita autobús y sus alergias. Una línea por persona, y la podéis bajar a Excel.",
     responses: "Ver las respuestas",
     codeLabel: "Vuestro código de acceso",
-    codeHelp: "Os lo pedirá la primera vez que abráis la tabla.",
-    private: "Guardad este email: lo necesitaréis para volver a la tabla, y es privado.",
+    private: "Guardad este código. Lo necesitaréis para acceder a la tabla de respuestas, ya que es privada.",
     signoff: "Que lo disfrutéis muchísimo.",
     team: "El equipo de Wedite",
     order: "Pedido",
@@ -75,8 +74,7 @@ const COPY = {
     step2Text: "Every time a guest confirms, they show up in a table: who's coming, how many guests they bring, whether they need the bus and any allergies. One line per person, and you can download it for Excel.",
     responses: "See the answers",
     codeLabel: "Your access code",
-    codeHelp: "It will ask for it the first time you open the table.",
-    private: "Keep this email: you'll need it to come back to the table, and it's private.",
+    private: "Keep this code. You'll need it to access the answers table, as it's private.",
     signoff: "We hope you enjoy it.",
     team: "The Wedite team",
     order: "Order",
@@ -197,28 +195,27 @@ ${step(
     t.step2,
     `<p style="margin:0 0 16px;font:15px/1.6 ${SANS};color:${SOFT};">${prose(t.step2Text)}</p>
 <p style="margin:0 0 16px;">${button(responsesUrl, t.responses, true)}</p>
-<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;background-color:${SAGE_LIGHT};border-radius:14px;"><tr><td style="padding:14px 20px;">
+<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;background-color:${SAGE_LIGHT};border-radius:14px;"><tr><td style="padding:14px 24px;white-space:nowrap;">
 <p style="margin:0 0 4px;font:600 11px ${SANS};letter-spacing:2px;text-transform:uppercase;color:${SAGE};">${escapeHtml(t.codeLabel)}</p>
-<p style="margin:0 0 4px;font:700 26px 'Courier New',Courier,monospace;letter-spacing:5px;color:${INK};">${escapeHtml(input.accessCode)}</p>
-<p style="margin:0;font:13px ${SANS};color:${SOFT};">${prose(t.codeHelp)}</p>
+<p style="margin:0;font:700 22px 'Courier New',Courier,monospace;letter-spacing:3px;color:${INK};white-space:nowrap;">${escapeHtml(input.accessCode)}</p>
 </td></tr></table>
 <p style="margin:0;font:13px/1.6 ${SANS};color:#7a7168;">${prose(t.private)}</p>`,
   )}
-<p style="margin:10px 0 0;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
+<p style="margin:48px 0 48px;font:italic 18px/1.5 ${SERIF};color:${INK};text-align:center;">${escapeHtml(t.signoff)}<br><span style="font:600 13px ${SANS};font-style:normal;color:${CLAY};letter-spacing:1px;">&#10022; ${escapeHtml(t.team)}</span></p>
 </td></tr>
 
 <!-- footer -->
-<tr><td align="center" style="padding:26px 32px 30px;border-top:1px solid ${LINE};">
-<p style="margin:0 0 14px;font:13px/1.6 ${SANS};color:${SOFT};">${prose(t.footerHelp)}</p>
+<tr><td align="center" bgcolor="${HERO_BG}" style="background-color:${HERO_BG};padding:30px 32px 34px;">
+<p style="margin:0 0 14px;font:13px/1.6 ${SANS};color:#ffffff;">${prose(t.footerHelp)}</p>
 <p style="margin:0 0 16px;font:13px ${SANS};">
-<a href="${escapeHtml(footerWebUrl)}" style="color:${INK};text-decoration:underline;">www.wedite.com</a>
-<span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
-<a href="${escapeHtml(`${input.origin}/privacidad`)}" style="color:${INK};text-decoration:underline;">${escapeHtml(t.privacy)}</a>
-<span style="color:#b8b3ac;">&nbsp;&middot;&nbsp;</span>
-<a href="mailto:${SUPPORT_EMAIL}" style="color:${INK};text-decoration:underline;">${SUPPORT_EMAIL}</a>
+<a href="${escapeHtml(footerWebUrl)}" style="color:#ffffff;text-decoration:underline;">www.wedite.com</a>
+<span style="color:#8a8279;">&nbsp;&middot;&nbsp;</span>
+<a href="${escapeHtml(`${input.origin}/privacidad`)}" style="color:#ffffff;text-decoration:underline;">${escapeHtml(t.privacy)}</a>
+<span style="color:#8a8279;">&nbsp;&middot;&nbsp;</span>
+<a href="mailto:${SUPPORT_EMAIL}" style="color:#ffffff;text-decoration:underline;">${SUPPORT_EMAIL}</a>
 </p>
-<p style="margin:0 0 6px;font:12px ${SANS};color:#7a7168;">${escapeHtml(t.order)} ${escapeHtml(input.orderNumber)} &middot; ${escapeHtml(t.design)} ${escapeHtml(input.templateName)}</p>
-<p style="margin:0;font:12px ${SANS};color:#7a7168;">${escapeHtml(t.footer)}</p>
+<p style="margin:0 0 6px;font:12px ${SANS};color:#a39b92;">${escapeHtml(t.order)} ${escapeHtml(input.orderNumber)} &middot; ${escapeHtml(t.design)} ${escapeHtml(input.templateName)}</p>
+<p style="margin:0;font:12px ${SANS};color:#a39b92;">${escapeHtml(t.footer)}</p>
 </td></tr>
 </table></td></tr></table></body></html>`;
 
@@ -240,7 +237,6 @@ ${step(
     t.step2Text,
     `${t.responses}: ${responsesUrl}`,
     `${t.codeLabel}: ${input.accessCode}`,
-    t.codeHelp,
     t.private,
     "",
     `${t.signoff} ${t.team}`,
