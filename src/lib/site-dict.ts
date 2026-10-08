@@ -44,7 +44,15 @@ export type SiteDict = {
     contactHeading: string;
     contactSub: string;
   };
-  catalog: { metaTitle: string; metaDescription: string; h1: string; sub: string; viewPreview: string; choose: string };
+  catalog: {
+    metaTitle: string;
+    metaDescription: string;
+    h1: string;
+    sub: string;
+    viewPreview: string;
+    choose: string;
+    upcoming: { badge: string; title: string; tagline: string; summary: string; imageAlt: string; tags: string[] };
+  };
   product: {
     back: string;
     includes: string;
@@ -311,6 +319,14 @@ const es: SiteDict = {
     sub: "Cada diseño se puede probar en directo antes de decidir nada. Cuando lo tengáis claro, lo personalizáis y lo hacéis vuestro sin salir del navegador.",
     viewPreview: "Ver preview",
     choose: "Elegir",
+    upcoming: {
+      badge: "Próximamente",
+      title: "Un nuevo diseño en camino",
+      tagline: "Minimalista y a trazo",
+      summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
+      imageAlt: "Avance del próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
+      tags: ["Minimalista", "A trazo"],
+    },
   },
   product: {
     back: "← Volver al catálogo",
@@ -600,6 +616,14 @@ const en: SiteDict = {
     sub: "Every design can be tried live before deciding anything. Once you're sure, you personalize it and make it yours without leaving the browser.",
     viewPreview: "View preview",
     choose: "Choose",
+    upcoming: {
+      badge: "Coming soon",
+      title: "A new design on its way",
+      tagline: "Minimal and line-drawn",
+      summary: "You'll soon be able to see it here and make it yours.",
+      imageAlt: "Preview of the next design: a line-drawn couple holding two photos of themselves as children",
+      tags: ["Minimal", "Line-drawn"],
+    },
   },
   product: {
     back: "← Back to the catalog",

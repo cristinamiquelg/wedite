@@ -8,15 +8,24 @@ type Shot = {
   template: string;
   slug: string;
   label: string;
+  /** Replaces the default "Diseño <template> — <label>" description. */
+  alt?: string;
 };
 
-// Real screenshots of the templates Wedite actually ships today (Ribera)
-// — no invented sites. As the catalog grows, add more shots here and
-// they'll flow into the columns automatically.
+// Real screenshots of Wedite's designs (Ribera, plus the next design that is
+// coming soon) — no invented sites. As the catalog grows, add more shots here
+// and they'll flow into the columns automatically.
 const shots: Shot[] = [
   { src: "/hero/ribera-hero.jpg", template: "Ribera", slug: "ribera", label: "Portada" },
   { src: "/hero/ribera-itinerario.jpg", template: "Ribera", slug: "ribera", label: "Itinerario" },
   { src: "/hero/ribera-detalles.jpg", template: "Ribera", slug: "ribera", label: "Detalles" },
+  {
+    src: "/hero/proximo-diseno.jpg",
+    template: "Próximo diseño",
+    slug: "proximamente",
+    label: "Portada",
+    alt: "Avance del próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+  },
 ];
 
 // Each column gets its own order (so neighbouring columns never show the
@@ -37,7 +46,7 @@ function Card({ shot }: { shot: Shot }) {
     <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-xl border border-black/5 shadow-[0_16px_30px_-20px_rgba(33,29,26,0.4)] sm:h-52">
       <Image
         src={shot.src}
-        alt={`Diseño ${shot.template} — ${shot.label}`}
+        alt={shot.alt ?? `Diseño ${shot.template} — ${shot.label}`}
         fill
         sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 45vw"
         // These are UI screenshots with fine text and thin lines, not
