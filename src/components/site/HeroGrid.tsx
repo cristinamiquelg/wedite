@@ -12,19 +12,28 @@ type Shot = {
   alt?: string;
 };
 
+// Every card is a vertical (phone-shaped, 435 x 658) screenshot, so the
+// parallax reads as tall cards drifting past each other.
 // Real screenshots of Wedite's designs (Ribera, plus the next design that is
 // coming soon) — no invented sites. As the catalog grows, add more shots here
 // and they'll flow into the columns automatically.
 const shots: Shot[] = [
-  { src: "/hero/ribera-hero.jpg", template: "Ribera", slug: "ribera", label: "Portada" },
-  { src: "/hero/ribera-itinerario.jpg", template: "Ribera", slug: "ribera", label: "Itinerario" },
-  { src: "/hero/ribera-detalles.jpg", template: "Ribera", slug: "ribera", label: "Detalles" },
+  { src: "/hero/ribera-movil-portada.jpg", template: "Ribera", slug: "ribera", label: "Portada" },
+  { src: "/hero/ribera-movil-itinerario.jpg", template: "Ribera", slug: "ribera", label: "Itinerario" },
+  { src: "/hero/ribera-movil-detalles.jpg", template: "Ribera", slug: "ribera", label: "Detalles" },
   {
     src: "/hero/proximo-diseno.jpg",
     template: "Próximo diseño",
     slug: "proximamente",
     label: "Portada",
     alt: "Avance del próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+  },
+  {
+    src: "/hero/proximo-diseno-2.jpg",
+    template: "Otro diseño",
+    slug: "proximamente-2",
+    label: "Portada",
+    alt: "Avance de otro diseño de Wedite: marco floral art nouveau rosa sobre fondo burdeos",
   },
 ];
 
@@ -43,7 +52,7 @@ const columns: { order: number[]; speed: number }[] = [
 
 function Card({ shot }: { shot: Shot }) {
   return (
-    <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-xl border border-black/5 shadow-[0_16px_30px_-20px_rgba(33,29,26,0.4)] sm:h-52">
+    <div className="relative aspect-[435/658] w-full shrink-0 overflow-hidden rounded-xl border border-black/5 shadow-[0_16px_30px_-20px_rgba(33,29,26,0.4)]">
       <Image
         src={shot.src}
         alt={shot.alt ?? `Diseño ${shot.template} — ${shot.label}`}
@@ -109,7 +118,7 @@ export default function HeroGrid() {
   return (
     <div
       ref={containerRef}
-      className="relative h-[420px] overflow-hidden sm:h-[520px]"
+      className="relative h-[520px] overflow-hidden sm:h-[680px]"
       style={{
         maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
         WebkitMaskImage:

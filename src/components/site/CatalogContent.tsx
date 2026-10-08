@@ -85,38 +85,41 @@ export default function CatalogContent() {
           );
         })}
 
-        {/* A design that isn't available yet: shown with its preview, not clickable. */}
-        <article
-          data-reveal
-          style={{ transitionDelay: `${templates.length * 100}ms` }}
-          className="relative flex flex-col overflow-hidden rounded-2xl border border-line bg-paper-raised"
-        >
-          <div className="relative h-[262px] overflow-hidden border-b border-line bg-paper sm:h-[225px]">
-            <Image
-              src="/catalog/proximo-diseno.jpg"
-              alt={dict.catalog.upcoming.imageAlt}
-              fill
-              sizes="(min-width: 1024px) 384px, (min-width: 640px) 45vw, 100vw"
-              quality={90}
-              className="object-cover object-center"
-            />
-            <span className="absolute left-4 top-4 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
-              {dict.catalog.upcoming.badge}
-            </span>
-          </div>
-          <div className="flex flex-1 flex-col p-6">
-            <h2 className="font-display text-2xl">{dict.catalog.upcoming.title}</h2>
-            <p className="mt-1 text-sm text-clay">{dict.catalog.upcoming.tagline}</p>
-            <p className="mt-4 flex-1 text-sm text-ink-soft">{dict.catalog.upcoming.summary}</p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              {dict.catalog.upcoming.tags.map((tag) => (
-                <span key={tag} className="rounded-full bg-sage-light px-3 py-1 text-xs text-ink-soft">
-                  {tag}
-                </span>
-              ))}
+        {/* Designs that aren't available yet: shown with their preview, not clickable. */}
+        {dict.catalog.upcoming.map((design, i) => (
+          <article
+            key={design.image}
+            data-reveal
+            style={{ transitionDelay: `${(templates.length + i) * 100}ms` }}
+            className="relative flex flex-col overflow-hidden rounded-2xl border border-line bg-paper-raised"
+          >
+            <div className="relative h-[262px] overflow-hidden border-b border-line bg-paper sm:h-[225px]">
+              <Image
+                src={design.image}
+                alt={design.imageAlt}
+                fill
+                sizes="(min-width: 1024px) 384px, (min-width: 640px) 45vw, 100vw"
+                quality={90}
+                className="object-cover object-center"
+              />
+              <span className="absolute left-4 top-4 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
+                {dict.catalog.upcomingBadge}
+              </span>
             </div>
-          </div>
-        </article>
+            <div className="flex flex-1 flex-col p-6">
+              <h2 className="font-display text-2xl">{design.title}</h2>
+              <p className="mt-1 text-sm text-clay">{design.tagline}</p>
+              <p className="mt-4 flex-1 text-sm text-ink-soft">{design.summary}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {design.tags.map((tag) => (
+                  <span key={tag} className="rounded-full bg-sage-light px-3 py-1 text-xs text-ink-soft">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </article>
+        ))}
       </div>
     </div>
   );
