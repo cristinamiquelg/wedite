@@ -120,3 +120,33 @@ label:has(> input[type="radio"]) {
     animation-play-state: paused;
   }
 }
+
+/* Loader shown while the story illustration is being drawn (IllustrationLoader). */
+@keyframes illustration-loader-draw {
+  0% { stroke-dashoffset: 1; opacity: 1; }
+  55% { stroke-dashoffset: 0; opacity: 1; }
+  85% { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes illustration-loader-shimmer {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
+}
+.illustration-loader-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.illustration-loader-shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.7), transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .illustration-loader-line {
+    animation: illustration-loader-draw 2.6s ease-in-out infinite;
+  }
+  .illustration-loader-line-late {
+    animation-delay: 0.5s;
+  }
+  .illustration-loader-shimmer {
+    animation: illustration-loader-shimmer 1.8s ease-in-out infinite;
+  }
+}

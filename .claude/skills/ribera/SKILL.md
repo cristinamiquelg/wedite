@@ -80,7 +80,17 @@ clay, so Ribera overrides it back to navy under `.root`.
 - **Phase times are ISO date-times** (`2027-09-11T18:00`, picked with
   `components/customize/DatePicker.tsx` in `withTime` mode) and are formatted
   per language by `formatPhaseWhen` in `lib/format.ts`; legacy free text is
-  shown as is.
+  shown as is. When the couple ticks "we don't know the exact time yet" the
+  value is just the date (`2027-09-11`, no `T…`) and the page shows the day only.
+- **Each place has its own scroll anchor**: `fase-<phase>-lugar-<place>` (the
+  indices of the couple's own list, so hidden empty places keep their numbers);
+  the wizard wraps every place in a matching `data-scroll-section`. A place
+  counts as visible as soon as it has a name, an address *or* an illustration.
+  `PreviewClient` falls back to the phase when a place isn't on the page yet.
+- **Mandatory / minimum-length fields** live in `lib/wizard-required.ts`
+  (names and date are required; finca, location and welcome message are optional
+  but need ≥ 2 characters once started). No "Máx. N caracteres" hints are shown;
+  the limits are still enforced with `maxLength`.
 - **The monogram never invents initials**: with no names yet it is a bare
   `&` (`ribera/initials.ts`).
 - **The story illustration** is generated from the couple's photo plus a

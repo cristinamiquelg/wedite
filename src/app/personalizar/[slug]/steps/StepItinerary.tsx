@@ -84,6 +84,7 @@ export default function StepItinerary({
                 nextMonthLabel={dict.stepCouple.nextMonth}
                 hourLabel={dict.stepItinerary.timeHour}
                 minuteLabel={dict.stepItinerary.timeMinute}
+                timeUnknownLabel={dict.stepItinerary.timeUnknown}
                 doneLabel={dict.stepItinerary.pickerDone}
                 ariaLabel={dict.stepItinerary.phaseWhenPlaceholder}
                 onChange={(when) => updatePhase(pi, { when })}
@@ -100,7 +101,11 @@ export default function StepItinerary({
 
           <div className="flex flex-col gap-3 pl-4">
             {phase.places.map((place, li) => (
-              <div key={li} className="flex flex-wrap gap-3 rounded-lg border border-line/60 p-3">
+              <div
+                key={li}
+                data-scroll-section={`fase-${pi}-lugar-${li}`}
+                className="flex flex-wrap gap-3 rounded-lg border border-line/60 p-3"
+              >
                 <Select
                   value={place.illustration ?? ""}
                   onChange={(e) =>

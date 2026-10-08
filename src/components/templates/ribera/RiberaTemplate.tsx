@@ -28,7 +28,9 @@ const PLACE_ILLUSTRATION_FILES: Record<PlaceIllustration, string> = {
 };
 const PLACE_ILLUSTRATION_FALLBACKS = Object.values(PLACE_ILLUSTRATION_FILES);
 
-type VisiblePlace = WeddingPlace & { illus: string };
+// `index` is the place's position in the couple's own list (hidden empty ones included),
+// so the wizard can scroll the preview to exactly the place being edited.
+type VisiblePlace = WeddingPlace & { illus: string; index: number };
 type VisiblePhase = { name: string; when: string; places: VisiblePlace[]; placeholderCount: number };
 
 // Assigns each visible place an illustration: the couple's own choice when
@@ -40,14 +42,17 @@ function buildVisiblePhases(phases: WeddingData["phases"]): VisiblePhase[] {
   let cursor = 0;
   return phases.map((phase) => {
     const places = phase.places
-      .filter((place) => place.name || place.address)
-      .map((place) => {
+      .map((place, index) => ({ place, index }))
+      // A place with just an illustration chosen already counts: it shows up
+      // as soon as the couple picks one, not only once they type a name.
+      .filter(({ place }) => place.name || place.address || place.illustration)
+      .map(({ place, index }) => {
         if (place.illustration) {
-          return { ...place, illus: PLACE_ILLUSTRATION_FILES[place.illustration] };
+          return { ...place, illus: PLACE_ILLUSTRATION_FILES[place.illustration], index };
         }
         const illus = PLACE_ILLUSTRATION_FALLBACKS[cursor % PLACE_ILLUSTRATION_FALLBACKS.length];
         cursor += 1;
-        return { ...place, illus };
+        return { ...place, illus, index };
       });
     return { name: phase.name, when: phase.when, places, placeholderCount: phase.places.length };
   });
@@ -338,10 +343,10 @@ export default function RiberaTemplate({
                       ) : null}
                     </div>
                   ) : null}
-                  {phase.places.map((place, li) => (
+                  {phase.places.map((place) => (
                     <article
-                      key={`place-${pi}-${li}`}
-                      id={!phase.name && !phase.when && li === 0 ? `fase-${pi}` : undefined}
+                      key={`place-${pi}-${place.index}`}
+                      id={`fase-${pi}-lugar-${place.index}`}
                       className={styles.place}
                     >
                       <img

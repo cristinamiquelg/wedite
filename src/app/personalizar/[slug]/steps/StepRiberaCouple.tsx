@@ -3,7 +3,7 @@ import { Field, TextArea, TextInput } from "@/components/customize/fields";
 import DatePicker, { todayISO } from "@/components/customize/DatePicker";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
-import { missingForStep, type RequiredField } from "@/lib/wizard-required";
+import { hasMinLength, missingForStep, type RequiredField } from "@/lib/wizard-required";
 
 const NAME_MAX_LENGTH = 40;
 const PLACE_MAX_LENGTH = 60;
@@ -23,7 +23,8 @@ export default function StepRiberaCouple({
   const dict = getSiteDict(locale).wizard;
   const minDate = todayISO();
   const missing = new Set(missingForStep("couple", data));
-  const errorFor = (field: RequiredField) => (showErrors && missing.has(field) ? dict.fieldRequired : undefined);
+  const errorFor = (field: RequiredField) =>
+    showErrors && missing.has(field) ? (hasMinLength(field) ? dict.fieldTooShort : dict.fieldRequired) : undefined;
 
   return (
     <div className="flex flex-col gap-5">
@@ -32,7 +33,6 @@ export default function StepRiberaCouple({
           label={dict.stepCouple.yourName}
           required
           requiredLabel={dict.required}
-          hint={dict.maxChars(NAME_MAX_LENGTH)}
           error={errorFor("partnerA")}
         >
           <TextInput
@@ -47,7 +47,6 @@ export default function StepRiberaCouple({
           label={dict.stepCouple.partnerName}
           required
           requiredLabel={dict.required}
-          hint={dict.maxChars(NAME_MAX_LENGTH)}
           error={errorFor("partnerB")}
         >
           <TextInput
@@ -72,20 +71,19 @@ export default function StepRiberaCouple({
         />
       </Field>
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field
-          label={dict.stepCouple.estateName}
-          hint={dict.maxChars(PLACE_MAX_LENGTH)}
-        >
+        <Field label={dict.stepCouple.estateName} error={errorFor("estateName")}>
           <TextInput
             value={data.estateName}
+            aria-invalid={errorFor("estateName") ? true : undefined}
             onChange={(e) => onChange({ estateName: e.target.value })}
             placeholder="Finca del Faro"
             maxLength={PLACE_MAX_LENGTH}
           />
         </Field>
-        <Field label={dict.stepCouple.location} hint={dict.maxChars(PLACE_MAX_LENGTH)}>
+        <Field label={dict.stepCouple.location} error={errorFor("estateLocation")}>
           <TextInput
             value={data.estateLocation}
+            aria-invalid={errorFor("estateLocation") ? true : undefined}
             onChange={(e) => onChange({ estateLocation: e.target.value })}
             placeholder="Cadaqués, Girona"
             maxLength={PLACE_MAX_LENGTH}
@@ -96,10 +94,11 @@ export default function StepRiberaCouple({
           this step's fields — flagged so the preview scrolls to where it
           actually renders. */}
       <div data-scroll-section="cuando">
-        <Field label={dict.stepCouple.welcomeMessage} hint={dict.maxChars(WELCOME_MAX_LENGTH)}>
+        <Field label={dict.stepCouple.welcomeMessage} error={errorFor("welcomeMessage")}>
           <TextArea
             rows={4}
             value={data.welcomeMessage}
+            aria-invalid={errorFor("welcomeMessage") ? true : undefined}
             onChange={(e) => onChange({ welcomeMessage: e.target.value })}
             placeholder={dict.stepCouple.welcomeMessagePlaceholder}
             maxLength={WELCOME_MAX_LENGTH}

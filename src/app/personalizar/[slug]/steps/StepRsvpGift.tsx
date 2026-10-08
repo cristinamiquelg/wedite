@@ -21,7 +21,6 @@ export default function StepRsvpGift({
 }) {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).wizard.stepRsvpGift;
-  const maxChars = getSiteDict(locale).wizard.maxChars;
 
   function updateContact(index: number, patch: Partial<ContactPerson>) {
     onChange({
@@ -43,9 +42,8 @@ export default function StepRsvpGift({
       {/* Gift fields render in the "Regalos" section, not "RSVP" — flagged
           so the preview scrolls to where they actually show up. */}
       <div data-scroll-section="regalos">
-        <p className="text-sm font-semibold text-ink">{dict.giftTableTitle}</p>
-        <div className="mt-3 flex flex-col gap-5">
-          <Field label={dict.message} hint={maxChars(GIFT_MESSAGE_MAX_LENGTH)}>
+        <div className="flex flex-col gap-5">
+          <Field label={dict.message}>
             <TextArea
               rows={3}
               value={data.giftMessage}
@@ -54,7 +52,7 @@ export default function StepRsvpGift({
               maxLength={GIFT_MESSAGE_MAX_LENGTH}
             />
           </Field>
-          <Field label={dict.accountHolder} hint={maxChars(GIFT_HOLDER_MAX_LENGTH)}>
+          <Field label={dict.accountHolder}>
             <TextInput
               value={data.giftHolderName}
               onChange={(e) => onChange({ giftHolderName: e.target.value })}
@@ -62,7 +60,7 @@ export default function StepRsvpGift({
               maxLength={GIFT_HOLDER_MAX_LENGTH}
             />
           </Field>
-          <Field label={dict.accountNumber} hint={maxChars(GIFT_ACCOUNT_MAX_LENGTH)}>
+          <Field label={dict.accountNumber}>
             <TextInput
               value={data.giftAccount}
               onChange={(e) => onChange({ giftAccount: e.target.value })}
@@ -71,6 +69,19 @@ export default function StepRsvpGift({
             />
           </Field>
         </div>
+      </div>
+
+      {/* Renders in the "RSVP" band, between the gift details and the contact people (the order of the page). */}
+      <div data-scroll-section="rsvp">
+        <Field label={dict.rsvpSectionTitle}>
+          <TextArea
+            rows={3}
+            value={data.rsvpNote}
+            onChange={(e) => onChange({ rsvpNote: e.target.value })}
+            placeholder={dict.notePlaceholder}
+            maxLength={RSVP_NOTE_MAX_LENGTH}
+          />
+        </Field>
       </div>
 
       {/* Contact people render in the "Contacto" section, not "RSVP". */}
@@ -134,21 +145,6 @@ export default function StepRsvpGift({
         </div>
       </div>
 
-      {/* Last in the step, as the closing note; it renders in the "RSVP" band. */}
-      <div data-scroll-section="rsvp">
-        <p className="text-sm font-semibold text-ink">{dict.rsvpSectionTitle}</p>
-        <div className="mt-3 flex flex-col gap-5">
-          <Field label={dict.noteForGuests} hint={maxChars(RSVP_NOTE_MAX_LENGTH)}>
-            <TextArea
-              rows={3}
-              value={data.rsvpNote}
-              onChange={(e) => onChange({ rsvpNote: e.target.value })}
-              placeholder={dict.notePlaceholder}
-              maxLength={RSVP_NOTE_MAX_LENGTH}
-            />
-          </Field>
-        </div>
-      </div>
     </div>
   );
 }

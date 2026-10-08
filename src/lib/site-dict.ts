@@ -147,7 +147,15 @@ export type SiteDict = {
     next: string;
     reviewAndBuy: string;
     completeToContinue: (labels: string) => string;
-    missing: { partnerA: string; partnerB: string; date: string };
+    fieldTooShort: string;
+    missing: {
+      partnerA: string;
+      partnerB: string;
+      date: string;
+      estateName: string;
+      estateLocation: string;
+      welcomeMessage: string;
+    };
     stepLabels: {
       language: string;
       couple: string;
@@ -159,7 +167,6 @@ export type SiteDict = {
     required: string;
     fieldRequired: string;
     remove: string;
-    maxChars: (n: number) => string;
     stepLanguage: { intro: string; included: string };
     stepCouple: {
       yourName: string;
@@ -177,22 +184,17 @@ export type SiteDict = {
       sectionTitle: string;
       sectionTitlePlaceholder: string;
       yourStory: string;
-      yourStoryHint: string;
       yourStoryPlaceholder: string;
       storyImage: string;
-      storyImageHint: string;
       storyImageChoose: string;
       storyImageRemove: string;
       storyImageDrawing: string;
       storyImageFallback: string;
       hashtag: string;
-      hashtagHint: string;
     };
     stepRsvpGift: {
       rsvpSectionTitle: string;
-      noteForGuests: string;
       notePlaceholder: string;
-      giftTableTitle: string;
       message: string;
       messagePlaceholder: string;
       accountHolder: string;
@@ -212,6 +214,7 @@ export type SiteDict = {
       phaseWhenPlaceholder: string;
       timeHour: string;
       timeMinute: string;
+      timeUnknown: string;
       pickerDone: string;
       removePhase: string;
       placeNamePlaceholder: string;
@@ -429,7 +432,15 @@ const es: SiteDict = {
     next: "Siguiente",
     reviewAndBuy: "Revisar y comprar",
     completeToContinue: (labels) => `Para continuar, completad: ${labels}.`,
-    missing: { partnerA: "vuestro nombre", partnerB: "el nombre de tu pareja", date: "la fecha de la boda" },
+    fieldTooShort: "Escribid al menos 2 caracteres.",
+    missing: {
+      partnerA: "tu nombre",
+      partnerB: "el nombre de tu pareja",
+      date: "la fecha de la boda",
+      estateName: "la finca / lugar principal (mínimo 2 caracteres)",
+      estateLocation: "la ubicación (mínimo 2 caracteres)",
+      welcomeMessage: "el mensaje de bienvenida (mínimo 2 caracteres)",
+    },
     stepLabels: {
       language: "Idioma",
       couple: "Pareja y fecha",
@@ -441,13 +452,12 @@ const es: SiteDict = {
     required: "Obligatorio",
     fieldRequired: "Este dato es obligatorio",
     remove: "Quitar",
-    maxChars: (n) => `Máx. ${n} caracteres`,
     stepLanguage: {
       intro: "Elegid en qué idiomas estará disponible vuestra web. Podéis elegir más de uno: si la boda es bilingüe, vuestros invitados podrán cambiar de idioma con un selector en la propia web.",
       included: "Incluido",
     },
     stepCouple: {
-      yourName: "Vuestro nombre",
+      yourName: "Tu nombre",
       partnerName: "Nombre de tu pareja",
       weddingDate: "Fecha de la boda",
       datePlaceholder: "Elegir fecha",
@@ -462,23 +472,18 @@ const es: SiteDict = {
       sectionTitle: "Título de la sección",
       sectionTitlePlaceholder: "Nuestra historia",
       yourStory: "Vuestra historia",
-      yourStoryHint: "Cómo os conocisteis, algún hito importante, por qué os casáis.",
-      yourStoryPlaceholder: "Nos conocimos...",
+      yourStoryPlaceholder: "Cómo os conocisteis, algún hito importante, por qué os casáis.",
       storyImage: "Foto (opcional)",
-      storyImageHint: "Convertiremos vuestra foto en una ilustración a trazo, generada con inteligencia artificial (OpenAI), para acompañar vuestra historia. La foto se envía a OpenAI solo para crearla y se indicará en la web que la ilustración está generada con IA.",
       storyImageChoose: "Elegir imagen",
       storyImageRemove: "Quitar",
       storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto.",
       storyImageFallback: "No hemos podido crear la ilustración, así que usaremos vuestra foto tal cual.",
       hashtag: "Hashtag de la boda",
-      hashtagHint: "Sin espacios, para redes sociales",
     },
     stepRsvpGift: {
       rsvpSectionTitle: "Confirmación de asistencia",
-      noteForGuests: "Nota para invitados",
       notePlaceholder: "Confirmad antes del... indicando alergias.",
-      giftTableTitle: "Mesa de regalos",
-      message: "Mensaje",
+      message: "Mensaje junto a los datos bancarios",
       messagePlaceholder: "Vuestra presencia es el mejor regalo...",
       accountHolder: "Nombre del titular",
       accountNumber: "Número de cuenta / Bizum",
@@ -492,11 +497,12 @@ const es: SiteDict = {
       removeContactPerson: "Quitar",
     },
     stepItinerary: {
-      intro: "Organizad el día en fases (pre-boda, boda, post-boda...) y añadid los lugares de cada una.",
+      intro: "Organizad el día en fases: puede haber solo una (la boda) o tantas como queráis (pre-boda, boda, post-boda...). Dentro de cada fase, añadid los lugares donde sucede.",
       phaseNamePlaceholder: "La boda",
       phaseWhenPlaceholder: "Elegir fecha y hora",
       timeHour: "Hora",
       timeMinute: "Minutos",
+      timeUnknown: "Aún no sabemos la hora exacta",
       pickerDone: "Listo",
       removePhase: "Quitar fase",
       placeNamePlaceholder: "Ermita de Sant Baldiri",
@@ -715,7 +721,15 @@ const en: SiteDict = {
     next: "Next",
     reviewAndBuy: "Review and buy",
     completeToContinue: (labels) => `To continue, please fill in: ${labels}.`,
-    missing: { partnerA: "your name", partnerB: "your partner's name", date: "the wedding date" },
+    fieldTooShort: "Please write at least 2 characters.",
+    missing: {
+      partnerA: "your name",
+      partnerB: "your partner's name",
+      date: "the wedding date",
+      estateName: "the venue (at least 2 characters)",
+      estateLocation: "the location (at least 2 characters)",
+      welcomeMessage: "the welcome message (at least 2 characters)",
+    },
     stepLabels: {
       language: "Language",
       couple: "Couple and date",
@@ -727,7 +741,6 @@ const en: SiteDict = {
     required: "Required",
     fieldRequired: "This field is required",
     remove: "Remove",
-    maxChars: (n) => `Max. ${n} characters`,
     stepLanguage: {
       intro: "Choose which languages your website will be available in. You can pick more than one: if the wedding is bilingual, your guests will be able to switch language with a selector on the site itself.",
       included: "Included",
@@ -748,23 +761,18 @@ const en: SiteDict = {
       sectionTitle: "Section title",
       sectionTitlePlaceholder: "Our story",
       yourStory: "Your story",
-      yourStoryHint: "How you met, a key milestone, why you're getting married.",
-      yourStoryPlaceholder: "We met...",
+      yourStoryPlaceholder: "How you met, a key milestone, why you're getting married.",
       storyImage: "Photo (optional)",
-      storyImageHint: "We'll turn your photo into a line illustration, generated with artificial intelligence (OpenAI), to go alongside your story. The photo is sent to OpenAI only to create it, and your site will state that the illustration is AI-generated.",
       storyImageChoose: "Choose image",
       storyImageRemove: "Remove",
       storyImageDrawing: "Drawing your illustration… this can take up to a minute.",
       storyImageFallback: "We couldn't create the illustration, so we'll use your photo as it is.",
       hashtag: "Wedding hashtag",
-      hashtagHint: "No spaces, for social media",
     },
     stepRsvpGift: {
       rsvpSectionTitle: "RSVP",
-      noteForGuests: "Note for guests",
       notePlaceholder: "Please confirm by... and let us know about any allergies.",
-      giftTableTitle: "Gift registry",
-      message: "Message",
+      message: "Message next to the bank details",
       messagePlaceholder: "Your presence is the best gift...",
       accountHolder: "Account holder name",
       accountNumber: "Account number / bank transfer",
@@ -778,11 +786,12 @@ const en: SiteDict = {
       removeContactPerson: "Remove",
     },
     stepItinerary: {
-      intro: "Organize the day into phases (pre-wedding, wedding, after-party...) and add the venues for each one.",
+      intro: "Organize the day into phases: there can be just one (the wedding) or as many as you like (pre-wedding, wedding, after-party...). Within each phase, add the places where it happens.",
       phaseNamePlaceholder: "The wedding",
       phaseWhenPlaceholder: "Choose date and time",
       timeHour: "Hour",
       timeMinute: "Minutes",
+      timeUnknown: "We don't know the exact time yet",
       pickerDone: "Done",
       removePhase: "Remove phase",
       placeNamePlaceholder: "St. Baldiri's Chapel",

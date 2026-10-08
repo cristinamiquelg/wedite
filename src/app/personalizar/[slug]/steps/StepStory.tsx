@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { WeddingData } from "@/lib/wedding-types";
 import { blobToDataUrl, resizeImageToJpeg } from "@/lib/resize-image";
 import { Field, TextArea, TextInput } from "@/components/customize/fields";
+import IllustrationLoader from "@/components/customize/IllustrationLoader";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
@@ -26,7 +27,6 @@ export default function StepStory({
 }) {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).wizard.stepStory;
-  const maxChars = getSiteDict(locale).wizard.maxChars;
   const [drawing, setDrawing] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -62,7 +62,7 @@ export default function StepStory({
 
   return (
     <div className="flex flex-col gap-5">
-      <Field label={dict.sectionTitle} hint={maxChars(TITLE_MAX_LENGTH)}>
+      <Field label={dict.sectionTitle}>
         <TextInput
           value={data.storyTitle}
           onChange={(e) => onChange({ storyTitle: e.target.value })}
@@ -70,7 +70,7 @@ export default function StepStory({
           maxLength={TITLE_MAX_LENGTH}
         />
       </Field>
-      <Field label={dict.yourStory} hint={`${dict.yourStoryHint} — ${maxChars(STORY_MAX_LENGTH)}`}>
+      <Field label={dict.yourStory}>
         <TextArea
           rows={10}
           value={data.story}
@@ -79,9 +79,11 @@ export default function StepStory({
           maxLength={STORY_MAX_LENGTH}
         />
       </Field>
-      <Field label={dict.storyImage} hint={dict.storyImageHint}>
+      <Field label={dict.storyImage}>
         <div className="flex items-center gap-4">
-          {data.storyImage ? (
+          {drawing ? (
+            <IllustrationLoader />
+          ) : data.storyImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={data.storyImage}
@@ -133,7 +135,7 @@ export default function StepStory({
           </p>
         ) : null}
       </Field>
-      <Field label={dict.hashtag} hint={`${dict.hashtagHint} — ${maxChars(HASHTAG_MAX_LENGTH)}`}>
+      <Field label={dict.hashtag}>
         <TextInput
           value={data.hashtag || "#"}
           onChange={(e) => onChange({ hashtag: sanitizeHashtag(e.target.value) })}

@@ -9,6 +9,8 @@ import { Select } from "./fields";
 //
 // With `withTime` it is a date-time picker: the value becomes a local
 // "YYYY-MM-DDTHH:mm" string and hour/minute selectors appear under the grid.
+// A "time not known yet" checkbox stores just the date ("YYYY-MM-DD") instead:
+// a value with a date but no time part means the time is still unknown.
 
 type ISO = string; // YYYY-MM-DD, always in the visitor's local calendar
 
@@ -74,6 +76,7 @@ export default function DatePicker({
   defaultMonth,
   hourLabel = "Hour",
   minuteLabel = "Minutes",
+  timeUnknownLabel = "Exact time not known yet",
   doneLabel = "Done",
 }: {
   /** YYYY-MM-DD, or YYYY-MM-DDTHH:mm with `withTime`. */
@@ -93,13 +96,17 @@ export default function DatePicker({
   defaultMonth?: ISO;
   hourLabel?: string;
   minuteLabel?: string;
+  /** Label of the checkbox that drops the time (the date alone is kept). */
+  timeUnknownLabel?: string;
   doneLabel?: string;
 }) {
   // Date part ("YYYY-MM-DD") and time part ("HH:mm") of the value. Free text
   // saved before this picker existed doesn't parse and reads as "nothing chosen".
   const value: ISO = parseISO(rawValue.slice(0, 10)) ? rawValue.slice(0, 10) : "";
   const time = /^\d{2}:\d{2}$/.test(rawValue.slice(11, 16)) ? rawValue.slice(11, 16) : DEFAULT_TIME;
-  const emit = (iso: ISO, t: string) => onChange(withTime ? `${iso}T${t}` : iso);
+  // With a time picker, a date without a time part means "time not known yet".
+  const timeUnknown = withTime && value !== "" && !/^\d{4}-\d{2}-\d{2}T/.test(rawValue);
+  const emit = (iso: ISO, t: string | null) => onChange(withTime && t ? `${iso}T${t}` : iso);
   const startISO = defaultMonth && parseISO(defaultMonth) && (!min || defaultMonth >= min) ? defaultMonth : min && min > todayISO() ? min : todayISO();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -219,7 +226,7 @@ export default function DatePicker({
         .format(new Date(selected.y, selected.m, selected.d))
         .replace(/\./g, "")
     : null;
-  const display = dateText && withTime ? `${dateText} · ${time}` : dateText;
+  const display = dateText && withTime && !timeUnknown ? `${dateText} · ${time}` : dateText;
   const [hh, mm] = time.split(":");
 
   return (
@@ -296,7 +303,7 @@ export default function DatePicker({
                   aria-pressed={isSelected}
                   aria-current={isToday ? "date" : undefined}
                   onClick={() => {
-                    emit(iso, time);
+                    emit(iso, timeUnknown ? null : time);
                     // A date-time picker stays open so the time can be set too.
                     if (!withTime) close();
                   }}
@@ -319,12 +326,22 @@ export default function DatePicker({
           </div>
 
           {withTime ? (
-            <div className="mt-3 flex items-end gap-3 border-t border-line pt-3">
+            <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-3 border-t border-line pt-3">
+              <label className="flex w-full cursor-pointer items-center gap-2 text-sm text-ink has-[:disabled]:cursor-default has-[:disabled]:opacity-50">
+                <input
+                  type="checkbox"
+                  checked={timeUnknown}
+                  disabled={!selected}
+                  onChange={(e) => selected && emit(value, e.target.checked ? null : time)}
+                  className="h-4 w-4 accent-[var(--color-ink)]"
+                />
+                {timeUnknownLabel}
+              </label>
               <label className="flex flex-1 flex-col gap-1 text-xs text-ink-soft">
                 {hourLabel}
                 <Select
                   value={hh}
-                  disabled={!selected}
+                  disabled={!selected || timeUnknown}
                   onChange={(e) => selected && emit(value, `${e.target.value}:${mm}`)}
                 >
                   {HOURS.map((h) => (
@@ -338,7 +355,7 @@ export default function DatePicker({
                 {minuteLabel}
                 <Select
                   value={MINUTES.includes(mm) ? mm : "00"}
-                  disabled={!selected}
+                  disabled={!selected || timeUnknown}
                   onChange={(e) => selected && emit(value, `${hh}:${e.target.value}`)}
                 >
                   {MINUTES.map((m) => (
