@@ -26,10 +26,10 @@ const shots: Shot[] = [
   },
   {
     src: "/hero/proximo-diseno.jpg",
-    template: "Duna",
-    slug: "duna",
+    template: "Rambla",
+    slug: "rambla",
     label: "Portada",
-    alt: "Avance de Duna, próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+    alt: "Avance de Rambla, próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
   },
   {
     src: "/hero/proximo-diseno-2.jpg",
