@@ -44,7 +44,13 @@ la primera que esté libre: `elenayjuan` → `elenayjuan2027` → `elenayjuan-oc
 - Palabras reservadas: lista `RESERVED_SLUGS` en el código **y** el `check` de la
   base de datos (`sites_slug_not_reserved`); si se cambia una, se cambia la otra.
   La unicidad ignora mayúsculas.
-- Pendiente: filtro de palabras ofensivas y cambiar la dirección después de publicar.
+- Palabras prohibidas (insultos, vulgaridades, odio y términos sexuales en ES/EN):
+  `src/lib/blocked-words.ts`. Detecta disfraces (`p0lla`, `mier-da`, `h1tler`) pero no
+  bloquea palabras inocentes que solo contienen una corta (`computadora`, `Vergara`):
+  los términos ambiguos solo cuentan como palabra entera. Se aplica a la dirección
+  que escribe la pareja y a las sugeridas. Solo en el código, no en la base de datos.
+  Para añadir una palabra, se añade a la lista que corresponda y se prueba.
+- Pendiente: cambiar la dirección después de publicar.
 
 ## Desarrollo
 

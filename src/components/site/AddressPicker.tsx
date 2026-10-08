@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { isReservedSlug, isValidCustomSlug } from "@/lib/site-address";
+import { isForbiddenSlug, isValidCustomSlug } from "@/lib/site-address";
 import type { SiteDict } from "@/lib/site-dict";
 
 export type AddressChoice =
@@ -95,7 +95,7 @@ export default function AddressPicker({
 
   useEffect(() => {
     if (mode !== "custom" || !debounced) return;
-    if (isReservedSlug(debounced)) {
+    if (isForbiddenSlug(debounced)) {
       setTimeout(() => setCheck({ value: debounced, result: "reserved" }), 0);
       return;
     }
