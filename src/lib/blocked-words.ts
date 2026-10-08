@@ -9,6 +9,10 @@
 //    ("p0lla", "h1tler", "m1erda"), separators ("mier-da", "p.o.l.l.a"),
 //    stretched letters ("pollaaaa"), accents and spelling variants
 //    (k/c, z/s, v/b, a silent h, y/i, ph/f: "kabron", "hostia"/"ostia").
+//  - "ñ" typed as "ni", "ny" or "nn" ("conio", "conyo"), a doubled letter in the
+//    middle of a word ("jooder"), and plurals of whole-word terms ("penes").
+//  - expressions written as one run of words ("mecagoentodo", "hijodeputa").
+//  - number codes for attacks ("11s", "11-m", "911") when they stand as a word.
 //  - long distinctive words are blocked anywhere in the address, even glued
 //    to other letters ("xxjoderxx").
 //  - short or ambiguous words only count as a whole word ("pene"), or at the
@@ -25,7 +29,11 @@ const ANYWHERE = [
   "sudaca", "negrata", "hostia", "imbecil", "estupido", "idiota", "cagada", "mongolo", "mongolico", "tarado", "mamon", "huevon",
   "culiao", "culiado", "mamaguevo", "chingatumadre", "puñeta", "pajillero", "pajero", "gonorrea", "malparid", "ojete", "pichula",
   "bollera", "tortillera", "travelo", "marimacho", "lameculos", "chupapollas", "comemierda", "cagon", "cabroncete", "mamadera",
-  "arrecho", "verguita", "putero", "putita", "putada", "putear", "puton",
+  "arrecho", "conazo", "coñazo", "verguita", "putero", "putita", "putada", "putear", "puton",
+  // Spanish expressions that people write as one run of words ("mecagoentodo")
+  "mecago", "mecaguen", "cagoen", "cagoentodo", "putamadre", "laputamadre", "hijodeputa", "hijadeputa", "hijoeputa", "lagranputa",
+  "chupamela", "chupala", "comemela", "mamamela", "vetealaverga", "vetealculo", "tumadrecalva", "conchadetumadre",
+  "lamadrequetepario", "matatecabron", "hijodelagranputa",
   // Catalan, Galician, Portuguese
   "merda", "collons", "gilipolles", "malparit", "caralho", "filhodaputa", "foder", "buceta", "cabrao", "viado", "bichona",
   // French, Italian
@@ -72,6 +80,10 @@ const WHOLE_WORD = [
 // Symbols and codes matched anywhere in the address exactly as written (no spelling variants).
 const RAW_CODES = ["1488", "kkk", "xxx"];
 
+// Number codes that are only a problem as a word of their own ("11s", "11-s", "9-11"), since
+// glued inside a date ("boda11septiembre") they are harmless. Terrorist attack names.
+const RAW_WORDS = ["11s", "11m", "911", "7j", "7o"];
+
 // ---------------------------------------------------------------------------
 
 // Look-alike characters people use to get around filters.
@@ -110,7 +122,10 @@ function readings(raw: string): string[] {
   const asLetters = plain.replace(/[0345789@$!+(]/g, (c) => LEET[c] ?? c);
   const withOneAsI = asLetters.replace(/1/g, "i");
   const withOneAsL = asLetters.replace(/1/g, "l");
-  return [plain, withOneAsI, withOneAsL];
+  const base = [plain, withOneAsI, withOneAsL];
+  // "ñ" is often typed as "ni", "ny" or "nn" ("conio", "conyo", "conno" for "coño").
+  // The accent was already dropped above, so these read as n.
+  return [...base, ...base.map((r) => r.replace(/n[iy](?=[aeiou])/g, "n").replace(/nn/g, "n"))];
 }
 
 // Terms are put through the same disguise-proof form as the address.
@@ -126,24 +141,39 @@ for (const term of ANYWHERE.map(form)) {
   else wholeWords.add(term);
 }
 
+// "jooder", "mierrda", "pollla": a doubled letter in the middle of a word. Both sides are
+// collapsed, but only for terms long enough to stay distinctive once collapsed.
+const collapse = (t: string) => t.replace(/(.)\1+/g, "$1");
+const collapsedAnywhere = anywhere.map(collapse).filter((c, i) => c.length >= 6 || c === anywhere[i]);
+
+// A plural of a whole-word term counts too ("penes", "pedos").
+const isWholeWord = (w: string) => wholeWords.has(w) || (w.length > 3 && w.endsWith("s") && wholeWords.has(w.slice(0, -1)));
+
 /** The term that blocks `address` (for tests and logs), or null when it is allowed. */
 export function blockingTerm(address: string): string | null {
   const written = stripAccents(address);
   const code = RAW_CODES.find((c) => written.replace(/[^a-z0-9]/g, "").includes(c));
   if (code) return code;
+  const tokens = written.split(/[^a-z0-9]+/).filter(Boolean);
+  const joined = tokens.join("");
+  const rawWord = RAW_WORDS.find((c) => joined === c || tokens.includes(c));
+  if (rawWord) return rawWord;
 
   for (const reading of readings(address)) {
     // 1) distinctive terms, anywhere, ignoring separators and stretched letters
     const flat = phonetic(onlyLetters(reading));
     const inside = anywhere.find((term) => flat.includes(term));
     if (inside) return inside;
+    const collapsed = collapse(flat);
+    const doubled = collapsedAnywhere.find((term) => collapsed.includes(term));
+    if (doubled) return doubled;
 
     // 2) per word of the address (dashes separate words; digits glued to a word are dropped)
     const words = reading
       .split(/-+/)
       .map((part) => phonetic(onlyLetters(part)))
       .filter(Boolean);
-    const whole = words.find((w) => wholeWords.has(w));
+    const whole = words.find(isWholeWord);
     if (whole) return whole;
     for (const w of words) {
       const edge = atEdges.find((term) => w.startsWith(term) || w.endsWith(term));
