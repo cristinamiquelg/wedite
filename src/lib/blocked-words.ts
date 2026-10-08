@@ -13,9 +13,25 @@ const ANYWHERE = [
   "mierda", "joder", "jodete", "follar", "follada", "polla", "cabron", "maricon", "pendej",
   "cojones", "cojon", "chingad", "chingar", "culero", "zorra", "violador", "pedofil", "pederasta",
   "gilipollas", "hijoputa", "capullo", "subnormal", "retrasado", "sudaca", "negrata",
+  "hostia", "imbecil", "estupido", "idiota", "cagada", "cabronazo", "gilipuertas", "mongolo", "tarado",
+  "mamon", "huevon", "culiao", "mamaguevo", "chingatumadre", "hijueputa",
   // English
   "fuck", "shit", "bitch", "whore", "nigger", "nigga", "faggot", "retard", "rapist", "pedophile",
   "asshole", "pussy", "bastard", "penis", "vagina", "porn", "xxx",
+  // Sexual and adult content
+  "orgasmo", "masturb", "erotic", "bdsm", "escort", "prostitut", "swinger", "onlyfans", "hentai",
+  "incest", "blowjob", "handjob", "dildo", "bukkake", "cornudo",
+  // Hate, racism and discrimination
+  "marimacho", "travelo", "bollera", "sionazi", "holohoax", "tranny", "wetback", "whitepower",
+  "supremacist",
+  // Extremism and atrocities
+  "himmler", "goebbels", "mengele", "eichmann", "holocausto", "polpot", "binladen", "alqaeda",
+  "alqaida", "daesh", "yihad", "meinkampf",
+  // Violence and abuse
+  "violacion", "asesin", "suicid", "abusador", "maltratador", "terrorist",
+  // Impersonation of the service, payment providers and well-known companies
+  "wedite", "weddite", "paypal", "stripe", "bizum", "whatsapp", "instagram", "tiktok", "facebook",
+  "mastercard", "caixabank", "bbva", "bankinter", "revolut", "agenciatributaria", "seguridadsocial",
   // Hate, Nazism and similar
   "hitler", "siegheil", "tercerreich", "auschwitz", "swastika", "esvastica", "kkk",
 ];
@@ -31,7 +47,17 @@ const AT_EDGES = ["puta", "puto"];
 const WHOLE_WORD = [
   "nazi", "nazis", "mussolini", "cono", "culo", "verga", "pene", "pija", "sexo", "sex", "tetas",
   "teta", "paja", "guarra", "cunt", "slut", "fag", "rape", "pedo", "cock", "dick", "anal",
+  "hdp", "ptm", "ctm", "csm", "pelotudo", "marico", "pinche", "mear", "cagar",
+  "orgia", "semen", "tits", "boobs", "milf", "cum", "jizz", "pezon", "fetiche",
+  "coon", "dyke", "gook", "chink", "spic", "heil", "isis",
+  // Impersonation: words used to pass as the service, a bank or an authority
+  "pagos", "pago", "factura", "billing", "payment", "seguridad", "security", "verify", "verificacion",
+  "password", "contrasena", "signin", "banco", "bank", "correos", "dgt", "policia", "guardiacivil",
+  "gobierno", "visa", "google", "gmail", "amazon", "apple", "microsoft", "ing",
 ];
+
+// Numeric codes used by hate groups, matched anywhere in the address.
+const NUMERIC_CODES = ["1488"];
 
 // Look-alike characters people use to get around filters.
 const LEET: Record<string, string> = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", $: "s", "!": "i" };
@@ -52,6 +78,8 @@ export function isBlockedWord(address: string): boolean {
   const plain = stripAccents(address);
   // Two readings: as written (digits dropped), and with look-alike digits turned into letters.
   const readings = [plain, leet(plain)];
+
+  if (NUMERIC_CODES.some((code) => plain.includes(code))) return true;
 
   for (const reading of readings) {
     const letters = toLetters(reading);
