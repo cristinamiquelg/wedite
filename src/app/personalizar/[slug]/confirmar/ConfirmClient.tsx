@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { trackEvent } from "@/lib/analytics";
 import type { Template } from "@/lib/templates";
 import { useWeddingDraft } from "@/lib/use-wedding-draft";
@@ -10,6 +10,7 @@ import { missingAll } from "@/lib/wizard-required";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 import StripeEmbeddedForm from "@/components/site/StripeEmbeddedForm";
+import AddressPicker, { type AddressChoice } from "@/components/site/AddressPicker";
 
 export default function ConfirmClient({ template }: { template: Template }) {
   const { data, loaded } = useWeddingDraft(template.slug);
@@ -17,12 +18,22 @@ export default function ConfirmClient({ template }: { template: Template }) {
   const [email, setEmail] = useState("");
   const [error, setError] = useState(false);
   const [session, setSession] = useState<{ clientSecret: string; publishableKey: string } | null>(null);
+  const [address, setAddress] = useState<{ choice: AddressChoice; valid: boolean }>({
+    choice: { kind: "random" },
+    valid: false,
+  });
+  const [addressLost, setAddressLost] = useState(false);
   const { locale } = useSiteLocale();
   const siteDict = getSiteDict(locale);
   const dict = siteDict.checkout;
   // The checkout can be reached by URL, so it re-checks what the wizard enforces.
   const missing = loaded ? missingAll(data) : [];
   const missingLabels = missing.map((f) => siteDict.wizard.missing[f]).join(", ");
+
+  const handleAddress = useCallback((choice: AddressChoice, valid: boolean) => {
+    setAddress({ choice, valid });
+    setAddressLost(false);
+  }, []);
 
   const names =
     data.partnerA || data.partnerB
@@ -38,9 +49,15 @@ export default function ConfirmClient({ template }: { template: Template }) {
       const res = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ slug: template.slug, email, locale, data }),
+        body: JSON.stringify({ slug: template.slug, email, locale, data, address: address.choice }),
       });
-      const body = (await res.json()) as { url?: string };
+      const body = (await res.json()) as { url?: string; error?: string };
+      if (res.status === 409 && body.error === "slug_taken") {
+        // Someone took the chosen address a moment ago.
+        setAddressLost(true);
+        setSubmitting(false);
+        return;
+      }
       if (!res.ok || !body.url) throw new Error("checkout failed");
       // Stripe-hosted payment page.
       window.location.assign(body.url);
@@ -153,6 +170,15 @@ export default function ConfirmClient({ template }: { template: Template }) {
               </div>
             ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <AddressPicker
+                partnerA={data.partnerA}
+                partnerB={data.partnerB}
+                date={data.date}
+                email={email}
+                dict={dict.address}
+                lost={addressLost}
+                onChange={handleAddress}
+              />
               <label className="flex flex-col gap-1.5 text-sm">
                 <span className="font-medium text-ink">{dict.email}</span>
                 <input
@@ -168,7 +194,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
               </label>
               <button
                 type="submit"
-                disabled={submitting || missing.length > 0}
+                disabled={submitting || missing.length > 0 || !address.valid}
                 className="mt-4 w-full rounded-full bg-ink px-6 py-3.5 text-sm font-medium text-paper transition-opacity hover:opacity-90 disabled:opacity-60"
               >
                 {submitting ? dict.confirming : dict.continuePay}

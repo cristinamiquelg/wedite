@@ -1,6 +1,6 @@
 import type { SiteLocale } from "./site-locale";
 
-type SiteDict = {
+export type SiteDict = {
   comingSoon: { eyebrow: string; heading: string; body: string };
   nav: { designs: string; howItWorks: string; whoWeAre: string; contact: string; viewDesigns: string };
   footer: {
@@ -118,6 +118,23 @@ type SiteDict = {
     editEmail: string;
     disclaimer: string;
     termsLink: string;
+    address: {
+      title: string;
+      hint: string;
+      suggested: string;
+      random: string;
+      randomHint: string;
+      custom: string;
+      customLabel: string;
+      customPlaceholder: string;
+      checking: string;
+      available: string;
+      taken: string;
+      reserved: string;
+      invalid: string;
+      lost: string;
+      none: string;
+    };
   };
   wizard: {
     savingAuto: string;
@@ -384,6 +401,23 @@ const es: SiteDict = {
     editEmail: "Cambiar email",
     disclaimer: "Al pagar aceptáis los términos del servicio. Precio con IVA incluido.",
     termsLink: "Ver términos y condiciones",
+    address: {
+      title: "La dirección de vuestra web",
+      hint: "Es el enlace que compartiréis con vuestros invitados.",
+      suggested: "Sugerida",
+      random: "Aleatoria",
+      randomHint: "Privada: imposible de adivinar, solo la conocerá quien reciba vuestro enlace.",
+      custom: "Elegir la mía",
+      customLabel: "Vuestra dirección",
+      customPlaceholder: "nuestraboda",
+      checking: "Comprobando…",
+      available: "Disponible",
+      taken: "Ya está en uso. Probad con otra.",
+      reserved: "Esa dirección no está permitida.",
+      invalid: "Usad solo minúsculas, números y guiones (de 3 a 40 caracteres).",
+      lost: "Esa dirección se acaba de ocupar. Elegid otra.",
+      none: "No hemos encontrado una dirección sugerida libre; os damos una aleatoria.",
+    },
   },
   wizard: {
     savingAuto: "Guardado automáticamente",
@@ -654,6 +688,23 @@ const en: SiteDict = {
     editEmail: "Change email",
     disclaimer: "By paying you accept the terms of service. Price includes VAT.",
     termsLink: "Read the terms and conditions",
+    address: {
+      title: "Your website address",
+      hint: "This is the link you'll share with your guests.",
+      suggested: "Suggested",
+      random: "Random",
+      randomHint: "Private: impossible to guess, only people who get your link will know it.",
+      custom: "Choose my own",
+      customLabel: "Your address",
+      customPlaceholder: "ourwedding",
+      checking: "Checking…",
+      available: "Available",
+      taken: "Already taken. Try another one.",
+      reserved: "That address isn't allowed.",
+      invalid: "Use only lowercase letters, numbers and dashes (3 to 40 characters).",
+      lost: "That address was just taken. Please pick another.",
+      none: "We couldn't find a free suggested address, so we'll give you a random one.",
+    },
   },
   wizard: {
     savingAuto: "Saved automatically",

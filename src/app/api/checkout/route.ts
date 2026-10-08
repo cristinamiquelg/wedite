@@ -1,29 +1,24 @@
-import { createHash, randomBytes, randomInt } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
 import { emptyWeddingData, type WeddingData } from "@/lib/wedding-types";
 import { isKnownTemplateSlug } from "@/components/templates/registry";
 import { getTemplateBySlug } from "@/lib/templates";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { stripe, vatIncluded } from "@/lib/stripe";
+import { isValidCustomSlug } from "@/lib/site-address";
+import { createDraftSite, type AddressChoice } from "@/lib/site-slug";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-/** Fully random 15-character slug (upper/lower case + digits): the URL can't be guessed or derived from the names. */
-function randomSiteSlug(length = 15): string {
-  return Array.from({ length }, () => SLUG_CHARS[randomInt(SLUG_CHARS.length)]).join("");
-}
-
 const MAX_DRAFT_BYTES = 4_000_000;
 
 // Creates a pending order and an embedded-form Stripe Checkout Session, and returns its client secret.
 // The price always comes from the server-side catalog, never from the client.
 export async function POST(request: NextRequest) {
-  let body: { slug?: unknown; email?: unknown; locale?: unknown; data?: unknown };
+  let body: { slug?: unknown; email?: unknown; locale?: unknown; data?: unknown; address?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -52,33 +47,48 @@ export async function POST(request: NextRequest) {
   // The edit token is generated here and only its hash is stored. Delivering it
   // to the couple (edit link) is not built yet.
   const editToken = randomBytes(32).toString("base64url");
-  let site: { id: string; slug: string } | null = null;
-  for (let attempt = 0; attempt < 5 && !site; attempt++) {
-    const slug = randomSiteSlug();
-    const { data: row, error: siteError } = await db
-      .from("sites")
-      .insert({
-        slug,
-        template_slug: template.slug,
-        status: "draft",
-        data,
-        locales: data.locales,
-        partner_a: data.partnerA || null,
-        partner_b: data.partnerB || null,
-        wedding_date: data.date || null,
-        owner_email: email,
-        edit_token_hash: createHash("sha256").update(editToken).digest("hex"),
-      })
-      .select("id, slug")
-      .single();
-    if (row) site = row;
-    // 23505 = slug taken: draw another suffix.
-    else if (siteError?.code !== "23505") {
-      console.error("checkout: could not create site", siteError);
-      break;
-    }
+  // Public address: the suggested one the couple saw, one they typed, or a random one.
+  const address = (body.address && typeof body.address === "object" ? body.address : {}) as {
+    kind?: unknown;
+    slug?: unknown;
+  };
+  const chosen = typeof address.slug === "string" ? address.slug.trim().toLowerCase() : "";
+  let choice: AddressChoice = { kind: "random" };
+  if ((address.kind === "suggested" || address.kind === "custom") && isValidCustomSlug(chosen)) {
+    choice = {
+      kind: "slug",
+      slug: chosen,
+      partnerA: data.partnerA,
+      partnerB: data.partnerB,
+      date: data.date,
+      fallbackToSuggestions: address.kind === "suggested",
+    };
+  } else if (address.kind === "suggested" || address.kind === "custom") {
+    return NextResponse.json({ error: "slug_invalid" }, { status: 400 });
   }
-  if (!site) return NextResponse.json({ error: "server_error" }, { status: 500 });
+
+  const created = await createDraftSite(
+    db,
+    {
+      template_slug: template.slug,
+      status: "draft",
+      data,
+      locales: data.locales,
+      partner_a: data.partnerA || null,
+      partner_b: data.partnerB || null,
+      wedding_date: data.date || null,
+      owner_email: email,
+      edit_token_hash: createHash("sha256").update(editToken).digest("hex"),
+    },
+    choice,
+  );
+  if ("error" in created) {
+    return NextResponse.json(
+      { error: created.error },
+      { status: created.error === "slug_taken" ? 409 : 500 },
+    );
+  }
+  const site = created.site;
 
   const { data: order, error } = await db
     .from("orders")
