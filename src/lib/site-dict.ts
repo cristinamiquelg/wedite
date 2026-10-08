@@ -325,10 +325,10 @@ const es: SiteDict = {
     upcoming: [
       {
         image: "/catalog/proximo-diseno.jpg",
-        title: "Duna",
+        title: "Rambla",
         tagline: "Minimalista y a trazo",
         summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
-        imageAlt: "Avance de Duna, próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
+        imageAlt: "Avance de Rambla, próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
         tags: ["Minimalista", "A trazo"],
       },
       {
@@ -633,10 +633,10 @@ const en: SiteDict = {
     upcoming: [
       {
         image: "/catalog/proximo-diseno.jpg",
-        title: "Duna",
+        title: "Rambla",
         tagline: "Minimal and line-drawn",
         summary: "You'll soon be able to see it here and make it yours.",
-        imageAlt: "Preview of Duna, an upcoming design: a line-drawn couple holding two photos of themselves as children",
+        imageAlt: "Preview of Rambla, an upcoming design: a line-drawn couple holding two photos of themselves as children",
         tags: ["Minimal", "Line-drawn"],
       },
       {
