@@ -46,7 +46,15 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
     function scheduleScroll(id: string) {
       if (scrollTimer) clearTimeout(scrollTimer);
       scrollTimer = setTimeout(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        // A phase without a name or date has no header to land on: its first
+        // place (id "fase-N-lugar-M") stands in for it.
+        // A place that isn't on the page yet falls back to its phase.
+        const phaseId = id.replace(/-lugar-\d+$/, "");
+        const target =
+          document.getElementById(id) ??
+          document.getElementById(phaseId) ??
+          document.querySelector(`[id^="${phaseId}-lugar-"]`);
+        target?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 200);
     }
 
