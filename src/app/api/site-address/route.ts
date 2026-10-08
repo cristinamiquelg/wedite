@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/admin";
-import { isReservedSlug, isValidCustomSlug } from "@/lib/site-address";
+import { isForbiddenSlug, isValidCustomSlug } from "@/lib/site-address";
 import { firstAvailableSuggestion, isSlugAvailable } from "@/lib/site-slug";
 
 export const runtime = "nodejs";
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
   if (slug !== null) {
     const value = slug.trim().toLowerCase();
-    if (isReservedSlug(value)) return NextResponse.json({ available: false, reason: "reserved" });
+    if (isForbiddenSlug(value)) return NextResponse.json({ available: false, reason: "reserved" });
     if (!isValidCustomSlug(value)) return NextResponse.json({ available: false, reason: "invalid" });
     const available = await isSlugAvailable(db, value, email);
     return NextResponse.json(available ? { available: true } : { available: false, reason: "taken" });

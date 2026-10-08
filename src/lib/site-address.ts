@@ -1,3 +1,5 @@
+import { isBlockedWord } from "@/lib/blocked-words";
+
 // Public address of a couple's site (wedite.com/<slug>): how the suggested
 // ones are built and which ones are valid. Pure functions, shared by the
 // checkout page (live suggestions) and the server (which re-checks everything).
@@ -26,13 +28,18 @@ export function isReservedSlug(slug: string): boolean {
   return RESERVED.has(slug.toLowerCase());
 }
 
-/** Is `slug` an acceptable chosen address (format, length, not reserved)? */
+/** Reserved for the site itself, or a word we don't allow in an address. */
+export function isForbiddenSlug(slug: string): boolean {
+  return isReservedSlug(slug) || isBlockedWord(slug);
+}
+
+/** Is `slug` an acceptable chosen address (format, length, allowed)? */
 export function isValidCustomSlug(slug: string): boolean {
   return (
     slug.length >= MIN_SLUG_LENGTH &&
     slug.length <= MAX_SLUG_LENGTH &&
     CUSTOM_SLUG_RE.test(slug) &&
-    !isReservedSlug(slug)
+    !isForbiddenSlug(slug)
   );
 }
 
