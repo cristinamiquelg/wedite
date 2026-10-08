@@ -12,15 +12,18 @@ type Shot = {
   alt?: string;
 };
 
-// Every card is a vertical (phone-shaped, 435 x 658) screenshot, so the
-// parallax reads as tall cards drifting past each other.
-// Real screenshots of Wedite's designs (Ribera, plus the next design that is
-// coming soon) — no invented sites. As the catalog grows, add more shots here
+// Every card is a vertical (phone-shaped, 435 x 658) image, with plenty of
+// space around them so the parallax stays calm. Real previews of Wedite's
+// designs (Ribera, plus the next designs that are coming soon) — no invented sites. As the catalog grows, add more shots here
 // and they'll flow into the columns automatically.
 const shots: Shot[] = [
-  { src: "/hero/ribera-movil-portada.jpg", template: "Ribera", slug: "ribera", label: "Portada" },
-  { src: "/hero/ribera-movil-itinerario.jpg", template: "Ribera", slug: "ribera", label: "Itinerario" },
-  { src: "/hero/ribera-movil-detalles.jpg", template: "Ribera", slug: "ribera", label: "Detalles" },
+  {
+    src: "/hero/ribera.jpg",
+    template: "Ribera",
+    slug: "ribera",
+    label: "Portada",
+    alt: "Ribera, un diseño de Wedite: la portada con los nombres, la fecha y el lugar de la boda",
+  },
   {
     src: "/hero/proximo-diseno.jpg",
     template: "Duna",
@@ -37,17 +40,16 @@ const shots: Shot[] = [
   },
 ];
 
-// Each column gets its own order (so neighbouring columns never show the
-// same shot at the same height) and its own parallax speed + direction —
+// Each column starts on a different shot (so neighbouring columns never show
+// the same one at the same height) and its own parallax speed + direction —
 // that's what makes the columns visibly drift apart as you scroll instead
 // of moving in lockstep. Five cards per column (not four) so there's
 // enough buffer height for the bigger travel distance below.
 const columns: { order: number[]; speed: number }[] = [
-  { order: [0, 3, 1, 4, 2], speed: 0.55 },
-  { order: [4, 1, 5, 2, 0], speed: -0.75 },
-  { order: [2, 5, 0, 3, 1], speed: 0.9 },
-  { order: [5, 2, 4, 1, 3], speed: -0.5 },
-  { order: [1, 4, 3, 0, 5], speed: 0.7 },
+  { order: [0, 1, 2, 0, 1], speed: 0.55 },
+  { order: [1, 2, 0, 1, 2], speed: -0.75 },
+  { order: [2, 0, 1, 2, 0], speed: 0.9 },
+  { order: [0, 2, 1, 0, 2], speed: -0.5 },
 ];
 
 function Card({ shot }: { shot: Shot }) {
@@ -125,7 +127,7 @@ export default function HeroGrid() {
           "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
       }}
     >
-      <div className="grid h-full grid-flow-col auto-cols-fr gap-4 px-4 sm:gap-5 sm:px-0">
+      <div className="mx-auto grid h-full max-w-5xl grid-flow-col auto-cols-fr gap-6 px-8 sm:gap-10 sm:px-10 lg:gap-14">
         {columns.map((col, ci) => {
           const visibility =
             ci === 2 ? "hidden sm:flex" : ci >= 3 ? "hidden lg:flex" : "flex";
@@ -135,7 +137,7 @@ export default function HeroGrid() {
               ref={(el) => {
                 columnRefs.current[ci] = el;
               }}
-              className={`${visibility} -mt-24 flex-col gap-4 will-change-transform sm:gap-5`}
+              className={`${visibility} -mt-24 flex-col gap-6 will-change-transform sm:gap-10 lg:gap-14`}
             >
               {col.order.map((shotIndex, i) => (
                 <Card key={i} shot={shots[shotIndex % shots.length]} />
