@@ -123,7 +123,6 @@ export type SiteDict = {
       hint: string;
       suggested: string;
       random: string;
-      randomHint: string;
       custom: string;
       customLabel: string;
       customPlaceholder: string;
@@ -406,7 +405,6 @@ const es: SiteDict = {
       hint: "Es el enlace que compartiréis con vuestros invitados.",
       suggested: "Sugerida",
       random: "Aleatoria",
-      randomHint: "Privada: imposible de adivinar, solo la conocerá quien reciba vuestro enlace.",
       custom: "Elegir la mía",
       customLabel: "Vuestra dirección",
       customPlaceholder: "nuestraboda",
@@ -693,7 +691,6 @@ const en: SiteDict = {
       hint: "This is the link you'll share with your guests.",
       suggested: "Suggested",
       random: "Random",
-      randomHint: "Private: impossible to guess, only people who get your link will know it.",
       custom: "Choose my own",
       customLabel: "Your address",
       customPlaceholder: "ourwedding",
