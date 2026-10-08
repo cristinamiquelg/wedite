@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { isReservedSlug, isValidCustomSlug } from "@/lib/site-address";
 import type { SiteDict } from "@/lib/site-dict";
 
@@ -52,6 +52,7 @@ export default function AddressPicker({
   onChange: (choice: AddressChoice, valid: boolean) => void;
 }) {
   const name = useId();
+  const customInput = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<Mode | null>(null);
   // undefined = still loading, null = nothing free to suggest.
   const [suggestion, setSuggestion] = useState<string | null | undefined>(undefined);
@@ -160,6 +161,10 @@ export default function AddressPicker({
   const statusIsError = customCheck !== null && customCheck !== "ok";
 
   const radio = "mt-0.5 h-4 w-4 shrink-0 accent-[var(--color-ink)]";
+  // The three options share the same two lines: a small label and the address.
+  const body = "flex min-w-0 flex-1 flex-col";
+  const optionLabel = "text-xs text-ink-soft";
+  const optionValue = "break-all text-sm font-medium text-ink";
   const option = "flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-paper px-3.5 py-3 text-sm has-[:checked]:border-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-clay-dark";
 
   return (
@@ -176,9 +181,9 @@ export default function AddressPicker({
             checked={effectiveMode === "suggested"}
             onChange={() => setMode("suggested")}
           />
-          <span className="flex flex-col">
-            <span className="text-xs text-ink-soft">{dict.suggested}</span>
-            <span className="font-medium text-ink break-all">
+          <span className={body}>
+            <span className={optionLabel}>{dict.suggested}</span>
+            <span className={optionValue}>
               {DOMAIN}
               {suggestion}
             </span>
@@ -196,13 +201,12 @@ export default function AddressPicker({
           checked={effectiveMode === "random"}
           onChange={() => setMode("random")}
         />
-        <span className="flex flex-col">
-          <span className="font-medium text-ink">{dict.random}</span>
-          <span className="break-all text-sm font-medium text-ink">
+        <span className={body}>
+          <span className={optionLabel}>{dict.random}</span>
+          <span className={optionValue}>
             {DOMAIN}
             {randomSlug ?? "…"}
           </span>
-          <span className="text-xs text-ink-soft">{dict.randomHint}</span>
         </span>
       </label>
 
@@ -212,32 +216,32 @@ export default function AddressPicker({
           name={name}
           className={radio}
           checked={effectiveMode === "custom"}
-          onChange={() => setMode("custom")}
+          onChange={() => {
+            setMode("custom");
+            customInput.current?.focus();
+          }}
         />
-        <span className="flex min-w-0 flex-1 flex-col gap-1.5">
-          <span className="font-medium text-ink">{dict.custom}</span>
-          {effectiveMode === "custom" && (
-            <span className="flex items-center rounded-lg border border-line bg-paper-raised px-3 py-2 focus-within:border-clay">
-              <span aria-hidden="true" className="text-ink-soft">
-                {DOMAIN}
-              </span>
-              <input
-                type="text"
-                aria-label={dict.customLabel}
-                aria-describedby={`${name}-status`}
-                aria-invalid={statusIsError}
-                autoFocus
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-                maxLength={40}
-                placeholder={dict.customPlaceholder}
-                value={custom}
-                onChange={(e) => setCustom(e.target.value)}
-                className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none"
-              />
-            </span>
-          )}
+        <span className={body}>
+          <span className={optionLabel}>{dict.custom}</span>
+          <span className={`${optionValue} flex items-baseline`}>
+            <span aria-hidden="true">{DOMAIN}</span>
+            <input
+              ref={customInput}
+              type="text"
+              aria-label={dict.customLabel}
+              aria-describedby={`${name}-status`}
+              aria-invalid={statusIsError}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
+              maxLength={40}
+              placeholder={dict.customPlaceholder}
+              value={custom}
+              onFocus={() => setMode("custom")}
+              onChange={(e) => setCustom(e.target.value)}
+              className="min-w-0 flex-1 bg-transparent font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-soft"
+            />
+          </span>
         </span>
       </label>
 
