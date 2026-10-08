@@ -223,7 +223,8 @@ export default function AddressPicker({
         />
         <span className={body}>
           <span className={optionLabel}>{dict.custom}</span>
-          <span className={`${optionValue} flex items-baseline`}>
+          {/* A real field, so it is clear this one is filled in by them. */}
+          <span className="mt-1 flex items-baseline rounded-md border border-ink-soft bg-paper-raised px-3 py-2 text-sm font-medium text-ink focus-within:border-clay-dark focus-within:ring-1 focus-within:ring-clay-dark">
             <span aria-hidden="true">{DOMAIN}</span>
             <input
               ref={customInput}
