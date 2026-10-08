@@ -28,6 +28,24 @@ simulado (sin pagos ni backend reales todavía).
 - `/preview/[slug]` — renderiza la plantilla a pantalla completa, ya sea con
   datos de ejemplo o con el borrador guardado.
 
+## Dirección pública de cada web
+
+En la página de confirmación la pareja elige la dirección (`wedite.com/<nombre>`):
+la **sugerida**, una **aleatoria** (privada, 15 caracteres) o **la suya**.
+La sugerida sale de los nombres y la fecha (`src/lib/site-address.ts`) y se usa
+la primera que esté libre: `elenayjuan` → `elenayjuan2027` → `elenayjuan-oct2027`
+→ `elenayjuan2027-2`, `-3`…
+
+- Un borrador sin pagar retiene su dirección 24 h (lo que vive la página de pago
+  de Stripe); pasado ese tiempo, o si la misma persona vuelve a empezar, queda libre
+  (`src/lib/site-slug.ts`). La dirección se reserva al empezar el pago.
+- `GET /api/site-address` comprueba disponibilidad (limitado por IP: revela qué
+  direcciones están ocupadas).
+- Palabras reservadas: lista `RESERVED_SLUGS` en el código **y** el `check` de la
+  base de datos (`sites_slug_not_reserved`); si se cambia una, se cambia la otra.
+  La unicidad ignora mayúsculas.
+- Pendiente: filtro de palabras ofensivas y cambiar la dirección después de publicar.
+
 ## Desarrollo
 
 ```bash
