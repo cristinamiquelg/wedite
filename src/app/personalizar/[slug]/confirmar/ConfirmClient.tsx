@@ -19,7 +19,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
   const [error, setError] = useState(false);
   const [session, setSession] = useState<{ clientSecret: string; publishableKey: string } | null>(null);
   const [address, setAddress] = useState<{ choice: AddressChoice; valid: boolean }>({
-    choice: { kind: "random" },
+    choice: { kind: "random", slug: "" },
     valid: false,
   });
   const [addressLost, setAddressLost] = useState(false);

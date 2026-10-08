@@ -5,7 +5,7 @@ import { isKnownTemplateSlug } from "@/components/templates/registry";
 import { getTemplateBySlug } from "@/lib/templates";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { stripe, vatIncluded } from "@/lib/stripe";
-import { isValidCustomSlug } from "@/lib/site-address";
+import { isRandomSlug, isValidCustomSlug } from "@/lib/site-address";
 import { createDraftSite, type AddressChoice } from "@/lib/site-slug";
 
 export const runtime = "nodejs";
@@ -54,6 +54,10 @@ export async function POST(request: NextRequest) {
   };
   const chosen = typeof address.slug === "string" ? address.slug.trim().toLowerCase() : "";
   let choice: AddressChoice = { kind: "random" };
+  if (address.kind === "random" && typeof address.slug === "string" && isRandomSlug(address.slug)) {
+    // The random address the couple was shown (case matters: it is mixed case).
+    choice = { kind: "random", slug: address.slug };
+  }
   if ((address.kind === "suggested" || address.kind === "custom") && isValidCustomSlug(chosen)) {
     choice = {
       kind: "slug",

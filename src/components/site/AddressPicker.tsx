@@ -4,12 +4,27 @@ import { useEffect, useId, useState } from "react";
 import { isReservedSlug, isValidCustomSlug } from "@/lib/site-address";
 import type { SiteDict } from "@/lib/site-dict";
 
-export type AddressChoice = { kind: "suggested" | "custom"; slug: string } | { kind: "random" };
+export type AddressChoice =
+  | { kind: "suggested" | "custom"; slug: string }
+  | { kind: "random"; slug: string };
 
 type Mode = "suggested" | "random" | "custom";
 type Check = { value: string; result: "ok" | "taken" | "reserved" | "invalid" | "error" };
 
 const DOMAIN = "wedite.com/";
+const RANDOM_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+/** 15 random letters and digits, from the browser's secure random source. */
+function makeRandomSlug(): string {
+  const bytes = new Uint8Array(15);
+  // Rejection sampling keeps every character equally likely (62 does not divide 256).
+  const out: string[] = [];
+  while (out.length < 15) {
+    crypto.getRandomValues(bytes);
+    for (const b of bytes) if (b < 248 && out.length < 15) out.push(RANDOM_CHARS[b % 62]);
+  }
+  return out.join("");
+}
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
@@ -43,6 +58,12 @@ export default function AddressPicker({
   const [custom, setCustom] = useState("");
   const [debounced, setDebounced] = useState("");
   const [check, setCheck] = useState<Check | null>(null);
+  // The random address is drawn here so the couple sees exactly what they get.
+  const [randomSlug, setRandomSlug] = useState<string | null>(null);
+  useEffect(() => {
+    const timer = setTimeout(() => setRandomSlug(makeRandomSlug()), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [debouncedEmail, setDebouncedEmail] = useState("");
   useEffect(() => {
@@ -109,9 +130,9 @@ export default function AddressPicker({
       ? { kind: "suggested", slug: suggestion }
       : effectiveMode === "custom"
         ? { kind: "custom", slug: customTyped }
-        : { kind: "random" };
+        : { kind: "random", slug: randomSlug ?? "" };
   const valid =
-    effectiveMode === "random" ||
+    (effectiveMode === "random" && !!randomSlug) ||
     (effectiveMode === "suggested" && !!suggestion) ||
     (effectiveMode === "custom" && customCheck === "ok");
   const choiceKey = `${choice.kind}:${"slug" in choice ? choice.slug : ""}:${valid}`;
@@ -177,6 +198,10 @@ export default function AddressPicker({
         />
         <span className="flex flex-col">
           <span className="font-medium text-ink">{dict.random}</span>
+          <span className="break-all text-sm font-medium text-ink">
+            {DOMAIN}
+            {randomSlug ?? "…"}
+          </span>
           <span className="text-xs text-ink-soft">{dict.randomHint}</span>
         </span>
       </label>

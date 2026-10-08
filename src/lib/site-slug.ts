@@ -1,7 +1,7 @@
 import "server-only";
 import { randomInt } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { addressCandidates, isValidCustomSlug } from "@/lib/site-address";
+import { addressCandidates, isRandomSlug, isValidCustomSlug } from "@/lib/site-address";
 
 const SLUG_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
@@ -62,7 +62,8 @@ export async function firstAvailableSuggestion(
 }
 
 export type AddressChoice =
-  | { kind: "random" }
+  /** A random private address; `slug` is the one the couple was shown (a new one is drawn if it is gone). */
+  | { kind: "random"; slug?: string }
   /** The address the couple picked (typed, or the suggested one they were shown). */
   | { kind: "slug"; slug: string; partnerA: string; partnerB: string; date: string; fallbackToSuggestions: boolean };
 
@@ -123,8 +124,9 @@ export async function createDraftSite(
     // Everything suggested was taken: fall back to a private random address.
   }
 
+  const shown = choice.kind === "random" && choice.slug && isRandomSlug(choice.slug) ? choice.slug : null;
   for (let attempt = 0; attempt < 5; attempt++) {
-    const result = await tryInsert(db, fields, randomSiteSlug());
+    const result = await tryInsert(db, fields, attempt === 0 && shown ? shown : randomSiteSlug());
     if ("site" in result) return result;
     if ("failed" in result) break;
   }
