@@ -2,7 +2,7 @@
 
 import { Fragment } from "react";
 import { LEGAL } from "@/lib/legal";
-import type { LegalDoc, LegalLocale } from "@/lib/legal-content";
+import { privacyDoc, termsDoc } from "@/lib/legal-content";
 import { useSiteLocale } from "@/lib/site-locale";
 
 // Turns the contact email inside a paragraph into a mailto link.
@@ -24,9 +24,10 @@ function withMailLinks(text: string) {
   });
 }
 
-export default function LegalDocument({ build }: { build: (locale: LegalLocale) => LegalDoc }) {
+// The page passes which document to show (a string): functions can't be props of a client component.
+export default function LegalDocument({ kind }: { kind: "privacy" | "terms" }) {
   const { locale } = useSiteLocale();
-  const doc = build(locale);
+  const doc = (kind === "privacy" ? privacyDoc : termsDoc)(locale);
   return (
     <div className="mx-auto max-w-3xl px-6 py-16 sm:py-24">
       <div data-reveal>

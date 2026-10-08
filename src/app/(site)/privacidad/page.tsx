@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import LegalDocument from "@/components/site/LegalDocument";
-import { privacyDoc } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
   title: "Política de privacidad — Wedite",
@@ -8,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PrivacidadPage() {
-  return <LegalDocument build={privacyDoc} />;
+  return <LegalDocument kind="privacy" />;
 }
