@@ -73,3 +73,10 @@ export function addressCandidates(partnerA: string, partnerB: string, date: stri
   // Anything too long (very long names) is simply dropped; the random address is always there as a fallback.
   return list.filter((slug, i, all) => isValidCustomSlug(slug) && all.indexOf(slug) === i);
 }
+
+/** The shape of a random private address: 15 letters (either case) and digits. */
+const RANDOM_SLUG_RE = /^[A-Za-z0-9]{15}$/;
+
+export function isRandomSlug(slug: string): boolean {
+  return RANDOM_SLUG_RE.test(slug);
+}
