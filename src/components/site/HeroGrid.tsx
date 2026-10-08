@@ -23,17 +23,17 @@ const shots: Shot[] = [
   { src: "/hero/ribera-movil-detalles.jpg", template: "Ribera", slug: "ribera", label: "Detalles" },
   {
     src: "/hero/proximo-diseno.jpg",
-    template: "Próximo diseño",
-    slug: "proximamente",
+    template: "Duna",
+    slug: "duna",
     label: "Portada",
-    alt: "Avance del próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+    alt: "Avance de Duna, próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
   },
   {
     src: "/hero/proximo-diseno-2.jpg",
-    template: "Otro diseño",
-    slug: "proximamente-2",
+    template: "Vega",
+    slug: "vega",
     label: "Portada",
-    alt: "Avance de otro diseño de Wedite: marco floral art nouveau rosa sobre fondo burdeos",
+    alt: "Avance de Vega, próximo diseño de Wedite: marco floral art nouveau rosa sobre fondo burdeos",
   },
 ];
 
