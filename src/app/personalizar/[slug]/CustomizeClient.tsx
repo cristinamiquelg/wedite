@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { firstIncompleteStep, missingAll, missingForStep } from "@/lib/wizard-required";
 import type { Template } from "@/lib/templates";
@@ -38,12 +38,29 @@ const steps: StepDef[] = [
   { key: "rsvp", sectionId: "rsvp", Component: StepRsvpGift },
 ];
 
+const DESKTOP_QUERY = "(min-width: 1024px)";
+
+function subscribeDesktop(notify: () => void) {
+  const mq = window.matchMedia(DESKTOP_QUERY);
+  mq.addEventListener("change", notify);
+  return () => mq.removeEventListener("change", notify);
+}
+
 export default function CustomizeClient({ template }: { template: Template }) {
   const { data, setData, loaded } = useWeddingDraft(template.slug);
   const { locale, setLocale } = useSiteLocale();
   const dict = getSiteDict(locale);
   const [stepIndex, setStepIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
+  // Both panes are visible on desktop; on mobile the preview iframe is only
+  // mounted the first time its tab opens (see the iframe's comment below).
+  const isDesktop = useSyncExternalStore(
+    subscribeDesktop,
+    () => window.matchMedia(DESKTOP_QUERY).matches,
+    () => false,
+  );
+  const [previewOpened, setPreviewOpened] = useState(false);
+  const previewShown = isDesktop || previewOpened;
   // The step where the couple already tried to continue with a mandatory field empty.
   const [attemptedStep, setAttemptedStep] = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -55,12 +72,14 @@ export default function CustomizeClient({ template }: { template: Template }) {
   // once the target exists, the very next keystroke's re-render reveals it.
   const focusedSectionRef = useRef<string | null>(null);
 
-  useEffect(() => {
+  function sendDraft() {
     iframeRef.current?.contentWindow?.postMessage(
       { type: "wedite:update", slug: template.slug, data, scrollTo: focusedSectionRef.current },
       window.location.origin,
     );
-  }, [data, template.slug]);
+  }
+
+  useEffect(sendDraft, [data, template.slug]);
 
   const sectionId = steps[stepIndex].sectionId;
   const stepKey = steps[stepIndex].key;
@@ -185,7 +204,10 @@ export default function CustomizeClient({ template }: { template: Template }) {
         </button>
         <button
           type="button"
-          onClick={() => setMobileTab("preview")}
+          onClick={() => {
+            setPreviewOpened(true);
+            setMobileTab("preview");
+          }}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
             mobileTab === "preview" ? "bg-ink text-paper" : "text-ink-soft"
           }`}
@@ -282,12 +304,22 @@ export default function CustomizeClient({ template }: { template: Template }) {
             <span className="h-2.5 w-2.5 rounded-full bg-line" />
             <span className="ml-3 text-xs text-ink-soft">{dict.wizard.livePreview}</span>
           </div>
-          <iframe
-            ref={iframeRef}
-            src={`/preview/${template.slug}?draft=1`}
-            title={dict.wizard.iframeTitle}
-            className="flex-1"
-          />
+          {/* The iframe is absolutely sized inside a relative box: some mobile
+              browsers (iOS Safari) size an in-flow iframe to its content, or
+              paint nothing, when it was loaded inside a display:none parent.
+              It is therefore only mounted once the preview is actually shown
+              (always on desktop, where both panes are visible). */}
+          <div className="relative min-h-0 flex-1">
+            {previewShown ? (
+              <iframe
+                ref={iframeRef}
+                src={`/preview/${template.slug}?draft=1`}
+                title={dict.wizard.iframeTitle}
+                onLoad={sendDraft}
+                className="absolute inset-0 h-full w-full"
+              />
+            ) : null}
+          </div>
         </div>
       </div>
     </div>

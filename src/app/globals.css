@@ -150,3 +150,13 @@ label:has(> input[type="radio"]) {
     animation: illustration-loader-shimmer 1.8s ease-in-out infinite;
   }
 }
+
+/* iOS Safari zooms the whole page when a field with text smaller than 16px
+   gets focus, and doesn't zoom back out. Touch screens get 16px fields
+   everywhere (zero specificity, so a template's own larger size still wins).
+   Pinch-zoom itself stays enabled — blocking it would hurt accessibility. */
+@media (pointer: coarse) {
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea, select) {
+    font-size: 16px;
+  }
+}
