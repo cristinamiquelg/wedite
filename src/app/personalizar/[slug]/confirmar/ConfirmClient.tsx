@@ -76,7 +76,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
         {dict.backEdit}
       </Link>
 
-      <div className="mt-6 grid gap-12 lg:grid-cols-[1fr_1.1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-12 lg:grid-cols-[1fr_1.1fr]">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-clay">
             {dict.summary}

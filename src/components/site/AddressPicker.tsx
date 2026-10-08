@@ -168,7 +168,7 @@ export default function AddressPicker({
   const option = "flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-paper px-3.5 py-3 text-sm has-[:checked]:border-ink has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-clay-dark";
 
   return (
-    <fieldset className="flex flex-col gap-2.5">
+    <fieldset className="min-w-0 flex flex-col gap-2.5">
       <legend className="mb-1.5 text-sm font-medium text-ink">{dict.title}</legend>
       <p className="text-xs text-ink-soft">{dict.hint}</p>
 
@@ -240,7 +240,7 @@ export default function AddressPicker({
               value={custom}
               onFocus={() => setMode("custom")}
               onChange={(e) => setCustom(e.target.value)}
-              className="min-w-0 flex-1 bg-transparent font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-soft"
+              className="w-0 min-w-0 flex-1 bg-transparent font-medium text-ink outline-none placeholder:font-normal placeholder:text-ink-soft"
             />
           </span>
         </span>
