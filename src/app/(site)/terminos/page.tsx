@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import LegalDocument from "@/components/site/LegalDocument";
-import { termsDoc } from "@/lib/legal-content";
 
 export const metadata: Metadata = {
   title: "Términos y condiciones — Wedite",
@@ -8,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function TerminosPage() {
-  return <LegalDocument build={termsDoc} />;
+  return <LegalDocument kind="terms" />;
 }
