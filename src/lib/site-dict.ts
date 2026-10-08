@@ -51,7 +51,9 @@ export type SiteDict = {
     sub: string;
     viewPreview: string;
     choose: string;
-    upcoming: { badge: string; title: string; tagline: string; summary: string; imageAlt: string; tags: string[] };
+    upcomingBadge: string;
+    /** Designs that aren't available yet, shown as non-clickable cards. */
+    upcoming: { image: string; title: string; tagline: string; summary: string; imageAlt: string; tags: string[] }[];
   };
   product: {
     back: string;
@@ -319,14 +321,25 @@ const es: SiteDict = {
     sub: "Cada diseño se puede probar en directo antes de decidir nada. Cuando lo tengáis claro, lo personalizáis y lo hacéis vuestro sin salir del navegador.",
     viewPreview: "Ver preview",
     choose: "Elegir",
-    upcoming: {
-      badge: "Próximamente",
-      title: "Un nuevo diseño en camino",
-      tagline: "Minimalista y a trazo",
-      summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
-      imageAlt: "Avance del próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
-      tags: ["Minimalista", "A trazo"],
-    },
+    upcomingBadge: "Próximamente",
+    upcoming: [
+      {
+        image: "/catalog/proximo-diseno.jpg",
+        title: "Duna",
+        tagline: "Minimalista y a trazo",
+        summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
+        imageAlt: "Avance de Duna, próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
+        tags: ["Minimalista", "A trazo"],
+      },
+      {
+        image: "/catalog/proximo-diseno-2.jpg",
+        title: "Vega",
+        tagline: "Art nouveau, en burdeos y rosa",
+        summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
+        imageAlt: "Avance de Vega, próximo diseño: marco floral art nouveau rosa sobre fondo burdeos, con los nombres Alex y David",
+        tags: ["Romántico", "Art nouveau"],
+      },
+    ],
   },
   product: {
     back: "← Volver al catálogo",
@@ -616,14 +629,25 @@ const en: SiteDict = {
     sub: "Every design can be tried live before deciding anything. Once you're sure, you personalize it and make it yours without leaving the browser.",
     viewPreview: "View preview",
     choose: "Choose",
-    upcoming: {
-      badge: "Coming soon",
-      title: "A new design on its way",
-      tagline: "Minimal and line-drawn",
-      summary: "You'll soon be able to see it here and make it yours.",
-      imageAlt: "Preview of the next design: a line-drawn couple holding two photos of themselves as children",
-      tags: ["Minimal", "Line-drawn"],
-    },
+    upcomingBadge: "Coming soon",
+    upcoming: [
+      {
+        image: "/catalog/proximo-diseno.jpg",
+        title: "Duna",
+        tagline: "Minimal and line-drawn",
+        summary: "You'll soon be able to see it here and make it yours.",
+        imageAlt: "Preview of Duna, an upcoming design: a line-drawn couple holding two photos of themselves as children",
+        tags: ["Minimal", "Line-drawn"],
+      },
+      {
+        image: "/catalog/proximo-diseno-2.jpg",
+        title: "Vega",
+        tagline: "Art nouveau, in burgundy and pink",
+        summary: "You'll soon be able to see it here and make it yours.",
+        imageAlt: "Preview of Vega, an upcoming design: a pink art nouveau floral frame on a burgundy background, with the names Alex and David",
+        tags: ["Romantic", "Art nouveau"],
+      },
+    ],
   },
   product: {
     back: "← Back to the catalog",
