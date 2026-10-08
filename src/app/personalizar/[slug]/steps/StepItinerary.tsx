@@ -65,8 +65,8 @@ export default function StepItinerary({
           data-scroll-section={`fase-${pi}`}
           className="flex flex-col gap-4 rounded-lg border border-line p-4"
         >
-          <div className="flex items-center justify-between gap-3">
-            <div className="grid flex-1 gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
               <TextInput
                 value={phase.name}
                 onChange={(e) => updatePhase(pi, { name: e.target.value })}
@@ -93,13 +93,13 @@ export default function StepItinerary({
             <button
               type="button"
               onClick={() => removePhase(pi)}
-              className="rounded-lg border border-line px-3 py-2 text-sm text-ink-soft hover:border-clay hover:text-clay"
+              className="shrink-0 self-end whitespace-nowrap rounded-lg border border-line px-3 py-2 text-sm text-ink-soft hover:border-clay hover:text-clay sm:self-auto"
             >
               {dict.stepItinerary.removePhase}
             </button>
           </div>
 
-          <div className="flex flex-col gap-3 pl-4">
+          <div className="flex flex-col gap-3 sm:pl-4">
             {phase.places.map((place, li) => (
               <div
                 key={li}

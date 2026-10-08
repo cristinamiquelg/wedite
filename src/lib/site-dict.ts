@@ -86,6 +86,9 @@ export type SiteDict = {
     templateFallback: string;
     bodyPost: string;
     rsvpEmail: string;
+    /** "<Pre> <email> <Post>" — used when we know where the email goes. */
+    rsvpEmailToPre: string;
+    rsvpEmailToPost: string;
     viewSite: string;
     backToCatalog: string;
   };
@@ -389,6 +392,9 @@ const es: SiteDict = {
     bodyPost: ". Ya podéis compartirla con vuestros invitados.",
     rsvpEmail:
       "Recibiréis en vuestro email el enlace a la tabla donde llegarán las respuestas de vuestros invitados al formulario de confirmación.",
+    rsvpEmailToPre: "Os enviamos a",
+    rsvpEmailToPost:
+      "el enlace a la tabla donde llegarán las respuestas de vuestros invitados al formulario de confirmación. Si no lo veis, mirad también en spam.",
     viewSite: "Ver vuestra web",
     backToCatalog: "← Volver al catálogo",
   },
@@ -697,6 +703,9 @@ const en: SiteDict = {
     bodyPost: " design. You can now share it with your guests.",
     rsvpEmail:
       "You'll receive an email with the link to the table where your guests' answers to the RSVP form will arrive.",
+    rsvpEmailToPre: "We're emailing",
+    rsvpEmailToPost:
+      "the link to the table where your guests' answers to the RSVP form will arrive. If you can't see it, check your spam folder too.",
     viewSite: "View your website",
     backToCatalog: "← Back to the catalog",
   },

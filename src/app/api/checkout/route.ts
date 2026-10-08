@@ -148,7 +148,7 @@ export async function POST(request: NextRequest) {
         invoice_data: { description: `Wedite ${template.name} · pedido ${order.number}` },
       },
       metadata: { order_id: order.id, site_id: site.id, order_number: order.number },
-      success_url: `${origin}/gracias?slug=${template.slug}&site=${site.slug}&order=${order.number}`,
+      success_url: `${origin}/gracias?slug=${template.slug}&site=${site.slug}&order=${order.number}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/personalizar/${template.slug}/confirmar`,
     });
     await db.from("orders").update({ stripe_checkout_session_id: session.id }).eq("id", order.id);

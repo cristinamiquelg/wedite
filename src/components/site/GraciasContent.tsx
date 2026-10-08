@@ -10,11 +10,14 @@ export default function GraciasContent({
   slug,
   site,
   template,
+  email,
 }: {
   slug?: string;
   /** Public slug of the couple's published site. */
   site?: string;
   template?: Template;
+  /** The email the purchase was made with, when known. */
+  email?: string;
 }) {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).gracias;
@@ -58,7 +61,15 @@ export default function GraciasContent({
           <rect x="3" y="5" width="18" height="14" rx="2" />
           <path strokeLinecap="round" strokeLinejoin="round" d="m3.5 7 8.5 6 8.5-6" />
         </svg>
-        <p>{dict.rsvpEmail}</p>
+        <p>
+          {email ? (
+            <>
+              {dict.rsvpEmailToPre} <strong className="break-all text-ink">{email}</strong> {dict.rsvpEmailToPost}
+            </>
+          ) : (
+            dict.rsvpEmail
+          )}
+        </p>
       </div>
 
       <div className="mt-10 flex flex-col gap-3 sm:flex-row">
