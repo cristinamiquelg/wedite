@@ -64,6 +64,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
   // The step where the couple already tried to continue with a mandatory field empty.
   const [attemptedStep, setAttemptedStep] = useState<number | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const formPaneRef = useRef<HTMLDivElement>(null);
   // The section/item id the preview should be following right now — kept
   // in a ref (not state) since updating it shouldn't itself trigger a
   // render. A freshly added phase/card/contact doesn't have an id to
@@ -80,6 +81,12 @@ export default function CustomizeClient({ template }: { template: Template }) {
   }
 
   useEffect(sendDraft, [data, template.slug]);
+
+  // Next/Back (or a step chip) is pressed at the bottom of a long step: the
+  // next one has to start at its top, not wherever the pane was scrolled to.
+  useEffect(() => {
+    formPaneRef.current?.scrollTo({ top: 0 });
+  }, [stepIndex]);
 
   const sectionId = steps[stepIndex].sectionId;
   const stepKey = steps[stepIndex].key;
@@ -218,6 +225,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
 
       <div className="grid flex-1 overflow-hidden lg:grid-cols-2">
         <div
+          ref={formPaneRef}
           className={`flex-col overflow-y-auto px-6 py-8 lg:flex ${
             mobileTab === "form" ? "flex" : "hidden"
           }`}
