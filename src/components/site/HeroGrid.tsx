@@ -32,6 +32,16 @@ const shots: Shot[] = [
     },
   },
   {
+    src: { es: "/hero/cala-es.png", en: "/hero/cala-en.png" },
+    template: "Cala",
+    slug: "cala",
+    label: "Portada",
+    alt: {
+      es: "Avance de Cala, próximo diseño de Wedite: marco de amapolas y una mariposa en azul oscuro sobre fondo azul",
+      en: "Preview of Cala, an upcoming Wedite design: a frame of poppies and a butterfly in dark blue on a blue background",
+    },
+  },
+  {
     src: { es: "/hero/proximo-diseno.jpg", en: "/hero/proximo-diseno.jpg" },
     template: "Rambla",
     slug: "rambla",
@@ -59,10 +69,10 @@ const shots: Shot[] = [
 // of moving in lockstep. Five cards per column (not four) so there's
 // enough buffer height for the bigger travel distance below.
 const columns: { order: number[]; speed: number }[] = [
-  { order: [0, 1, 2, 0, 1], speed: 0.55 },
-  { order: [1, 2, 0, 1, 2], speed: -0.75 },
-  { order: [2, 0, 1, 2, 0], speed: 0.9 },
-  { order: [0, 2, 1, 0, 2], speed: -0.5 },
+  { order: [0, 1, 2, 3, 0], speed: 0.55 },
+  { order: [2, 3, 0, 1, 2], speed: -0.75 },
+  { order: [1, 2, 3, 0, 1], speed: 0.9 },
+  { order: [3, 0, 1, 2, 3], speed: -0.5 },
 ];
 
 function Card({ shot, locale }: { shot: Shot; locale: SiteLocale }) {
