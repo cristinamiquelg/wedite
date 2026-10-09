@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import SparkleIcon from "@/components/site/SparkleIcon";
-import type { WeddingData } from "@/lib/wedding-types";
+import { rsvpAsksBus, rsvpAsksContact, type WeddingData } from "@/lib/wedding-types";
 import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RiberaRsvpForm from "./RiberaRsvpForm";
 import { coupleInitials } from "./initials";
@@ -33,7 +33,6 @@ export default function RiberaRsvpPage({
 
   const names = `${data.partnerA || "Vuestro nombre"} & ${data.partnerB || "Vuestra pareja"}`;
   const initials = coupleInitials(data.partnerA, data.partnerB);
-  const hasBus = data.detailCards.some((c) => c.icon === "bus");
   const hrefWithLang = `${backHref}${backHref.includes("?") ? "&" : "?"}lang=${activeLocale}`;
 
   return (
@@ -67,7 +66,12 @@ export default function RiberaRsvpPage({
         <div className={styles.rsvpCard}>
           <h1 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h1>
           {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
-          <RiberaRsvpForm locale={activeLocale} showBus={hasBus} siteSlug={siteSlug} />
+          <RiberaRsvpForm
+            locale={activeLocale}
+            showBus={rsvpAsksBus(data)}
+            askContact={rsvpAsksContact(data)}
+            siteSlug={siteSlug}
+          />
         </div>
       </main>
 

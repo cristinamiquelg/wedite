@@ -166,26 +166,23 @@ type Errors = Record<string, string>;
 // skipping the bus/companion steps when the guest isn't attending — falls
 // out naturally instead of needing manual step-list bookkeeping.
 type Step =
-  | { kind: "contact" }
-  | { kind: "attending" }
-  | { kind: "bus" }
-  | { kind: "dietary" }
+  | { kind: "attendance" }
+  | { kind: "info" }
   | { kind: "companionQuestion" }
   | { kind: "companionCount" }
   | { kind: "companionDetail"; companion: Companion; index: number };
 
 // The flow reads as 3 named sections rather than a flat "step X of Y":
-// contact info, then attendance (+ bus/dietary), then guests. A step
+// 1. attendance (name and whether they come), 2. their information
+// (intolerances, bus, contact — all on one screen), 3. their guests. A step
 // belongs to exactly one section, in the same order the sections are
 // shown, so the current step's section index also tells us which
 // sections are already done vs. still upcoming.
 function stepSection(step: Step): 0 | 1 | 2 {
   switch (step.kind) {
-    case "contact":
+    case "attendance":
       return 0;
-    case "attending":
-    case "bus":
-    case "dietary":
+    case "info":
       return 1;
     default:
       return 2;
@@ -194,10 +191,10 @@ function stepSection(step: Step): 0 | 1 | 2 {
 
 function stepErrorKeys(step: Step): string[] {
   switch (step.kind) {
-    case "contact":
-      return ["firstName", "lastName", "contact", "email"];
-    case "attending":
-      return ["asiste"];
+    case "attendance":
+      return ["firstName", "lastName", "asiste"];
+    case "info":
+      return ["contact", "phone", "email"];
     case "companionDetail":
       return [`c${step.companion.id}-firstName`];
     default:
@@ -206,14 +203,21 @@ function stepErrorKeys(step: Step): string[] {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Phone numbers: digits only, optionally starting with "+" (spaces are just for readability).
+const PHONE_RE = /^\+?\d{7,15}$/;
+const phoneOnly = (v: string) => v.replace(/(?!^)\+/g, "").replace(/[^\d+\s]/g, "");
 
 export default function RiberaRsvpForm({
   locale,
   showBus = true,
+  askContact = true,
   siteSlug,
 }: {
   locale?: Locale;
+  /** Ask each guest whether they need the bus (the couple can turn this off). */
   showBus?: boolean;
+  /** Ask for a phone and/or e-mail (the couple can turn this off). */
+  askContact?: boolean;
   /** Set on a couple's published site: the answers are sent to the server. Previews just show the thanks screen. */
   siteSlug?: string;
 }) {
@@ -287,10 +291,13 @@ export default function RiberaRsvpForm({
     const e: Errors = {};
     if (!firstName.trim()) e.firstName = dict.errRequired;
     if (!lastName.trim()) e.lastName = dict.errRequired;
-    if (!phone.trim() && !email.trim()) e.contact = dict.errContact;
-    if (email.trim() && !EMAIL_RE.test(email.trim())) e.email = dict.errEmail;
     if (!asiste) e.asiste = dict.errRequired;
     if (attending) {
+      if (askContact) {
+        if (!phone.trim() && !email.trim()) e.contact = dict.errContact;
+        if (phone.trim() && !PHONE_RE.test(phone.replace(/\s/g, ""))) e.phone = dict.errPhone;
+        if (email.trim() && !EMAIL_RE.test(email.trim())) e.email = dict.errEmail;
+      }
       companions.forEach((c) => {
         if (!c.firstName.trim()) e[`c${c.id}-firstName`] = dict.errRequired;
       });
@@ -313,10 +320,9 @@ export default function RiberaRsvpForm({
     );
   }
 
-  const steps: Step[] = [{ kind: "contact" }, { kind: "attending" }];
+  const steps: Step[] = [{ kind: "attendance" }];
   if (attending) {
-    if (showBus) steps.push({ kind: "bus" });
-    steps.push({ kind: "dietary" });
+    steps.push({ kind: "info" });
     steps.push({ kind: "companionQuestion" });
     if (acompanante === "si") {
       steps.push({ kind: "companionCount" });
@@ -326,12 +332,12 @@ export default function RiberaRsvpForm({
   const stepIdx = Math.min(stepIndex, steps.length - 1);
   const currentStep = steps[stepIdx];
   const isFirstStep = stepIdx === 0;
-  const isLastStep = stepIdx === steps.length - 1;
+  // Until the guest has answered whether they come, the first screen is not the last one.
+  const isLastStep = stepIdx === steps.length - 1 && asiste !== null;
 
-  const sectionLabels = [dict.legend, dict.sectionAttendance, dict.sectionCompanions];
-  // Only the sections this guest's answers actually pass through (a "no"
-  // to attending drops the last two entirely) — deduped, in order.
-  const presentSections = Array.from(new Set(steps.map(stepSection)));
+  const sectionLabels = [dict.sectionAttendance, dict.legend, dict.sectionCompanions];
+  // All three sections show up front; a "no" to attending drops the last two.
+  const presentSections = asiste === "no" ? [0] : [0, 1, 2];
   const currentSection = stepSection(currentStep);
 
   const errors: Errors = stepTried ? validate() : {};
@@ -355,8 +361,8 @@ export default function RiberaRsvpForm({
           locale,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
-          phone: phone.trim(),
-          email: email.trim(),
+          phone: askContact ? phone.replace(/\s+/g, " ").trim() : "",
+          email: askContact ? email.trim() : "",
           attending,
           bus: attending && showBus ? bus === "si" : null,
           dietary: dietary.trim(),
@@ -426,18 +432,6 @@ export default function RiberaRsvpForm({
         })}
       </div>
 
-      <div className={styles.stepProgress}>
-        <p className={styles.stepProgressText}>
-          {dict.stepOf.replace("{n}", String(stepIdx + 1)).replace("{total}", String(steps.length))}
-        </p>
-        <div className={styles.stepProgressBar} aria-hidden="true">
-          <div
-            className={styles.stepProgressFill}
-            style={{ width: `${((stepIdx + 1) / steps.length) * 100}%` }}
-          />
-        </div>
-      </div>
-
       {hasStepErrors ? (
         <p className={styles.formErrorSummary} role="alert">
           {dict.errSummary}
@@ -450,9 +444,9 @@ export default function RiberaRsvpForm({
       ) : null}
 
       <div className={styles.stepBody}>
-        {currentStep.kind === "contact" ? (
+        {currentStep.kind === "attendance" ? (
           <fieldset className={styles.fieldset}>
-            <legend className={styles.formLegend}>{dict.legend}</legend>
+            <legend className={styles.formLegend}>{dict.sectionAttendance}</legend>
             <div className={styles.formRow}>
               <TextField
                 label={dict.firstName}
@@ -473,67 +467,71 @@ export default function RiberaRsvpForm({
                 error={errors.lastName}
               />
             </div>
-            <p id="ribera-contact-hint" className={errors.contact ? styles.fieldError : styles.fieldHint}>
-              {errors.contact ?? dict.contactHint}
-            </p>
-            <div className={styles.formRow}>
-              <TextField
-                label={dict.phone}
-                name="phone"
-                type="tel"
-                inputMode="tel"
-                value={phone}
-                onChange={setPhone}
-                autoComplete="tel"
-                invalid={Boolean(errors.contact)}
-                describedBy="ribera-contact-hint"
-              />
-              <TextField
-                label={dict.email}
-                name="email"
-                type="email"
-                inputMode="email"
-                value={email}
-                onChange={setEmail}
-                autoComplete="email"
-                error={errors.email}
-                invalid={Boolean(errors.contact)}
-                describedBy="ribera-contact-hint"
-              />
-            </div>
+            <YesNoQuestion
+              question={dict.attendingQ}
+              value={asiste}
+              onChange={setAsiste}
+              yesLabel={dict.attendingYes}
+              noLabel={dict.attendingNo}
+              error={Boolean(errors.asiste)}
+              errorText={errors.asiste}
+            />
           </fieldset>
         ) : null}
 
-        {currentStep.kind === "attending" ? (
-          <YesNoQuestion
-            question={dict.attendingQ}
-            value={asiste}
-            onChange={setAsiste}
-            yesLabel={dict.attendingYes}
-            noLabel={dict.attendingNo}
-            error={Boolean(errors.asiste)}
-            errorText={errors.asiste}
-          />
-        ) : null}
-
-        {currentStep.kind === "bus" ? (
-          <YesNoQuestion
-            question={dict.busQ}
-            value={bus}
-            onChange={setBus}
-            yesLabel={dict.busYes}
-            noLabel={dict.busNo}
-          />
-        ) : null}
-
-        {currentStep.kind === "dietary" ? (
-          <TextField
-            label={dict.dietary}
-            name="dietary"
-            value={dietary}
-            onChange={setDietary}
-            optionalText={dict.optional}
-          />
+        {currentStep.kind === "info" ? (
+          <fieldset className={styles.fieldset}>
+            <legend className={styles.formLegend}>{dict.legend}</legend>
+            <TextField
+              label={dict.dietary}
+              name="dietary"
+              value={dietary}
+              onChange={setDietary}
+              optionalText={dict.optional}
+            />
+            {showBus ? (
+              <YesNoQuestion
+                question={dict.busQ}
+                value={bus}
+                onChange={setBus}
+                yesLabel={dict.busYes}
+                noLabel={dict.busNo}
+              />
+            ) : null}
+            {askContact ? (
+              <>
+                <p id="ribera-contact-hint" className={errors.contact ? styles.fieldError : styles.fieldHint}>
+                  {errors.contact ?? dict.contactHint}
+                </p>
+                <div className={styles.formRow}>
+                  <TextField
+                    label={dict.phone}
+                    name="phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={phone}
+                    onChange={(v) => setPhone(phoneOnly(v))}
+                    autoComplete="tel"
+                    error={errors.phone}
+                    invalid={Boolean(errors.contact)}
+                    describedBy="ribera-contact-hint"
+                  />
+                  <TextField
+                    label={dict.email}
+                    name="email"
+                    type="email"
+                    inputMode="email"
+                    value={email}
+                    onChange={setEmail}
+                    autoComplete="email"
+                    error={errors.email}
+                    invalid={Boolean(errors.contact)}
+                    describedBy="ribera-contact-hint"
+                  />
+                </div>
+              </>
+            ) : null}
+          </fieldset>
         ) : null}
 
         {currentStep.kind === "companionQuestion" ? (

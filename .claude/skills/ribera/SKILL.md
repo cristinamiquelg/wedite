@@ -24,9 +24,17 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
   follows the same demo/`?draft=1` data rules as `PreviewClient`. The home
   links to it via `rsvpHref`; `?lang=` carries the guest's language both ways.
 - `src/components/templates/ribera/RiberaRsvpForm.tsx` — the RSVP flow (on a published site, `siteSlug` is set and the answers POST to `/api/rsvp`; previews and the demo only show the thanks screen): a
-  full-screen, one-question-per-step wizard grouped into 3 named sections
-  (Tu información / Tu asistencia / Tus acompañantes). Rendered only by
-  `RiberaRsvpPage`.
+  full-screen wizard in 3 named sections, each a screen (or more):
+  1. Tu asistencia (name + surname + coming or not), 2. Tu información
+  (intolerances, bus, phone/e-mail — all on one screen), 3. Tus acompañantes.
+  A "no" to attending ends the flow after screen 1. Only the section stepper
+  is shown (no "step X of Y"). The couple turns the bus question and the
+  contact fields on/off in the wizard's "Formulario" step
+  (`WeddingData.rsvpAskBus` / `rsvpAskContact`, read through `rsvpAsksBus()` /
+  `rsvpAsksContact()`); the phone only accepts digits (optional leading `+`),
+  validated again in `/api/rsvp`. While that wizard step is open the preview
+  iframe shows this page (`/preview/[slug]/rsvp`) instead of the home.
+  Rendered only by `RiberaRsvpPage`.
 - `RiberaCountdown.tsx`, `RiberaCopyButton.tsx` — small supporting pieces.
 - `src/app/personalizar/[slug]/steps/Step*.tsx` — the couple-facing wizard
   that edits `WeddingData` (StepRiberaCouple, StepStory, StepItinerary,

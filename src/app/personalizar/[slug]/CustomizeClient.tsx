@@ -11,6 +11,7 @@ import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 import StepStory from "./steps/StepStory";
 import StepRsvpGift from "./steps/StepRsvpGift";
+import StepRsvpForm from "./steps/StepRsvpForm";
 import StepRiberaCouple from "./steps/StepRiberaCouple";
 import StepItinerary from "./steps/StepItinerary";
 import StepDetails from "./steps/StepDetails";
@@ -36,6 +37,8 @@ const steps: StepDef[] = [
   { key: "itinerary", sectionId: "itinerario", Component: StepItinerary },
   { key: "details", sectionId: "detalles", Component: StepDetails },
   { key: "rsvp", sectionId: "rsvp", Component: StepRsvpGift },
+  // Its own preview: the guests' RSVP form page instead of the home.
+  { key: "form", sectionId: null, Component: StepRsvpForm },
 ];
 
 const DESKTOP_QUERY = "(min-width: 1024px)";
@@ -373,7 +376,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
             {previewShown ? (
               <iframe
                 ref={iframeRef}
-                src={`/preview/${template.slug}?draft=1`}
+                src={`/preview/${template.slug}${stepKey === "form" ? "/rsvp" : ""}?draft=1`}
                 title={dict.wizard.iframeTitle}
                 onLoad={sendDraft}
                 className="absolute inset-0 h-full w-full"

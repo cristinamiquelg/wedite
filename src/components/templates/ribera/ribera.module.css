@@ -498,6 +498,27 @@
   font-size: var(--r-fs-small);
   margin: 0;
 }
+/* From tablet up the photo sits on the left and the text on the right, side by side. */
+@media (min-width: 600px) {
+  .storyRow {
+    flex-direction: row;
+    align-items: center;
+    gap: 40px;
+  }
+  .storyRow > .storyImageWrap,
+  .storyRow > .storyFigure {
+    flex: 0 0 44%;
+    width: 44%;
+    min-width: 0;
+  }
+  .root .storyRow .storyIllustration { max-width: 100%; }
+  .storyRow .storyTextCol {
+    flex: 1;
+    min-width: 0;
+    align-items: flex-start;
+  }
+  .storyRow .storyText { text-align: left; }
+}
 
 /* ---------- Contacto ---------- */
 .contactSection {
@@ -895,17 +916,6 @@
   font-size: var(--r-fs-micro);
 }
 
-.stepProgress { display: flex; flex-direction: column; gap: 8px; width: 100%; }
-.stepProgressText {
-  font-family: var(--r-gothic);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: var(--r-fs-micro);
-  opacity: 0.65;
-  margin: 0;
-}
-.stepProgressBar { width: 100%; height: 1px; background: rgba(14, 20, 83, 0.18); }
-.stepProgressFill { height: 100%; background: var(--r-navy); transition: width 0.25s ease; }
 .stepBody { width: 100%; display: flex; flex-direction: column; justify-content: center; gap: 20px; min-height: 220px; }
 .stepNav { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; }
 .stepNavBackHidden { visibility: hidden; }
