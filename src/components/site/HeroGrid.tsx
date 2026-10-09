@@ -41,7 +41,7 @@ const shots: Shot[] = [
     },
   },
   {
-    src: { es: "/hero/proximo-diseno.jpg", en: "/hero/proximo-diseno.jpg" },
+    src: { es: "/hero/rambla-es.png", en: "/hero/rambla-en.png" },
     template: "Rambla",
     slug: "rambla",
     label: "Portada",
