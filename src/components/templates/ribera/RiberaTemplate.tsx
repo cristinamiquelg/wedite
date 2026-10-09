@@ -539,8 +539,10 @@ export default function RiberaTemplate({
 
       <section id="rsvp" className={styles.rsvpBand}>
         <div data-reveal className={styles.rsvpCard}>
-          <h2 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h2>
-          {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
+          <div className={styles.rsvpHead}>
+            <h2 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h2>
+            {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
+          </div>
           <a href={rsvpLink} className={styles.btnSolid}>
             {dict.ribera.rsvp.cta}
           </a>

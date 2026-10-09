@@ -322,6 +322,15 @@ export default function RiberaRsvpForm({
     requestAnimationFrame(() => window.scrollTo({ top: 0 }));
   }
 
+  // "Modificar mi respuesta": the answers are kept, but the guest starts
+  // again from the first question, at the top of the page.
+  function editAnswers() {
+    setSubmitted(false);
+    setStepIndex(0);
+    setStepTried(false);
+    requestAnimationFrame(() => window.scrollTo({ top: 0 }));
+  }
+
   if (submitted) {
     const total = 1 + companions.length;
     return (
@@ -332,7 +341,7 @@ export default function RiberaRsvpForm({
         <p className={styles.formThanksSummary}>
           {attending ? dict.summaryAttending.replace("{n}", String(total)) : dict.summaryNotAttending}
         </p>
-        <button type="button" className={styles.btnOutline} onClick={() => setSubmitted(false)}>
+        <button type="button" className={styles.btnOutline} onClick={editAnswers}>
           {dict.edit}
         </button>
       </div>
@@ -503,23 +512,6 @@ export default function RiberaRsvpForm({
           {currentStep.kind === "info" ? (
             <fieldset className={styles.fieldset}>
               <legend className={styles.srOnly}>{dict.legend}</legend>
-              <TextField
-                label={dict.dietary}
-                name="dietary"
-                value={dietary}
-                onChange={setDietary}
-                optionalText={dict.optional}
-                asQuestion
-              />
-              {showBus ? (
-                <YesNoQuestion
-                  question={dict.busQ}
-                  value={bus}
-                  onChange={setBus}
-                  yesLabel={dict.busYes}
-                  noLabel={dict.busNo}
-                />
-              ) : null}
               {askContact ? (
                 <>
                   <div className={styles.formRow}>
@@ -554,6 +546,23 @@ export default function RiberaRsvpForm({
                     </p>
                   ) : null}
                 </>
+              ) : null}
+              <TextField
+                label={dict.dietary}
+                name="dietary"
+                value={dietary}
+                onChange={setDietary}
+                optionalText={dict.optional}
+                asQuestion
+              />
+              {showBus ? (
+                <YesNoQuestion
+                  question={dict.busQ}
+                  value={bus}
+                  onChange={setBus}
+                  yesLabel={dict.busYes}
+                  noLabel={dict.busNo}
+                />
               ) : null}
             </fieldset>
           ) : null}

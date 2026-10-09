@@ -86,10 +86,10 @@ export default function RiberaRsvpPage({
             showKidsMenu={rsvpAsksKidsMenu(data)}
             siteSlug={siteSlug}
             intro={
-              <>
+              <div className={styles.rsvpHead}>
                 <h1 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h1>
                 {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
-              </>
+              </div>
             }
           />
         </div>
