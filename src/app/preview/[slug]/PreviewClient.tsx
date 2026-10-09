@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
-import { emptyWeddingData, getDemoWeddingData } from "@/lib/wedding-types";
+import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
 import { renderTemplate, type TemplateSlug } from "@/components/templates/registry";
 
@@ -84,5 +84,7 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
   return renderTemplate(slug, data, {
     rsvpHref: `/preview/${slug}/rsvp${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
+    // The curated demo is written in both languages; a couple's own draft is not.
+    localized: isDraft ? undefined : riberaDemoByLocale,
   });
 }

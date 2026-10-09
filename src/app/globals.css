@@ -219,3 +219,19 @@ label:has(> input[type="radio"]) {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.25; }
 }
+
+/* Caret of the typed-out headline (see Typewriter): a thin bar that blinks. */
+.typewriter-caret {
+  display: inline-block;
+  width: 2px;
+  height: 0.9em;
+  margin-left: 2px;
+  vertical-align: -0.08em;
+  background: currentColor;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .typewriter-caret { animation: typewriter-blink 0.9s steps(1) infinite; }
+}
+@keyframes typewriter-blink {
+  50% { opacity: 0; }
+}

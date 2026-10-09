@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { templates } from "@/lib/templates";
 import HeroGrid from "@/components/site/HeroGrid";
+import Typewriter from "@/components/site/Typewriter";
 import TestimonialsCarousel from "@/components/site/TestimonialsCarousel";
 import ContactForm from "@/components/site/ContactForm";
 import SparkleIcon from "@/components/site/SparkleIcon";
@@ -104,6 +105,12 @@ export default function HomePage() {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale);
   const { home } = dict;
+  // The end of the closing phrase ("que deberían de ser.") is typed out live: the last word
+  // of the regular part plus the italic part; what comes before stays still.
+  const promisesWords = home.promisesHeadingPre.split(" ");
+  const promisesTail = promisesWords.pop() ?? "";
+  const promisesHead = promisesWords.join(" ");
+  const promisesTyped = `${promisesTail} ${home.promisesHeadingItalic}`;
 
   return (
     <>
@@ -204,7 +211,8 @@ export default function HomePage() {
           </div>
 
           <h2 className="mt-14 text-center font-display text-3xl">
-            {home.promisesHeadingPre} <em className="italic">{home.promisesHeadingItalic}</em>
+            {promisesHead}{" "}
+            <Typewriter key={promisesTyped} text={promisesTyped} italicFrom={promisesTail.length + 1} />
           </h2>
         </div>
       </section>

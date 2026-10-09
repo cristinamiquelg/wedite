@@ -13,23 +13,27 @@ import styles from "./ribera.module.css";
 // home only links here. Same tokens/fonts (everything hangs off `.root`),
 // but a minimal header so the guest's whole attention is on the form.
 export default function RiberaRsvpPage({
-  data,
+  data: baseData,
+  localized,
   backHref,
   initialLocale,
   siteSlug,
 }: {
   data: WeddingData;
+  /** Content written per language (the demo): the version for the language being read replaces `data`. */
+  localized?: Partial<Record<Locale, WeddingData>>;
   backHref: string;
   initialLocale?: string;
   /** Set on a couple's published site, so the answers are sent to the server. */
   siteSlug?: string;
 }) {
   const [locale, setLocale] = useState<Locale>(() =>
-    data.locales.find((l) => l === initialLocale) ?? data.locales[0] ?? "es",
+    baseData.locales.find((l) => l === initialLocale) ?? baseData.locales[0] ?? "es",
   );
   const dict = getDict(locale);
   // A language the couple has since turned off falls back to what's left.
-  const activeLocale = data.locales.includes(locale) ? locale : (data.locales[0] ?? "es");
+  const activeLocale = baseData.locales.includes(locale) ? locale : (baseData.locales[0] ?? "es");
+  const data = localized?.[activeLocale] ?? baseData;
 
   const names = `${data.partnerA || "Vuestro nombre"} & ${data.partnerB || "Vuestra pareja"}`;
   const initials = coupleInitials(data.partnerA, data.partnerB);
