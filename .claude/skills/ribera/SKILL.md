@@ -66,6 +66,11 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
 - Fonts: `--r-serif` (Libre Baskerville) for body/headings, `--r-gothic`
   (Science Gothic, falls back to Oswald) for uppercase/eyebrow/labels.
 - Breakpoints: 599px, 899px, 1199px (mobile → tablet → desktop nav).
+- Vertical rhythm: `--r-sp-section` (section/card padding), `--r-sp-stack`
+  (title → content), `--r-sp-grid-row`, `--r-sp-band-y` (navy frame above and
+  below each cream card). The hero and the countdown use their own
+  `--r-sp-hero-y` on purpose — the couple likes them as they are, so opening up
+  the rest of the template's spacing must not move them.
 
 **Never use Wedite's own Tailwind tokens (`clay`, `clay-dark`, `sage`,
 `gold`, etc. from `src/app/globals.css`) inside Ribera.** Ribera is meant to
@@ -75,6 +80,28 @@ globally, like `::selection`: `globals.css` sets it site-wide in Wedite's
 clay, so Ribera overrides it back to navy under `.root`.
 
 ## Known gotchas (learned the hard way this session)
+
+- **Entrance fades are Ribera's own and deliberately gentle** (end of
+  `ribera.module.css`, "Entrance fades"): opacity + an 18px rise, 1.3s,
+  160ms between pieces. The hero panel and its 3 blocks fade in on load; each
+  `data-reveal` section keeps still while its children fade in order; repeated
+  items (phases, places, detail cards, contact cards) are `data-reveal="item"`
+  with `--rv-i` set in the markup so each enters when it reaches the screen.
+  An earlier "big" version (scale, rotation, sideways slides) was rejected —
+  don't add those back. Selectors need `:global(.reveal-ready)` /
+  `:global(.is-visible)`, fill-mode `backwards`, and everything stays inside
+  `prefers-reduced-motion: no-preference`.
+- **The RSVP page's title and note are passed into the form as `intro`**, so
+  the thanks screen can replace them (it shows only the bouquet, the thanks
+  and the summary — no box, no intro).
+- **The demo story illustration** (`public/ribera/historia-demo-ilustracion.webp`)
+  must be #DD3E3E lines on a *transparent* background — the template shows it
+  as is on cream. If one arrives flattened onto black, rebuild the alpha from
+  the red channel (alpha = R / 220, colour forced to #DD3E3E) instead of
+  shipping the black.
+- **The IBAN must fit on one line**: its font size is capped in `cqi` units of
+  the slip (`container-type: inline-size`), measured for this face; if the
+  gothic font or the tracking changes, re-measure the width/size ratio.
 
 - **Header + hero always fill the viewport.** `RiberaTemplate` measures the
   sticky header (ResizeObserver) and publishes it as `--r-header-h` on `.root`;
@@ -134,6 +161,16 @@ clay, so Ribera overrides it back to navy under `.root`.
   place, detail card, or contact until it actually has content (matching
   the template's own `phase.name || phase.when` etc. conditionals) — don't
   assume array length alone means "visible".
+- **CSS Modules `composes` is not transitive here.** `.btnOutline` composes
+  `.btn`, but a class that does `composes: btnOutline` only gets
+  `btnOutline` — the base `.btn` (inline-flex, border, min-height…) is
+  silently missing. List both: `composes: btn btnOutline;` (as `.formSubmit`
+  and `.copyBtn` do).
+- **Itinerary layout is split at 900px.** ≥900px is the original stacked
+  card layout (the couple likes it as is); <900px is the vertical timeline
+  (rule + coral dot per phase, venue rows with the illustration on the left).
+  `.placeBody` is `display: contents` from 900px up so desktop is unaffected —
+  keep phone-only itinerary rules inside the `max-width: 899px` block.
 - **Duotone image filter**: don't guess with
   `filter: grayscale() sepia() hue-rotate() saturate()` — it never lands on
   an exact hex. Use `filter: grayscale(1)` on the image plus a
