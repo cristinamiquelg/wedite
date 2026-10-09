@@ -120,7 +120,8 @@ export const riberaDemoWeddingData: WeddingData = {
   storyTitle: "Nuestra historia",
   story:
     "Nos conocimos en un viaje a la costa, discutiendo sobre cuál era el mejor mirador. Años después seguimos discutiendo, pero ya sin dudas: queremos pasar la vida juntos.",
-  storyImage: "/ribera/historia-demo.jpg",
+  storyImage: "/ribera/historia-demo-ilustracion.webp",
+  storyImageKind: "illustration",
   estateName: "Finca del Faro",
   estateLocation: "Cadaqués, Girona",
   phases: [
@@ -174,9 +175,85 @@ export const riberaDemoWeddingData: WeddingData = {
   giftHolderName: "Elena Ruiz",
   organizerContacts: [
     { name: "Elena", phone: "+34 600 11 22 33", email: "elenaymateo@example.com" },
+    { name: "Mateo", phone: "+34 611 22 33 44", email: "mateo@example.com" },
+  ],
+};
+
+// The same wedding told in English — names, places, addresses and phone numbers
+// as they'd be written by a couple getting married in an English-speaking place —
+// so the demo reads naturally when a visitor switches the site to English.
+export const riberaDemoWeddingDataEn: WeddingData = {
+  ...riberaDemoWeddingData,
+  partnerA: "Helen",
+  partnerB: "Matthew",
+  hashtag: "#HelenAndMatthew2027",
+  welcomeMessage: "We're getting married and we want to celebrate with the people we love most.",
+  storyTitle: "Our story",
+  story:
+    "We met on a trip to the coast, arguing about which was the best lookout point. Years later we're still arguing, but with no doubts at all: we want to spend our lives together.",
+  estateName: "The Lighthouse Estate",
+  estateLocation: "Montauk, New York",
+  phases: [
+    {
+      name: "The pre-wedding",
+      when: "2027-09-10T19:00",
+      places: [{ name: "The Fisherman's Cottage", address: "8 Harbor Road, Montauk, NY 11954" }],
+    },
+    {
+      name: "The wedding",
+      when: "2027-09-11T18:00",
+      places: [
+        { name: "St. Baldwin's Chapel", address: "12 Chapel Lane, Montauk, NY 11954" },
+        { name: "The Lighthouse Estate", address: "2000 Old Lighthouse Road, Montauk, NY 11954" },
+      ],
+    },
+    {
+      name: "The after-party",
+      when: "2027-09-12T13:00",
+      places: [{ name: "Harbor Grill", address: "2 Dock Street, Montauk, NY 11954" }],
+    },
+  ],
+  detailCards: [
+    {
+      icon: "dresscode",
+      title: "Dress code",
+      description: "Summer formal. The chapel has a stone floor, so block heels are best.",
+      ctaLabel: "See inspiration",
+      url: "https://www.pinterest.com/search/pins/?q=summer%20formal%20wedding%20guest",
+    },
+    {
+      icon: "bus",
+      title: "Shuttle buses",
+      description: "Pick-up at 5:15 PM from the Montauk village green. Return trips from 1:00 AM.",
+      ctaLabel: "See pick-up point",
+      url: "https://www.google.com/maps/search/?api=1&query=Montauk%20Village%20Green%2C%20Montauk%20NY",
+    },
+    {
+      icon: "hotel",
+      title: "Hotels",
+      description: "We have a special rate at two hotels in town until July 1st.",
+      ctaLabel: "See hotels",
+      url: "https://www.google.com/maps/search/?api=1&query=hotels%20Montauk%20NY",
+    },
+  ],
+  rsvpNote:
+    "We can't wait to see you on the big day. Please RSVP as soon as you can; if you're coming as a couple or a family, one reply is enough.",
+  giftMessage:
+    "Your presence is our best gift, but if you'd like to help us build our new home, you can do so by bank transfer to",
+  giftAccount: "0000 0000 0000 0000",
+  giftHolderName: "Helen Ross",
+  organizerContacts: [
+    { name: "Helen", phone: "+1 (631) 555-0142", email: "helenandmatthew@example.com" },
+    { name: "Matthew", phone: "+1 (631) 555-0187", email: "matthew@example.com" },
   ],
 };
 
 export function getDemoWeddingData(): WeddingData {
   return riberaDemoWeddingData;
 }
+
+/** The demo in each of its languages, for a template that switches content with the guest's language. */
+export const riberaDemoByLocale: Partial<Record<Locale, WeddingData>> = {
+  es: riberaDemoWeddingData,
+  en: riberaDemoWeddingDataEn,
+};
