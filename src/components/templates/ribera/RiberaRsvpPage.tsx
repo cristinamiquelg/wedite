@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import SparkleIcon from "@/components/site/SparkleIcon";
 import { rsvpAsksBus, rsvpAsksContact, type WeddingData } from "@/lib/wedding-types";
 import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RiberaRsvpForm from "./RiberaRsvpForm";
 import { coupleInitials } from "./initials";
+import RiberaFooter from "./RiberaFooter";
 import styles from "./ribera.module.css";
 
 // The RSVP flow as its own page, separate from the template's home: the
@@ -79,15 +78,7 @@ export default function RiberaRsvpPage({
         </div>
       </main>
 
-      <footer className={styles.footer}>
-        <p>
-          {dict.ribera.footer.madeWith}{" "}
-          <Link href="/" className="group inline-flex items-center gap-1" style={{ color: "var(--r-coral)" }}>
-            Wedite
-            <SparkleIcon className="h-3 w-3 transition-transform duration-300 group-hover:rotate-90 group-hover:scale-125" />
-          </Link>
-        </p>
-      </footer>
+      <RiberaFooter madeWith={dict.ribera.footer.madeWith} hashtag={data.hashtag} />
     </div>
   );
 }

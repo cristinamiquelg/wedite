@@ -1,14 +1,13 @@
 "use client";
 
 import { Fragment, useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import SparkleIcon from "@/components/site/SparkleIcon";
 import type { PlaceIllustration, WeddingData, WeddingPlace } from "@/lib/wedding-types";
 import { formatLongDate, formatPhaseWhen, mapsUrl } from "@/lib/format";
 import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RiberaCountdown from "./RiberaCountdown";
 import RiberaCopyButton from "./RiberaCopyButton";
 import { coupleInitials } from "./initials";
+import RiberaFooter from "./RiberaFooter";
 import styles from "./ribera.module.css";
 
 // Real line-art illustrations from the L&J invitation this template is
@@ -535,16 +534,7 @@ export default function RiberaTemplate({
         </>
       )}
 
-      <footer id="footer" className={styles.footer}>
-        <p>
-          {dict.ribera.footer.madeWith}{" "}
-          <Link href="/" className="group inline-flex items-center gap-1" style={{ color: "var(--r-coral)" }}>
-            Wedite
-            <SparkleIcon className="h-3 w-3 transition-transform duration-300 group-hover:rotate-90 group-hover:scale-125" />
-          </Link>
-        </p>
-        {data.hashtag ? <p className={styles.footerHashtag}>{data.hashtag}</p> : null}
-      </footer>
+      <RiberaFooter madeWith={dict.ribera.footer.madeWith} hashtag={data.hashtag} />
     </div>
   );
 }
