@@ -52,7 +52,6 @@ export default function StepLanguage({
           );
         })}
       </div>
-      {data.locales.length > 1 ? <p className="text-sm text-ink-soft">{dict.autoTranslate}</p> : null}
     </div>
   );
 }
