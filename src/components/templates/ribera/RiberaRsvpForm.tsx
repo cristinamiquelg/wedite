@@ -211,6 +211,7 @@ export default function RiberaRsvpForm({
   locale,
   showBus = true,
   askContact = true,
+  showKidsMenu = true,
   siteSlug,
 }: {
   locale?: Locale;
@@ -218,6 +219,8 @@ export default function RiberaRsvpForm({
   showBus?: boolean;
   /** Ask for a phone and/or e-mail (the couple can turn this off). */
   askContact?: boolean;
+  /** Offer the kids' menu for companions (the couple can turn this off). */
+  showKidsMenu?: boolean;
   /** Set on a couple's published site: the answers are sent to the server. Previews just show the thanks screen. */
   siteSlug?: string;
 }) {
@@ -369,7 +372,7 @@ export default function RiberaRsvpForm({
           companions: companions.map((c) => ({
             firstName: c.firstName.trim(),
             lastName: c.lastName.trim(),
-            kid: c.kid,
+            kid: showKidsMenu && c.kid,
             bus: showBus ? c.bus === "si" : null,
             dietary: c.dietary.trim(),
           })),
@@ -610,14 +613,16 @@ export default function RiberaRsvpForm({
                 onChange={(v) => updateCompanion(currentStep.companion.id, { lastName: v })}
               />
             </div>
-            <label className={styles.checkbox}>
-              <input
-                type="checkbox"
-                checked={currentStep.companion.kid}
-                onChange={(e) => updateCompanion(currentStep.companion.id, { kid: e.target.checked })}
-              />
-              <span>{dict.kidsMenu}</span>
-            </label>
+            {showKidsMenu ? (
+              <label className={styles.checkbox}>
+                <input
+                  type="checkbox"
+                  checked={currentStep.companion.kid}
+                  onChange={(e) => updateCompanion(currentStep.companion.id, { kid: e.target.checked })}
+                />
+                <span>{dict.kidsMenu}</span>
+              </label>
+            ) : null}
             {showBus ? (
               <YesNoQuestion
                 question={dict.busQ}
