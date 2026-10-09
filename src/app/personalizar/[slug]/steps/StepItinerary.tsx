@@ -1,9 +1,10 @@
+import TranslationReview from "@/components/customize/TranslationReview";
+import { MAX_LENGTH } from "@/lib/translatable";
 import type { PlaceIllustration, WeddingData, WeddingPhase, WeddingPlace } from "@/lib/wedding-types";
 import { Select, TextInput } from "@/components/customize/fields";
 import DatePicker, { todayISO } from "@/components/customize/DatePicker";
 
 const illustrationIds: PlaceIllustration[] = ["casa", "catedral", "cortijo", "restaurante"];
-const PHASE_NAME_MAX_LENGTH = 40;
 const PLACE_NAME_MAX_LENGTH = 50;
 const PLACE_ADDRESS_MAX_LENGTH = 80;
 const MAPS_URL_MAX_LENGTH = 300;
@@ -71,7 +72,7 @@ export default function StepItinerary({
                 value={phase.name}
                 onChange={(e) => updatePhase(pi, { name: e.target.value })}
                 placeholder={dict.stepItinerary.phaseNamePlaceholder}
-                maxLength={PHASE_NAME_MAX_LENGTH}
+                maxLength={MAX_LENGTH.phaseName}
               />
               <DatePicker
                 withTime
@@ -98,6 +99,15 @@ export default function StepItinerary({
               {dict.stepItinerary.removePhase}
             </button>
           </div>
+          <TranslationReview
+            fields={[
+              {
+                label: dict.stepItinerary.phaseNamePlaceholder,
+                text: phase.name,
+                maxLength: MAX_LENGTH.phaseName,
+              },
+            ]}
+          />
 
           <div className="flex flex-col gap-3 sm:pl-4">
             {phase.places.map((place, li) => (

@@ -1,11 +1,11 @@
+import TranslationReview from "@/components/customize/TranslationReview";
+import { MAX_LENGTH } from "@/lib/translatable";
 import type { DetailCard, DetailCardIcon, WeddingData } from "@/lib/wedding-types";
 import { Select, TextArea, TextInput } from "@/components/customize/fields";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
-const TITLE_MAX_LENGTH = 50;
 const URL_MAX_LENGTH = 300;
-const CTA_MAX_LENGTH = 30;
 
 export default function StepDetails({
   data,
@@ -60,7 +60,7 @@ export default function StepDetails({
             placeholder={dict.stepDetails.titlePlaceholder}
             aria-label={dict.stepDetails.titleAriaLabel}
             className="min-w-[140px] flex-1"
-            maxLength={TITLE_MAX_LENGTH}
+            maxLength={MAX_LENGTH.detailTitle}
           />
           <TextArea
             value={card.description ?? ""}
@@ -68,7 +68,7 @@ export default function StepDetails({
             placeholder={dict.stepDetails.descriptionPlaceholder}
             aria-label={dict.stepDetails.descriptionAriaLabel}
             rows={2}
-            maxLength={160}
+            maxLength={MAX_LENGTH.detailDescription}
             className="w-full"
           />
           <TextInput
@@ -87,8 +87,22 @@ export default function StepDetails({
             placeholder={dict.stepDetails.ctaPlaceholder}
             aria-label={dict.stepDetails.ctaAriaLabel}
             className="min-w-[140px] flex-1"
-            maxLength={CTA_MAX_LENGTH}
+            maxLength={MAX_LENGTH.detailCta}
           />
+          <div className="w-full">
+            <TranslationReview
+              fields={[
+                { label: dict.stepDetails.titleAriaLabel, text: card.title, maxLength: MAX_LENGTH.detailTitle },
+                {
+                  label: dict.stepDetails.descriptionAriaLabel,
+                  text: card.description ?? "",
+                  maxLength: MAX_LENGTH.detailDescription,
+                  multiline: true,
+                },
+                { label: dict.stepDetails.ctaAriaLabel, text: card.ctaLabel, maxLength: MAX_LENGTH.detailCta },
+              ]}
+            />
+          </div>
           <button
             type="button"
             onClick={() => removeCard(i)}

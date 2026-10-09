@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { firstIncompleteStep, missingAll, missingForStep } from "@/lib/wizard-required";
 import type { Template } from "@/lib/templates";
@@ -16,6 +16,8 @@ import StepRiberaCouple from "./steps/StepRiberaCouple";
 import StepItinerary from "./steps/StepItinerary";
 import StepDetails from "./steps/StepDetails";
 import StepLanguage from "./steps/StepLanguage";
+import { TranslationProvider, useTranslationService } from "@/components/customize/translations";
+import type { Locale } from "@/lib/i18n";
 
 type StepDef = {
   key: string;
@@ -111,6 +113,20 @@ export default function CustomizeClient({ template }: { template: Template }) {
       document.removeEventListener("keydown", onKey);
     };
   }, [expanded]);
+
+  // Shows a language in the live preview (to review a translation there).
+  const showPreviewLocale = useCallback((target: Locale) => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: "wedite:setLocale", slug: template.slug, locale: target },
+      window.location.origin,
+    );
+  }, [template.slug]);
+  const translationService = useTranslationService({
+    data,
+    setData,
+    enabled: loaded,
+    showLocale: showPreviewLocale,
+  });
 
   function sendDraft() {
     iframeRef.current?.contentWindow?.postMessage(
@@ -314,7 +330,9 @@ export default function CustomizeClient({ template }: { template: Template }) {
                 not just once when the step first opens — since a step like
                 "Detalles" can have several cards spread further down. */}
             <div className="mt-6" onFocus={onFieldFocus}>
-              <Step data={data} onChange={patch} showErrors={showErrors} />
+              <TranslationProvider value={translationService}>
+                <Step data={data} onChange={patch} showErrors={showErrors} />
+              </TranslationProvider>
             </div>
           </div>
 

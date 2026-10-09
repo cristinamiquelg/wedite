@@ -1,3 +1,5 @@
+import TranslationReview from "@/components/customize/TranslationReview";
+import { MAX_LENGTH } from "@/lib/translatable";
 import { rsvpAsksBus, rsvpAsksContact, type WeddingData } from "@/lib/wedding-types";
 import { Field, TextArea } from "@/components/customize/fields";
 import { useSiteLocale } from "@/lib/site-locale";
@@ -38,7 +40,6 @@ function Switch({
   );
 }
 
-const RSVP_NOTE_MAX_LENGTH = 300;
 
 // The guest-facing RSVP form: what else the couple wants to ask. The preview
 // switches to the form itself while this step is open.
@@ -62,9 +63,12 @@ export default function StepRsvpForm({
           value={data.rsvpNote}
           onChange={(e) => onChange({ rsvpNote: e.target.value })}
           placeholder={giftDict.notePlaceholder}
-          maxLength={RSVP_NOTE_MAX_LENGTH}
+          maxLength={MAX_LENGTH.rsvpNote}
         />
       </Field>
+      <TranslationReview
+        fields={[{ label: dict.introLabel, text: data.rsvpNote, maxLength: MAX_LENGTH.rsvpNote, multiline: true }]}
+      />
       <Switch
         checked={rsvpAsksBus(data)}
         onChange={(v) => onChange({ rsvpAskBus: v })}

@@ -74,6 +74,18 @@ export type WeddingData = {
   rsvpAskBus?: boolean;
   /** RSVP form: ask for a phone and/or e-mail. Unset = yes. */
   rsvpAskContact?: boolean;
+  /** Language the couple writes the free texts in (the others are translated from it). Unset = the first of `locales`. */
+  writtenIn?: Locale;
+  /** Translations of the free texts, per target language: the couple's text (the key) → its version in that
+   * language. Made automatically, and editable by the couple. Keyed by text, so reordering or deleting a
+   * phase or card never mixes them up. */
+  translations?: Partial<Record<Locale, Record<string, TranslatedText>>>;
+};
+
+export type TranslatedText = {
+  text: string;
+  /** The couple corrected it by hand. */
+  edited?: boolean;
 };
 
 /** Whether the guest form asks about the bus (the couple's own choice, else follows the bus detail card). */
