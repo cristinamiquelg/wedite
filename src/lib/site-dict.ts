@@ -117,6 +117,7 @@ export type SiteDict = {
     venue: string;
     venueTBD: string;
     totalOnce: string;
+    includesYear: string;
     reviewBeforeBuy: string;
     paymentData: string;
     securePayment: string;
@@ -441,6 +442,7 @@ const es: SiteDict = {
     venue: "Lugar de celebración",
     venueTBD: "Por confirmar",
     totalOnce: "Total, pago único",
+    includesYear: "El pago incluye vuestra web pública durante 1 año.",
     reviewBeforeBuy: "Revisar la vista previa antes de comprar",
     paymentData: "Pago",
     securePayment: "Pago seguro con Stripe",
@@ -769,6 +771,7 @@ const en: SiteDict = {
     venue: "Reception venue",
     venueTBD: "To be confirmed",
     totalOnce: "Total, one-time payment",
+    includesYear: "Your payment includes keeping your website public for 1 year.",
     reviewBeforeBuy: "Review the preview before buying",
     paymentData: "Payment",
     securePayment: "Secure payment with Stripe",

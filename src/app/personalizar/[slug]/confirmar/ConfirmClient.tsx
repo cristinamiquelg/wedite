@@ -121,6 +121,7 @@ export default function ConfirmClient({ template }: { template: Template }) {
             <span className="text-sm text-ink">{dict.totalOnce}</span>
             <span className="font-display text-2xl">{template.price} €</span>
           </div>
+          <p className="mt-3 text-sm text-ink-soft">{dict.includesYear}</p>
         </div>
 
         <div>
