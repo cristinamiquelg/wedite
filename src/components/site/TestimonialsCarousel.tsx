@@ -32,7 +32,7 @@ const testimonialsByLocale: Record<"es" | "en", Testimonial[]> = {
     },
     {
       quote:
-        "El RSVP con acompañantes nos ahorró un Excel entero. Se lo hemos recomendado a mi hermana para su boda del año que viene.",
+        "La confirmación de asistencia con acompañantes nos ahorró un Excel entero. Se lo hemos recomendado a mi hermana para su boda del año que viene.",
       names: "Julia & Adrián",
       detail: "Se casaron en Comillas",
     },
