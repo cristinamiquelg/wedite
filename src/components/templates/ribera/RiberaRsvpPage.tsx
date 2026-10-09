@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { rsvpAsksBus, rsvpAsksContact, type WeddingData } from "@/lib/wedding-types";
+import { rsvpAsksBus, rsvpAsksContact, rsvpAsksKidsMenu, type WeddingData } from "@/lib/wedding-types";
 import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RiberaRsvpForm from "./RiberaRsvpForm";
 import { coupleInitials } from "./initials";
@@ -73,6 +73,7 @@ export default function RiberaRsvpPage({
             locale={activeLocale}
             showBus={rsvpAsksBus(data)}
             askContact={rsvpAsksContact(data)}
+            showKidsMenu={rsvpAsksKidsMenu(data)}
             siteSlug={siteSlug}
           />
         </div>

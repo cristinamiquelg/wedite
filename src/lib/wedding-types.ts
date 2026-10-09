@@ -74,6 +74,8 @@ export type WeddingData = {
   rsvpAskBus?: boolean;
   /** RSVP form: ask for a phone and/or e-mail. Unset = yes. */
   rsvpAskContact?: boolean;
+  /** RSVP form: let guests flag a companion as a child who needs a kids' menu. Unset = yes. */
+  rsvpAskKidsMenu?: boolean;
 };
 
 /** Whether the guest form asks about the bus (the couple's own choice, else follows the bus detail card). */
@@ -84,6 +86,11 @@ export function rsvpAsksBus(data: Pick<WeddingData, "rsvpAskBus" | "detailCards"
 /** Whether the guest form asks for contact details. */
 export function rsvpAsksContact(data: Pick<WeddingData, "rsvpAskContact">): boolean {
   return data.rsvpAskContact ?? true;
+}
+
+/** Whether the guest form offers the kids' menu. */
+export function rsvpAsksKidsMenu(data: Pick<WeddingData, "rsvpAskKidsMenu">): boolean {
+  return data.rsvpAskKidsMenu ?? true;
 }
 
 export const emptyWeddingData: WeddingData = {

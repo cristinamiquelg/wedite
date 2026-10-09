@@ -1,4 +1,4 @@
-import { rsvpAsksBus, rsvpAsksContact, type WeddingData } from "@/lib/wedding-types";
+import { rsvpAsksBus, rsvpAsksContact, rsvpAsksKidsMenu, type WeddingData } from "@/lib/wedding-types";
 import { Field, TextArea } from "@/components/customize/fields";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
@@ -76,6 +76,12 @@ export default function StepRsvpForm({
         onChange={(v) => onChange({ rsvpAskContact: v })}
         label={dict.askContact}
         hint={dict.askContactHint}
+      />
+      <Switch
+        checked={rsvpAsksKidsMenu(data)}
+        onChange={(v) => onChange({ rsvpAskKidsMenu: v })}
+        label={dict.askKidsMenu}
+        hint={dict.askKidsMenuHint}
       />
     </div>
   );
