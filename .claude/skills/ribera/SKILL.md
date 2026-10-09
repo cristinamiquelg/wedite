@@ -115,9 +115,15 @@ clay, so Ribera overrides it back to navy under `.root`.
 - **The monogram never invents initials**: with no names yet it is a bare
   `&` (`ribera/initials.ts`).
 - **The story illustration** is generated from the couple's photo plus a
-  style sheet of the template's own SVG illustrations
-  (`lib/story-style-reference.ts`, regenerate it if those illustrations
-  change) — that second input image is what keeps it consistent with them.
+  style sheet of three of Ribera's own brush-pen drawings (church, woman from
+  behind, bus; `lib/story-style-reference.ts`, rebuilt with
+  `python3 scripts/build-story-style-reference.py` from `scripts/story-style-sources/`).
+  That second input image and `lib/story-illustration-prompt.ts` are what keep
+  the result consistent with them: bold-to-fine tapered strokes, detailed hair
+  and folds, no fills, ground dashes, **square 1:1** (`size: 1024x1024`).
+  `lib/recolor-illustration.ts` then forces the exact coral `#DD3E3E` and drops
+  pale washes, whatever shade the model drew. Quality: env `OPENAI_IMAGE_QUALITY`
+  (default `medium`, `high` draws finer lines at a higher price).
 - **The mobile header grid must stay symmetric.** `grid-template-columns`
   needs equal-fraction side columns (`1fr auto 1fr`), not `auto 1fr auto` —
   otherwise the hamburger button and the (wider) RSVP button pull the

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { recolorToCoral } from "@/lib/recolor-illustration";
 import { STORY_ILLUSTRATION_PROMPT } from "@/lib/story-illustration-prompt";
 import { STORY_STYLE_REFERENCE_PNG_BASE64 } from "@/lib/story-style-reference";
 
@@ -63,8 +64,9 @@ export async function POST(request: Request) {
   body.append("background", "transparent");
   body.append("output_format", "webp");
   body.append("output_compression", "90");
-  body.append("quality", "medium");
-  body.append("size", "auto");
+  body.append("quality", process.env.OPENAI_IMAGE_QUALITY || "medium");
+  // Square, like the template's own illustrations.
+  body.append("size", "1024x1024");
   body.append("n", "1");
 
   let upstream: Response;
@@ -93,5 +95,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_image" }, { status: 502 });
   }
 
-  return NextResponse.json({ image: `data:image/webp;base64,${b64}` });
+  // Same coral as the rest of Ribera whatever shade the model drew, no pale washes, square.
+  const coral = await recolorToCoral(Buffer.from(b64, "base64"));
+  return NextResponse.json({ image: `data:image/webp;base64,${coral.toString("base64")}` });
 }
