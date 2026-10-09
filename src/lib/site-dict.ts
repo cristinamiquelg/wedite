@@ -352,7 +352,7 @@ const es: SiteDict = {
         tags: ["Minimalista", "A trazo"],
       },
       {
-        image: "/catalog/proximo-diseno-2.jpg",
+        image: "/catalog/vega-es.webp",
         title: "Vega",
         tagline: "Art nouveau, en burdeos y rosa",
         summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
@@ -682,7 +682,7 @@ const en: SiteDict = {
         tags: ["Minimal", "Line-drawn"],
       },
       {
-        image: "/catalog/proximo-diseno-2.jpg",
+        image: "/catalog/vega-en.webp",
         title: "Vega",
         tagline: "Art nouveau, in burgundy and pink",
         summary: "You'll soon be able to see it here and make it yours.",

@@ -21,7 +21,6 @@ type Shot = {
 // and they'll flow into the columns automatically.
 const shots: Shot[] = [
   {
-    // TODO: the Spanish cover still has to be supplied (this one is in English).
     src: { es: "/hero/ribera-es.png", en: "/hero/ribera-en.png" },
     template: "Ribera",
     slug: "ribera",
@@ -52,7 +51,7 @@ const shots: Shot[] = [
     },
   },
   {
-    src: { es: "/hero/proximo-diseno-2.jpg", en: "/hero/proximo-diseno-2.jpg" },
+    src: { es: "/hero/vega-es.webp", en: "/hero/vega-en.webp" },
     template: "Vega",
     slug: "vega",
     label: "Portada",
