@@ -1,6 +1,10 @@
 import type { WeddingData } from "@/lib/wedding-types";
+import type { Locale } from "@/lib/i18n";
 import RiberaTemplate from "./ribera/RiberaTemplate";
 import RiberaRsvpPage from "./ribera/RiberaRsvpPage";
+
+/** Per-language versions of the content (the demo), used when the guest switches language. */
+export type LocalizedData = Partial<Record<Locale, WeddingData>>;
 
 const knownSlugs = ["ribera"] as const;
 export type TemplateSlug = (typeof knownSlugs)[number];
@@ -16,17 +20,17 @@ export function isKnownTemplateSlug(slug: string): slug is TemplateSlug {
 export function renderRsvpPage(
   slug: TemplateSlug,
   data: WeddingData,
-  opts: { backHref: string; initialLocale?: string; siteSlug?: string },
+  opts: { backHref: string; initialLocale?: string; siteSlug?: string; localized?: LocalizedData },
 ) {
   switch (slug) {
     case "ribera":
-      return <RiberaRsvpPage data={data} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} />;
+      return <RiberaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} />;
   }
 }
 
-export function renderTemplate(slug: TemplateSlug, data: WeddingData, opts: { rsvpHref?: string; initialLocale?: string } = {}) {
+export function renderTemplate(slug: TemplateSlug, data: WeddingData, opts: { rsvpHref?: string; initialLocale?: string; localized?: LocalizedData } = {}) {
   switch (slug) {
     case "ribera":
-      return <RiberaTemplate data={data} rsvpHref={opts.rsvpHref} initialLocale={opts.initialLocale} />;
+      return <RiberaTemplate data={data} localized={opts.localized} rsvpHref={opts.rsvpHref} initialLocale={opts.initialLocale} />;
   }
 }

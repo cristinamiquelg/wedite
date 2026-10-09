@@ -5,7 +5,7 @@ import Link from "next/link";
 import SparkleIcon from "@/components/site/SparkleIcon";
 import type { PlaceIllustration, WeddingData, WeddingPlace } from "@/lib/wedding-types";
 import { formatLongDate, formatPhaseWhen, mapsUrl } from "@/lib/format";
-import { getDict, locales as localeOptions } from "@/lib/i18n";
+import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RiberaCountdown from "./RiberaCountdown";
 import RiberaCopyButton from "./RiberaCopyButton";
 import { coupleInitials } from "./initials";
@@ -82,16 +82,20 @@ function MenuIcon({ open }: { open: boolean }) {
 }
 
 export default function RiberaTemplate({
-  data,
+  data: baseData,
+  localized,
   rsvpHref,
   initialLocale,
 }: {
   data: WeddingData;
+  /** Content written per language (the demo): the version for the language being read replaces `data`. */
+  localized?: Partial<Record<Locale, WeddingData>>;
   rsvpHref?: string;
   /** Language to open in (e.g. coming back from the RSVP page); defaults to the first enabled. */
   initialLocale?: string;
 }) {
-  const [locale, setLocale] = useState(data.locales.find((l) => l === initialLocale) ?? data.locales[0] ?? "es");
+  const [locale, setLocale] = useState(baseData.locales.find((l) => l === initialLocale) ?? baseData.locales[0] ?? "es");
+  const data = localized?.[locale] ?? baseData;
   const [menuOpen, setMenuOpen] = useState(false);
 
   // Keep the preview's displayed language in sync with the wizard's
@@ -100,19 +104,19 @@ export default function RiberaTemplate({
   // even when unchanged — compare by value, not reference. Switch straight
   // to a language the couple just turned on; fall back to whatever's left
   // if the one currently shown was just turned off.
-  const prevLocalesRef = useRef(data.locales);
+  const prevLocalesRef = useRef(baseData.locales);
   useEffect(() => {
     const prev = prevLocalesRef.current;
-    if (prev.join(",") !== data.locales.join(",")) {
-      const added = data.locales.find((l) => !prev.includes(l));
+    if (prev.join(",") !== baseData.locales.join(",")) {
+      const added = baseData.locales.find((l) => !prev.includes(l));
       if (added) {
         setLocale(added);
-      } else if (!data.locales.includes(locale)) {
-        setLocale(data.locales[0] ?? "es");
+      } else if (!baseData.locales.includes(locale)) {
+        setLocale(baseData.locales[0] ?? "es");
       }
-      prevLocalesRef.current = data.locales;
+      prevLocalesRef.current = baseData.locales;
     }
-  }, [data.locales, locale]);
+  }, [baseData.locales, locale]);
   const dict = getDict(locale);
   // The RSVP form lives on its own page; carry the guest's current language
   // over so the form opens in the language they were reading.

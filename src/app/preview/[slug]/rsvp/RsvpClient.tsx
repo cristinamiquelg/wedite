@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
-import { emptyWeddingData, getDemoWeddingData } from "@/lib/wedding-types";
+import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
 import { renderRsvpPage, type TemplateSlug } from "@/components/templates/registry";
 
@@ -39,5 +39,6 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
   return renderRsvpPage(slug, data, {
     backHref: `/preview/${slug}${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
+    localized: isDraft ? undefined : riberaDemoByLocale,
   });
 }
