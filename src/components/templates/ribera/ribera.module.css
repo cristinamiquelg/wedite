@@ -714,6 +714,13 @@
   .placeName { text-align: left; font-size: calc(var(--r-fs-script) + 1px); line-height: 1.35; }
   .placeAddr { margin: 0; max-width: none; text-align: left; font-size: var(--r-fs-small); line-height: 1.45; }
   .placeBtn { margin-top: 10px; min-height: 44px; padding: 0.4em 1em; font-size: var(--r-fs-small); }
+
+  /* Only one phase: a rule and a dot would lead nowhere. The phase header is centred
+     above its venues, as it is on larger screens, and the rows stay the same. */
+  .itinerarySingle { padding-left: 0; }
+  .itinerarySingle::before,
+  .itinerarySingle .phase::before { display: none; }
+  .itinerarySingle .phase { text-align: center; }
 }
 
 /* ---------- Detalles ---------- */

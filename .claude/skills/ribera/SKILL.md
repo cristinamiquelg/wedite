@@ -170,7 +170,10 @@ clay, so Ribera overrides it back to navy under `.root`.
   card layout (the couple likes it as is); <900px is the vertical timeline
   (rule + coral dot per phase, venue rows with the illustration on the left).
   `.placeBody` is `display: contents` from 900px up so desktop is unaffected —
-  keep phone-only itinerary rules inside the `max-width: 899px` block.
+  keep phone-only itinerary rules inside the `max-width: 899px` block. With a
+  **single phase** the timeline (rule + dot) would lead nowhere, so
+  `.itinerarySingle` (set from `shownPhaseCount === 1`) drops both and centres
+  the phase header; the venue rows stay the same.
 - **Duotone image filter**: don't guess with
   `filter: grayscale() sepia() hue-rotate() saturate()` — it never lands on
   an exact hex. Use `filter: grayscale(1)` on the image plus a
