@@ -29,7 +29,7 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
   (intolerances, bus, phone/e-mail — all on one screen), 3. Tus acompañantes.
   A "no" to attending ends the flow after screen 1. Only the section stepper
   is shown (no "step X of Y"). The couple turns the bus question and the
-  contact fields on/off in the wizard's "Formulario" step (which also holds the intro text shown on the form page, `rsvpNote`, and the organizers' contact people)
+  contact fields on/off in the wizard's "Formulario" step (which also holds the intro message shown on the form page, `rsvpNote`)
   (`WeddingData.rsvpAskBus` / `rsvpAskContact`, read through `rsvpAsksBus()` /
   `rsvpAsksContact()`); the phone only accepts digits (optional leading `+`),
   validated again in `/api/rsvp`. While that wizard step is open the preview
@@ -75,6 +75,19 @@ globally, like `::selection`: `globals.css` sets it site-wide in Wedite's
 clay, so Ribera overrides it back to navy under `.root`.
 
 ## Known gotchas (learned the hard way this session)
+
+- **Header + hero always fill the viewport.** `RiberaTemplate` measures the
+  sticky header (ResizeObserver) and publishes it as `--r-header-h` on `.root`;
+  `.hero` is `min-height: calc(100dvh - var(--r-header-h))` with its panel
+  centred, and `@media (max-height: …)` tightens its spacing on short screens so
+  it still fits. Never hard-code the header height; keep both rules together.
+- **The wizard's "Regalo y contacto" step** (key `rsvp`, default section
+  `regalos`) holds the gift fields and the organizers' contact people
+  (`contacto`, `contacto-<i>`); the intro message and the form switches live
+  in the separate "Formulario" step, whose preview is the RSVP page. The
+  preview page sends `wedite:ready` once it listens so the wizard (re)sends the
+  draft and the section to scroll to — needed on mobile, where the iframe is
+  hidden or unmounted until the Preview tab opens.
 
 - **`display:none` elements report an all-zero `getBoundingClientRect()`.**
   Never put a scroll-target `id` on a `display:none` anchor —

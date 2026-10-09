@@ -208,7 +208,6 @@ export type SiteDict = {
       hashtag: string;
     };
     stepRsvpGift: {
-      rsvpSectionTitle: string;
       notePlaceholder: string;
       message: string;
       messagePlaceholder: string;
@@ -224,6 +223,7 @@ export type SiteDict = {
       removeContactPerson: string;
     };
     stepRsvpForm: {
+      introLabel: string;
       askBus: string;
       askBusHint: string;
       askContact: string;
@@ -498,7 +498,7 @@ const es: SiteDict = {
       language: "Idioma",
       couple: "Pareja y fecha",
       story: "Vuestra historia",
-      rsvp: "Confirmación y regalo",
+      rsvp: "Regalo y contacto",
       form: "Formulario",
       itinerary: "Itinerario y lugares",
       details: "Detalles",
@@ -535,7 +535,6 @@ const es: SiteDict = {
       hashtag: "Hashtag de la boda",
     },
     stepRsvpGift: {
-      rsvpSectionTitle: "Confirmación de asistencia",
       notePlaceholder: "Confirmad antes del... indicando alergias.",
       message: "Mensaje junto a los datos bancarios",
       messagePlaceholder: "Vuestra presencia es el mejor regalo...",
@@ -551,6 +550,7 @@ const es: SiteDict = {
       removeContactPerson: "Quitar",
     },
     stepRsvpForm: {
+      introLabel: "Mensaje de introducción",
       askBus: "Preguntar si necesitan autobús",
       askBusHint: "Cada invitado (y cada acompañante) indicará si va en bus.",
       askContact: "Pedir teléfono o e-mail a los invitados",
@@ -826,7 +826,7 @@ const en: SiteDict = {
       language: "Language",
       couple: "Couple and date",
       story: "Your story",
-      rsvp: "RSVP and gift",
+      rsvp: "Gift and contact",
       form: "RSVP form",
       itinerary: "Itinerary and venues",
       details: "Details",
@@ -863,7 +863,6 @@ const en: SiteDict = {
       hashtag: "Wedding hashtag",
     },
     stepRsvpGift: {
-      rsvpSectionTitle: "RSVP",
       notePlaceholder: "Please confirm by... and let us know about any allergies.",
       message: "Message next to the bank details",
       messagePlaceholder: "Your presence is the best gift...",
@@ -879,6 +878,7 @@ const en: SiteDict = {
       removeContactPerson: "Remove",
     },
     stepRsvpForm: {
+      introLabel: "Intro message",
       askBus: "Ask whether they need the bus",
       askBusHint: "Each guest (and each plus-one) says whether they'll take the bus.",
       askContact: "Ask guests for a phone or e-mail",
