@@ -372,18 +372,25 @@
 .heroBouquet { width: var(--r-illus-bouquet); height: auto; }
 
 /* Short viewports (landscape phones, small laptop windows): tighten the hero's
-   spacing and illustration so header + hero still fit the screen exactly. */
+   spacing and illustration so header + hero still fit the screen, but never
+   below a comfortable inner padding in the cream panel (the striped margin
+   around it is the part that gives way first). */
 @media (max-height: 760px) {
-  .hero { padding-block: clamp(8px, 2.4vh, 24px); }
-  .heroPanel { padding-block: clamp(12px, 3vh, 40px); gap: clamp(8px, 2.2vh, 28px); }
-  .heroGroup { gap: clamp(4px, 1vh, 12px); }
-  .heroBouquet { width: min(var(--r-illus-bouquet), 13vh); }
+  .hero { padding-block: clamp(8px, 2vh, 24px); }
+  .heroPanel { padding-block: clamp(28px, 5vh, 48px); gap: clamp(12px, 2.4vh, 28px); }
+  .heroGroup { gap: clamp(6px, 1.2vh, 12px); }
+  .heroBouquet { width: max(56px, min(var(--r-illus-bouquet), 13vh)); }
 }
 @media (max-height: 420px) {
   .hero { padding-block: 6px; }
-  .heroPanel { padding-block: 8px; gap: 6px; }
+  .heroPanel { padding-block: 24px; gap: 10px; }
+  .heroGroup { gap: 4px; }
+  .heroBouquet { width: 48px; }
+}
+@media (max-height: 340px) {
+  .heroPanel { gap: 6px; }
   .heroGroup { gap: 2px; }
-  .heroBouquet { width: 10vh; }
+  .heroBouquet { width: 40px; }
 }
 .heroCta { padding-block: 0.75em; }
 
