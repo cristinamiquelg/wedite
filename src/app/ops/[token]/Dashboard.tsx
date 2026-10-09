@@ -508,14 +508,14 @@ function Body({
           <BarList
             rows={[
               { label: "Itinerario", value: business.features.itinerary },
-              { label: "RSVP", value: business.features.rsvp },
+              { label: "Confirmaciones", value: business.features.rsvp },
               { label: "Regalo", value: business.features.gift },
               { label: "Ilustración con IA", value: business.features.ai_illustration },
             ].map((f) => ({ ...f, sub: pct(f.value, business.features.sites) }))}
           />
         )}
         <p className="mt-3 text-xs text-ink-soft">
-          Itinerario: al menos una fase o un momento · RSVP: nota escrita o respuestas recibidas · Regalo: cuenta indicada · IA: ilustración usada en la historia.
+          Itinerario: al menos una fase o un momento · Confirmaciones: nota escrita o respuestas recibidas · Regalo: cuenta indicada · IA: ilustración usada en la historia.
         </p>
       </Card>
 
