@@ -24,6 +24,16 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
     } catch {
       // ignore malformed/unavailable storage
     }
+
+    // The wizard keeps this page in sync while the couple edits the form's options.
+    function onMessage(event: MessageEvent) {
+      const msg = event.data;
+      if (event.origin === window.location.origin && msg && msg.type === "wedite:update" && msg.slug === slug) {
+        setData({ ...emptyWeddingData, ...(msg.data as WeddingData) });
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
   }, [slug, isDraft]);
 
   return renderRsvpPage(slug, data, {

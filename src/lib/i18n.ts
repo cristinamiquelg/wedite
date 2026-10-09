@@ -53,7 +53,6 @@ type Dict = {
       submit: string;
       next: string;
       back: string;
-      stepOf: string;
       sectionAttendance: string;
       sectionCompanions: string;
       thanks: string;
@@ -68,6 +67,7 @@ type Dict = {
       errRequired: string;
       errContact: string;
       errEmail: string;
+      errPhone: string;
       errSummary: string;
       edit: string;
       summaryAttending: string;
@@ -139,7 +139,6 @@ const es: Dict = {
       submit: "Enviar confirmación",
       next: "Siguiente",
       back: "Atrás",
-      stepOf: "Paso {n} de {total}",
       sectionAttendance: "Tu asistencia",
       sectionCompanions: "Tus acompañantes",
       thanks: "¡Gracias! Hemos recibido tu confirmación. 🤍",
@@ -154,6 +153,7 @@ const es: Dict = {
       errRequired: "Este campo es obligatorio.",
       errContact: "Indica un teléfono o un e-mail.",
       errEmail: "Revisa el e-mail: parece incompleto.",
+      errPhone: "Escribe solo números (puedes empezar por +).",
       errSummary: "Falta algún dato. Revisa los campos marcados.",
       edit: "Modificar mi respuesta",
       summaryAttending: "Confirmado: {n} persona(s).",
@@ -225,7 +225,6 @@ const en: Dict = {
       submit: "Send RSVP",
       next: "Next",
       back: "Back",
-      stepOf: "Step {n} of {total}",
       sectionAttendance: "Your attendance",
       sectionCompanions: "Your guests",
       thanks: "Thank you! We've received your RSVP. 🤍",
@@ -240,6 +239,7 @@ const en: Dict = {
       errRequired: "This field is required.",
       errContact: "Please add a phone or an e-mail.",
       errEmail: "Check the e-mail — it looks incomplete.",
+      errPhone: "Enter numbers only (you can start with +).",
       errSummary: "Something's missing. Please check the highlighted fields.",
       edit: "Change my answer",
       summaryAttending: "Confirmed: {n} guest(s).",

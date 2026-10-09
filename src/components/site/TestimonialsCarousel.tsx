@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSiteLocale } from "@/lib/site-locale";
 
 type Testimonial = {
@@ -101,22 +101,28 @@ function ArrowIcon({ direction }: { direction: "left" | "right" }) {
   );
 }
 
+const AUTO_ADVANCE_MS = 5000;
+
 export default function TestimonialsCarousel() {
   const { locale } = useSiteLocale();
   const testimonials = testimonialsByLocale[locale];
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Only keyboard focus inside the carousel pauses it (so someone tabbing through
+  // the arrows isn't moved away). The mouse resting over it does not: a hover
+  // pause is what made it look stuck for anyone reading with the pointer parked
+  // on it, and on touch screens a tap left it paused for good.
+  const [focusInside, setFocusInside] = useState(false);
 
+  // One timeout per slide: any change of slide — automatic or from the arrows
+  // and dots — restarts the 5 s, so a manual click is never followed by an
+  // immediate jump.
   useEffect(() => {
-    if (paused) return;
-    timerRef.current = setInterval(() => {
+    if (focusInside) return;
+    const timer = setTimeout(() => {
       setIndex((i) => (i + 1) % testimonials.length);
-    }, 5000);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [paused, testimonials.length]);
+    }, AUTO_ADVANCE_MS);
+    return () => clearTimeout(timer);
+  }, [index, focusInside, testimonials.length]);
 
   function go(delta: number) {
     setIndex((i) => (i + delta + testimonials.length) % testimonials.length);
@@ -130,8 +136,13 @@ export default function TestimonialsCarousel() {
   return (
     <div
       className="mx-auto max-w-3xl"
-      onMouseEnter={() => setPaused(true)}
-      onMouseLeave={() => setPaused(false)}
+      onFocus={(e) => {
+        // Keyboard focus only: a mouse click on an arrow also focuses it.
+        if (e.target.matches(":focus-visible")) setFocusInside(true);
+      }}
+      onBlur={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setFocusInside(false);
+      }}
     >
       <div className="flex items-center gap-4 sm:gap-8">
         <button

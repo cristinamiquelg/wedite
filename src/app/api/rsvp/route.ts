@@ -6,6 +6,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Digits only, optionally starting with "+" (spaces are for readability).
+const PHONE_RE = /^\+?\d{7,15}$/;
 const CLIENT_REF_RE = /^[A-Za-z0-9_-]{8,64}$/;
 const MAX_COMPANIONS = 12;
 // Per site and per (hashed) IP: this many submissions in the window, then 429.
@@ -39,7 +41,7 @@ export async function POST(request: NextRequest) {
   const phone = text(body.phone, 30);
   const clientRef = typeof body.clientRef === "string" && CLIENT_REF_RE.test(body.clientRef) ? body.clientRef : null;
   const attending = yesNo(body.attending);
-  if (!slug || !firstName || !lastName || attending === null || (email && !EMAIL_RE.test(email))) {
+  if (!slug || !firstName || !lastName || attending === null || (email && !EMAIL_RE.test(email)) || (phone && !PHONE_RE.test(phone.replace(/\s/g, "")))) {
     return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
 

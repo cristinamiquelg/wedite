@@ -70,7 +70,21 @@ export type WeddingData = {
   estateLocation: string;
   phases: WeddingPhase[];
   detailCards: DetailCard[];
+  /** RSVP form: ask each guest whether they need the bus. Unset = only when the site has a bus detail card. */
+  rsvpAskBus?: boolean;
+  /** RSVP form: ask for a phone and/or e-mail. Unset = yes. */
+  rsvpAskContact?: boolean;
 };
+
+/** Whether the guest form asks about the bus (the couple's own choice, else follows the bus detail card). */
+export function rsvpAsksBus(data: Pick<WeddingData, "rsvpAskBus" | "detailCards">): boolean {
+  return data.rsvpAskBus ?? data.detailCards.some((c) => c.icon === "bus");
+}
+
+/** Whether the guest form asks for contact details. */
+export function rsvpAsksContact(data: Pick<WeddingData, "rsvpAskContact">): boolean {
+  return data.rsvpAskContact ?? true;
+}
 
 export const emptyWeddingData: WeddingData = {
   locales: ["es"],
