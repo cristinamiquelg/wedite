@@ -2,7 +2,6 @@ import type { WeddingData } from "@/lib/wedding-types";
 import { locales, type Locale } from "@/lib/i18n";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
-import { sourceLocale } from "@/lib/translatable";
 
 export default function StepLanguage({
   data,
@@ -53,33 +52,7 @@ export default function StepLanguage({
           );
         })}
       </div>
-      {data.locales.length > 1 ? (
-        <div role="radiogroup" aria-labelledby="written-in-title" className="mt-4 flex flex-col gap-2">
-          <p id="written-in-title" className="text-sm font-medium text-ink">
-            {dict.writtenInTitle}
-          </p>
-          <p className="text-xs text-ink-soft">{dict.writtenInHint}</p>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {data.locales.map((id) => {
-              const selected = sourceLocale(data) === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  role="radio"
-                  aria-checked={selected}
-                  onClick={() => onChange({ writtenIn: id })}
-                  className={`cursor-pointer rounded-full border px-4 py-1.5 text-sm transition-colors ${
-                    selected ? "border-clay bg-clay/10 text-clay" : "border-line text-ink-soft hover:border-ink-soft"
-                  }`}
-                >
-                  {locales.find((l) => l.id === id)?.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
+      {data.locales.length > 1 ? <p className="text-sm text-ink-soft">{dict.autoTranslate}</p> : null}
     </div>
   );
 }

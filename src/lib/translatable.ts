@@ -20,16 +20,28 @@ export const MAX_LENGTH = {
 
 export type TranslatableText = { text: string; maxLength: number };
 
-/** The language the couple writes in: their choice, else the first one enabled. */
-export function sourceLocale(data: Pick<WeddingData, "locales" | "writtenIn">): Locale {
-  if (data.writtenIn && data.locales.includes(data.writtenIn)) return data.writtenIn;
-  return data.locales[0] ?? "es";
+/**
+ * The language the couple mostly writes in: the most common among their texts' detected languages, else
+ * `fallback` (the one they use Wedite in) when it is one of the site's. Ambiguous texts ("Brunch", "Dress code")
+ * are taken to be in this language, and it stands in for a text's own until that has been detected.
+ */
+export function mainLocale(data: WeddingData, fallback: Locale): Locale {
+  const counts = new Map<Locale, number>();
+  for (const { text } of collectTranslatable(data)) {
+    const locale = data.textLocales?.[text];
+    if (locale && data.locales.includes(locale)) counts.set(locale, (counts.get(locale) ?? 0) + 1);
+  }
+  let best: Locale | undefined;
+  for (const [locale, n] of counts) if (!best || n > (counts.get(best) ?? 0)) best = locale;
+  return best ?? (data.locales.includes(fallback) ? fallback : (data.locales[0] ?? "es"));
 }
 
-/** The enabled languages the couple does not write in: the ones that need a translation. */
-export function translationTargets(data: Pick<WeddingData, "locales" | "writtenIn">): Locale[] {
-  const source = sourceLocale(data);
-  return data.locales.filter((l) => l !== source);
+/** The site's languages a text still needs a translation into: all of them while its own is not known yet. */
+export function missingLocales(data: WeddingData, text: string): Locale[] {
+  if (data.locales.length < 2) return [];
+  const own = data.textLocales?.[text];
+  if (own === undefined) return data.locales;
+  return data.locales.filter((l) => l !== own && !data.translations?.[l]?.[text]);
 }
 
 // The section title starts out as the template's own default; while it is
@@ -60,7 +72,8 @@ export function collectTranslatable(data: WeddingData): TranslatableText[] {
   return [...found].map(([text, maxLength]) => ({ text, maxLength }));
 }
 
-/** The couple's text as it reads in `target`: its translation, or the original while there is none. */
+/** The couple's text as it reads in `target`: its translation, or the original (already in that language, or
+ * not translated yet). A text never has a translation into its own language. */
 function pick(data: WeddingData, target: Locale, value: string): string {
   const key = value.trim();
   if (!key) return value;
@@ -69,8 +82,8 @@ function pick(data: WeddingData, target: Locale, value: string): string {
 }
 
 /** The whole site's content in one language (the couple's own texts replaced by their translations). */
-function inLocale(data: WeddingData, target: Locale, translate: boolean): WeddingData {
-  const t = (value: string) => (translate ? pick(data, target, value) : value);
+function inLocale(data: WeddingData, target: Locale): WeddingData {
+  const t = (value: string) => pick(data, target, value);
   return {
     ...data,
     // Untouched section title: let the template use its own default in this language.
@@ -92,8 +105,7 @@ function inLocale(data: WeddingData, target: Locale, translate: boolean): Weddin
 /** One version of the site per enabled language, or undefined when it has a single language. */
 export function localizeWeddingData(data: WeddingData): Partial<Record<Locale, WeddingData>> | undefined {
   if (data.locales.length < 2) return undefined;
-  const source = sourceLocale(data);
   const result: Partial<Record<Locale, WeddingData>> = {};
-  for (const locale of data.locales) result[locale] = inLocale(data, locale, locale !== source);
+  for (const locale of data.locales) result[locale] = inLocale(data, locale);
   return result;
 }
