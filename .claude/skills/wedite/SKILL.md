@@ -73,7 +73,7 @@ Olivar, Sierra, Duna. Check brand/domain/social availability before launching on
   ñ typed as ni/ny/nn, k/c, z/s, v/b, y/i, ph/f, silent h), has three tiers (anywhere ≥ 5 letters,
   word edges, whole word) and a few number codes (`11s`, `1488`…). It is strict on purpose; when a
   new bypass is reported, add the term **and** test names that could collide (Maricarmen, Picasso,
-  Vergara, Penélope). Allowed on purpose: boludo, carajo, eta, hamas, fascista, comunista, divorcio…
+  Vergara, Penélope). Allowed on purpose: boludo, carajo, eta, hamas, divorcio… Blocked since the user asked for more strictness: fascism/communism/Francoism/dictators, Trump, Putin, Stalin, weapons (ak-47, ar-15, pistola, kalashnikov…), mafia/drugs and vulgar slang such as "rabo". Known false positive: "Peñíscola" (peniscola) because of "penis"; "fasciculo"/"vehiculo" because of "culo" at a word end.
 
 ## Shipping workflow
 

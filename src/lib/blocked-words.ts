@@ -12,7 +12,8 @@
 //  - "ñ" typed as "ni", "ny" or "nn" ("conio", "conyo"), a doubled letter in the
 //    middle of a word ("jooder"), and plurals of whole-word terms ("penes").
 //  - expressions written as one run of words ("mecagoentodo", "hijodeputa").
-//  - number codes for attacks ("11s", "11-m", "911") when they stand as a word.
+//  - number codes for attacks ("11s", "11-m", "911") when they stand as a word, and
+//    weapon models ("ak-47", "ar-15").
 //  - long distinctive words are blocked anywhere in the address, even glued
 //    to other letters ("xxjoderxx").
 //  - short or ambiguous words only count as a whole word ("pene"), or at the
@@ -52,6 +53,15 @@ const ANYWHERE = [
   "polpot", "binladen", "alqaeda", "alqaida", "daesh", "yihad", "meinkampf", "sieghail",
   // Violence and abuse
   "violacion", "asesin", "suicid", "abusador", "maltratador", "terrorist", "pedobear",
+  // Weapons and armed violence
+  "kalashnikov", "glock", "pistola", "pistolero", "metralleta", "ametralladora", "escopeta", "bazooka", "genocid", "masacre", "tiroteo",
+  // Political extremism, dictatorships and polarising figures
+  "fascis", "facis", "franquismo", "franquista", "comunis", "dictador", "dictadura", "dictator", "totalitar", "taliban", "stalin",
+  "donaldtrump", "trumpismo", "trumpista",
+  // Crime and drugs
+  "mafia", "mafioso", "sicario", "narcotraf", "cocaina", "cocaine", "metanfetamina",
+  // Spanish sexual slang
+  "cipote", "pilila", "tetona", "tetazas", "culazo", "culona", "mamada",
   // Impersonation of the service, payment providers and well-known companies
   "wedite", "weditte", "paypal", "stripe", "bizum", "whatsapp", "instagram", "tiktok", "facebook", "mastercard", "caixabank",
   "bbva", "bankinter", "bankia", "ibercaja", "unicaja", "abanca", "kutxabank", "revolut", "agenciatributaria", "seguridadsocial",
@@ -63,7 +73,7 @@ const ANYWHERE = [
  * ("putaboda", "boda-puta"), because they appear inside harmless words
  * ("computadora", "reputo").
  */
-const AT_EDGES = ["puta", "puto", "putas", "putos", "culo", "pija", "pijo", "sexo", "sexy", "tetas"];
+const AT_EDGES = ["puta", "puto", "putas", "putos", "culo", "pija", "pijo", "sexo", "sexy", "tetas", "rabo"];
 
 /** Terms blocked only as a whole word (between dashes), never inside a longer word. */
 const WHOLE_WORD = [
@@ -75,14 +85,17 @@ const WHOLE_WORD = [
   "pagos", "pago", "factura", "billing", "payment", "seguridad", "security", "verify", "verificacion", "password", "contrasena",
   "signin", "banco", "bank", "correos", "dgt", "policia", "guardiacivil", "gobierno", "visa", "google", "gmail", "amazon",
   "apple", "ing",
+  // slang for the male anatomy, a polarising politician, a weapon, a drug trade
+  "nabo", "trump", "putin", "uzi", "narco",
 ];
 
 // Symbols and codes matched anywhere in the address exactly as written (no spelling variants).
-const RAW_CODES = ["1488", "kkk", "xxx"];
+const RAW_CODES = ["1488", "kkk", "xxx", "ak47", "ak74"];
 
 // Number codes that are only a problem as a word of their own ("11s", "11-s", "9-11"), since
-// glued inside a date ("boda11septiembre") they are harmless. Terrorist attack names.
-const RAW_WORDS = ["11s", "11m", "911", "7j", "7o"];
+// glued inside a date ("boda11septiembre" or "mar15") they are harmless. Terrorist attack names
+// and a rifle model.
+const RAW_WORDS = ["11s", "11m", "911", "7j", "7o", "ar15"];
 
 // ---------------------------------------------------------------------------
 
