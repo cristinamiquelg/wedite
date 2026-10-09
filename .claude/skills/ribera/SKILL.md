@@ -76,16 +76,6 @@ clay, so Ribera overrides it back to navy under `.root`.
 
 ## Known gotchas (learned the hard way this session)
 
-- **Entrance animations are Ribera's own** (end of `ribera.module.css`, "Entrance
-  animations"): the header drops in, the hero panel and its 3 blocks arrive one by
-  one, and each `data-reveal` section animates its *children* in sequence
-  (`--rv-i` × 190 ms) instead of fading as one block; repeated items (phases,
-  places, detail cards, contacts) are `data-reveal="item"` with `--rv-i` set in
-  the markup so each enters when it reaches the screen. Selectors need
-  `:global(.reveal-ready)` / `:global(.is-visible)` (CSS modules would hash them).
-  Use fill-mode `backwards` (not `both`) so hover transforms keep working, and keep
-  everything inside `prefers-reduced-motion: no-preference`.
-
 - **Header + hero always fill the viewport.** `RiberaTemplate` measures the
   sticky header (ResizeObserver) and publishes it as `--r-header-h` on `.root`;
   `.hero` is `min-height: calc(100dvh - var(--r-header-h))` with its panel

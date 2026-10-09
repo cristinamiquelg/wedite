@@ -241,6 +241,8 @@ export type SiteDict = {
       askBusHint: string;
       askContact: string;
       askContactHint: string;
+      askKidsMenu: string;
+      askKidsMenuHint: string;
     };
     stepItinerary: {
       intro: string;
@@ -580,6 +582,8 @@ const es: SiteDict = {
       askBusHint: "Cada invitado (y cada acompañante) indicará si va en bus.",
       askContact: "Pedir teléfono o e-mail a los invitados",
       askContactHint: "Por si hay cambios. Si lo desactiváis, no se piden.",
+      askKidsMenu: "Ofrecer menú infantil",
+      askKidsMenuHint: "Los invitados podrán marcar a sus acompañantes menores. Si lo desactiváis, no se pregunta.",
     },
     stepItinerary: {
       intro: "Organizad el día en fases: puede haber solo una (la boda) o tantas como queráis (pre-boda, boda, post-boda...). Dentro de cada fase, añadid los lugares donde sucede.",
@@ -920,6 +924,8 @@ const en: SiteDict = {
       askBusHint: "Each guest (and each plus-one) says whether they'll take the bus.",
       askContact: "Ask guests for a phone or e-mail",
       askContactHint: "In case anything changes. If you turn it off, they aren't asked.",
+      askKidsMenu: "Offer a kids' menu",
+      askKidsMenuHint: "Guests can mark companions who are children. If you turn it off, it isn't asked.",
     },
     stepItinerary: {
       intro: "Organize the day into phases: there can be just one (the wedding) or as many as you like (pre-wedding, wedding, after-party...). Within each phase, add the places where it happens.",

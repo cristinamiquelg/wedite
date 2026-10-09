@@ -74,6 +74,8 @@ export type WeddingData = {
   rsvpAskBus?: boolean;
   /** RSVP form: ask for a phone and/or e-mail. Unset = yes. */
   rsvpAskContact?: boolean;
+  /** RSVP form: let guests flag a companion as a child who needs a kids' menu. Unset = yes. */
+  rsvpAskKidsMenu?: boolean;
   /** Language the couple writes the free texts in (the others are translated from it). Unset = the first of `locales`. */
   writtenIn?: Locale;
   /** Translations of the free texts, per target language: the couple's text (the key) → its version in that
@@ -96,6 +98,11 @@ export function rsvpAsksBus(data: Pick<WeddingData, "rsvpAskBus" | "detailCards"
 /** Whether the guest form asks for contact details. */
 export function rsvpAsksContact(data: Pick<WeddingData, "rsvpAskContact">): boolean {
   return data.rsvpAskContact ?? true;
+}
+
+/** Whether the guest form offers the kids' menu. */
+export function rsvpAsksKidsMenu(data: Pick<WeddingData, "rsvpAskKidsMenu">): boolean {
+  return data.rsvpAskKidsMenu ?? true;
 }
 
 export const emptyWeddingData: WeddingData = {
