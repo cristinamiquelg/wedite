@@ -26,7 +26,7 @@ const testimonialsByLocale: Record<"es" | "en", Testimonial[]> = {
     },
     {
       quote:
-        "Lo mejor fue no depender de nadie: cambiábamos el itinerario a las 11 de la noche y lo veíamos actualizado al momento.",
+        "Lo mejor fue ver cómo quedaba mientras la rellenábamos: cada cambio en el itinerario aparecía al momento en la vista previa, sin esperar a nadie.",
       names: "Nora & Bruno",
       detail: "Se casaron en Ronda",
     },
@@ -64,7 +64,7 @@ const testimonialsByLocale: Record<"es" | "en", Testimonial[]> = {
     },
     {
       quote:
-        "The best part was not depending on anyone: we'd change the itinerary at 11pm and see it update instantly.",
+        "The best part was seeing how it looked as we filled it in: every change to the itinerary showed up instantly in the preview, with no one to wait for.",
       names: "Nora & Bruno",
       detail: "Married in Ronda",
     },
