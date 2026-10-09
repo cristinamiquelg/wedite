@@ -64,7 +64,7 @@ export type SiteDict = {
   };
   templates: Record<
     "ribera",
-    { tagline: string; summary: string; description: string; features: string[] }
+    { tagline: string; summary: string; description: string; features: string[]; imageAlt: string }
   >;
   quienesSomos: {
     metaTitle: string;
@@ -354,6 +354,7 @@ const es: SiteDict = {
   templates: {
     ribera: {
       tagline: "Elegante, náutica y con carácter",
+      imageAlt: "Ribera, un diseño de Wedite: la portada con rayas azules, los nombres, la fecha y el lugar de la boda",
       summary: "Elegante, náutica y con carácter, para bodas que no empiezan el día de la boda.",
       description: "Para bodas con varias fases: preboda, ceremonia, celebración y postboda, todo en una misma web, con paleta navy y coral y detalles ilustrados que le dan carácter.",
       features: [
@@ -665,6 +666,7 @@ const en: SiteDict = {
   templates: {
     ribera: {
       tagline: "Elegant, nautical and full of character",
+      imageAlt: "Ribera, a Wedite design: the blue-striped cover with the couple's names, the date and the venue",
       summary: "Elegant, nautical and full of character, for weddings that don't start on the wedding day.",
       description: "For weddings with several phases: pre-wedding, ceremony, reception and after-party, all in one site, with a navy-and-coral palette and illustrated details that give it character.",
       features: [
