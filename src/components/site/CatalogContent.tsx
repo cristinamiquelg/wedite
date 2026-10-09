@@ -95,7 +95,7 @@ export default function CatalogContent() {
             key={design.image}
             data-reveal
             style={{ transitionDelay: `${(templates.length + i) * 100}ms` }}
-            className="relative flex flex-col overflow-hidden rounded-2xl border border-line bg-paper-raised"
+            className="relative flex flex-col overflow-hidden rounded-2xl border border-line bg-[#FBFBFA]"
           >
             <div className="relative aspect-[1512/944] overflow-hidden border-b border-line bg-paper">
               <Image
@@ -106,6 +106,8 @@ export default function CatalogContent() {
                 quality={90}
                 className="object-cover object-center"
               />
+              {/* A darker veil so it reads as "not available yet" next to the live designs. */}
+              <div aria-hidden="true" className="absolute inset-0 bg-black/15" />
               <span className="absolute left-4 top-4 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
                 {dict.catalog.upcomingBadge}
               </span>

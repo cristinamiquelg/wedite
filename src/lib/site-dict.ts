@@ -35,7 +35,6 @@ export type SiteDict = {
     steps: { title: string; body: string }[];
     mockupPublishCta: string;
     testimonialsLabel: string;
-    testimonialsHeading: string;
     ctaFinalPre: string;
     ctaFinalItalic: string;
     ctaFinalPost: string;
@@ -308,7 +307,6 @@ const es: SiteDict = {
     ],
     mockupPublishCta: "Pagar y publicar",
     testimonialsLabel: "Parejas reales",
-    testimonialsHeading: "Lo que dicen las parejas que ya se casaron",
     ctaFinalPre: "Vuestra boda merece",
     ctaFinalItalic: "algo mejor",
     ctaFinalPost: "que un diseño genérico",
@@ -620,7 +618,6 @@ const en: SiteDict = {
     ],
     mockupPublishCta: "Pay & publish",
     testimonialsLabel: "Real couples",
-    testimonialsHeading: "What couples who already got married say",
     ctaFinalPre: "Your wedding deserves",
     ctaFinalItalic: "something better",
     ctaFinalPost: "than a generic template",

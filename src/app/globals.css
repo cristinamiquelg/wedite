@@ -94,6 +94,11 @@ label:has(> input[type="radio"]) {
   .fade-in-load {
     animation: fade-in-up 1.15s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
+  /* Home hero: slower, and each piece (label, title, subtitle, buttons) fades in
+     on its own, one after the other (stagger set with animation-delay inline). */
+  .fade-in-slow {
+    animation: fade-in-up 1.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
 }
 
 /* Sparkle mark: a gentle idle twinkle, paused on hover so the group-hover
@@ -159,4 +164,58 @@ label:has(> input[type="radio"]) {
   :where(input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]), textarea, select) {
     font-size: 16px;
   }
+}
+
+/* "Cómo funciona" illustrations on the home page: each mockup replays a short
+   loop of what the step does (building the page, typing the address and
+   publishing, answers arriving). The loops only run once the card has been
+   revealed, and not at all for people who prefer reduced motion — they see the
+   finished drawing. Every element's own delay (--d) staggers it inside the loop. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-reveal].is-visible .hw-grow,
+  [data-reveal].is-visible .hw-rise,
+  [data-reveal].is-visible .hw-press,
+  [data-reveal].is-visible .hw-type,
+  [data-reveal].is-visible .hw-draw,
+  [data-reveal].is-visible .hw-blink {
+    animation-duration: 6s;
+    animation-iteration-count: infinite;
+    animation-fill-mode: both;
+    animation-delay: var(--d, 0s);
+  }
+  [data-reveal].is-visible .hw-grow { transform-origin: left center; animation-name: hw-grow; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  [data-reveal].is-visible .hw-rise { animation-name: hw-rise; animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1); }
+  [data-reveal].is-visible .hw-press { animation-name: hw-press; animation-timing-function: ease-in-out; }
+  [data-reveal].is-visible .hw-type { animation-name: hw-type; animation-timing-function: steps(21, end); }
+  [data-reveal].is-visible .hw-draw { animation-name: hw-draw; animation-timing-function: ease-out; }
+  [data-reveal].is-visible .hw-blink { animation-name: hw-blink; animation-timing-function: ease-in-out; animation-duration: 1.6s; }
+}
+.hw-draw path { stroke-dasharray: 1; }
+@keyframes hw-grow {
+  0% { transform: scaleX(0); opacity: 1; }
+  14%, 88% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+@keyframes hw-rise {
+  0% { transform: translateY(6px); opacity: 0; }
+  12%, 88% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(0); opacity: 0; }
+}
+@keyframes hw-press {
+  0%, 52%, 70%, 100% { transform: scale(1); filter: none; }
+  58% { transform: scale(0.95); filter: brightness(1.25); }
+}
+@keyframes hw-type {
+  0% { clip-path: inset(0 100% 0 0); }
+  38%, 92% { clip-path: inset(0 0 0 0); }
+  100% { clip-path: inset(0 0 0 100%); }
+}
+@keyframes hw-draw {
+  0% { stroke-dashoffset: 1; }
+  10%, 88% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes hw-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
 }

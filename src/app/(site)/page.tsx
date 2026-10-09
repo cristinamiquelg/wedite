@@ -29,20 +29,22 @@ const ctaScatter: { top: string; left: string; size: string; opacity: number; ro
 // Small, language-neutral illustrations for the "Cómo funciona" steps —
 // abstract bars/panels rather than screenshots, so they read at a glance
 // without needing to stay in sync with the real product UI.
+const delay = (s: number) => ({ "--d": `${s}s` }) as React.CSSProperties;
+
 function EditorMockup() {
   return (
     <div className="flex h-full gap-2">
       <div className="flex w-2/5 flex-col gap-1.5 rounded-lg bg-paper p-2.5">
-        <div className="h-1.5 w-3/4 rounded-full bg-line" />
-        <div className="h-1.5 w-full rounded-full bg-line" />
-        <div className="h-1.5 w-2/3 rounded-full bg-line" />
-        <div className="mt-1 h-5 w-full rounded-md bg-clay/25" />
+        <div className="hw-grow h-1.5 w-3/4 rounded-full bg-line" style={delay(0.1)} />
+        <div className="hw-grow h-1.5 w-full rounded-full bg-line" style={delay(0.3)} />
+        <div className="hw-grow h-1.5 w-2/3 rounded-full bg-line" style={delay(0.5)} />
+        <div className="hw-press mt-1 h-5 w-full rounded-md bg-clay/25" style={delay(0.2)} />
       </div>
       <div className="flex flex-1 flex-col gap-1.5 rounded-lg bg-paper p-2.5">
-        <div className="h-2 w-1/2 rounded-full bg-clay/50" />
-        <div className="mt-1 h-9 w-full rounded-md bg-sage-light" />
-        <div className="h-1.5 w-full rounded-full bg-line" />
-        <div className="h-1.5 w-4/5 rounded-full bg-line" />
+        <div className="hw-grow h-2 w-1/2 rounded-full bg-clay/50" style={delay(0.7)} />
+        <div className="hw-rise mt-1 h-9 w-full rounded-md bg-sage-light" style={delay(1)} />
+        <div className="hw-grow h-1.5 w-full rounded-full bg-line" style={delay(1.4)} />
+        <div className="hw-grow h-1.5 w-4/5 rounded-full bg-line" style={delay(1.6)} />
       </div>
     </div>
   );
@@ -52,13 +54,13 @@ function PublishMockup({ cta }: { cta: string }) {
   return (
     <div className="flex h-full flex-col justify-center gap-3">
       <div className="flex items-center gap-2 rounded-full border border-line bg-paper px-3 py-2.5">
-        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
-        <span className="truncate text-xs text-ink-soft">elenaymateo.love</span>
+        <span className="hw-blink h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
+        <span className="hw-type truncate text-xs text-ink-soft">wedite.com/elenayjuan</span>
         <svg viewBox="0 0 20 20" className="ml-auto h-3 w-3 shrink-0 text-ink-soft" fill="none" stroke="currentColor" strokeWidth="1.8">
           <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </div>
-      <div className="rounded-full bg-ink px-3 py-2.5 text-center text-xs font-medium text-paper">
+      <div className="hw-press rounded-full bg-ink px-3 py-2.5 text-center text-xs font-medium text-paper" style={delay(0.4)}>
         {cta}
       </div>
     </div>
@@ -75,16 +77,20 @@ function ResponsesMockup() {
         <div className="h-1.5 w-6 rounded-full bg-ink-soft/40" />
       </div>
       {rows.map((status, i) => (
-        <div key={i} className="flex items-center gap-2 rounded-md bg-paper-raised px-2 py-1.5">
+        <div
+          key={i}
+          className="hw-rise flex items-center gap-2 rounded-md bg-paper-raised px-2 py-1.5"
+          style={delay(0.4 + i * 0.7)}
+        >
           <div className="h-1.5 w-10 rounded-full bg-line" />
           <div className="h-1.5 flex-1 rounded-full bg-line" />
           {status === "yes" ? (
-            <svg viewBox="0 0 16 16" className="h-3 w-3 shrink-0 text-sage" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M3 8.5l3 3 7-7" strokeLinecap="round" strokeLinejoin="round" />
+            <svg viewBox="0 0 16 16" className="hw-draw h-3 w-3 shrink-0 text-sage" fill="none" stroke="currentColor" strokeWidth="2" style={delay(0.7 + i * 0.7)}>
+              <path d="M3 8.5l3 3 7-7" pathLength={1} strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           ) : (
-            <svg viewBox="0 0 16 16" className="h-3 w-3 shrink-0 text-clay" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
+            <svg viewBox="0 0 16 16" className="hw-draw h-3 w-3 shrink-0 text-clay" fill="none" stroke="currentColor" strokeWidth="2" style={delay(0.7 + i * 0.7)}>
+              <path d="M4 4l8 8M12 4l-8 8" pathLength={1} strokeLinecap="round" />
             </svg>
           )}
         </div>
@@ -101,29 +107,36 @@ export default function HomePage() {
 
   return (
     <>
-      <section
-        className="fade-in-load mx-auto max-w-5xl px-6 pb-20 pt-20 text-center sm:pt-28"
-        style={{ animationDelay: "80ms" }}
-      >
-        <p className="text-xs uppercase tracking-[0.3em] text-clay">{home.eyebrow}</p>
-        <h1 className="mx-auto mt-6 max-w-3xl text-balance font-display text-4xl leading-none sm:text-6xl">
+      <section className="mx-auto max-w-5xl px-6 pb-20 pt-20 text-center sm:pt-28">
+        <p className="fade-in-slow text-xs uppercase tracking-[0.3em] text-clay" style={{ animationDelay: "150ms" }}>
+          {home.eyebrow}
+        </p>
+        <h1
+          className="fade-in-slow mx-auto mt-6 max-w-3xl text-balance font-display text-4xl leading-none sm:text-6xl"
+          style={{ animationDelay: "600ms" }}
+        >
           {home.h1}
           <SparkleIcon className="ml-2 inline-block h-[0.6em] w-[0.6em] -translate-y-1 text-clay" />
         </h1>
-        <p className="mx-auto mt-6 max-w-3xl text-balance text-lg text-ink-soft">
+        <p
+          className="fade-in-slow mx-auto mt-6 max-w-3xl text-balance text-lg text-ink-soft"
+          style={{ animationDelay: "1100ms" }}
+        >
           {home.subhead}
         </p>
         <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row sm:items-center sm:gap-4">
           <Link
             href="/plantillas"
-            className="rounded-full bg-ink px-7 py-3.5 text-center text-sm font-medium text-paper transition-opacity hover:opacity-90"
+            style={{ animationDelay: "1600ms" }}
+            className="fade-in-slow rounded-full bg-ink px-7 py-3.5 text-center text-sm font-medium text-paper transition-opacity hover:opacity-90"
           >
             {home.ctaExplore}
           </Link>
           <Link
             href={`/preview/${featured.slug}`}
             target="_blank"
-            className="rounded-full border border-line px-7 py-3.5 text-center text-sm font-medium text-ink transition-colors hover:border-ink"
+            style={{ animationDelay: "1850ms" }}
+            className="fade-in-slow rounded-full border border-line px-7 py-3.5 text-center text-sm font-medium text-ink transition-colors hover:border-ink"
           >
             {home.ctaExample}
           </Link>
@@ -226,10 +239,7 @@ export default function HomePage() {
           <p className="text-center text-xs uppercase tracking-[0.3em] text-clay">
             {home.testimonialsLabel}
           </p>
-          <h2 className="mx-auto mt-4 max-w-md text-center font-display text-3xl sm:text-4xl">
-            {home.testimonialsHeading}
-          </h2>
-          <div className="mt-16">
+          <div className="mt-10">
             <TestimonialsCarousel />
           </div>
         </div>
