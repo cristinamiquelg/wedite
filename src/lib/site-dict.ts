@@ -344,7 +344,7 @@ const es: SiteDict = {
         tags: ["Botánico", "Romántico"],
       },
       {
-        image: "/catalog/proximo-diseno.jpg",
+        image: "/catalog/rambla-es.png",
         title: "Rambla",
         tagline: "Minimalista y a trazo",
         summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
@@ -674,7 +674,7 @@ const en: SiteDict = {
         tags: ["Botanical", "Romantic"],
       },
       {
-        image: "/catalog/proximo-diseno.jpg",
+        image: "/catalog/rambla-en.png",
         title: "Rambla",
         tagline: "Minimal and line-drawn",
         summary: "You'll soon be able to see it here and make it yours.",
