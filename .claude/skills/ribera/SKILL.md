@@ -122,7 +122,9 @@ clay, so Ribera overrides it back to navy under `.root`.
   the result consistent with them: bold-to-fine tapered strokes, detailed hair
   and folds, no fills, ground dashes, **square 1:1** (`size: 1024x1024`).
   `lib/recolor-illustration.ts` then forces the exact coral `#DD3E3E` and drops
-  pale washes, whatever shade the model drew. Quality: env `OPENAI_IMAGE_QUALITY`
+  pale washes, whatever shade the model drew, and crops the drawing to its own
+  bounds and centres it with a 12% margin on every side (the model alone tends
+  to run into the edge). Quality: env `OPENAI_IMAGE_QUALITY`
   (default `medium`, `high` draws finer lines at a higher price).
 - **The mobile header grid must stay symmetric.** `grid-template-columns`
   needs equal-fraction side columns (`1fr auto 1fr`), not `auto 1fr auto` —
