@@ -50,7 +50,10 @@ export default function RiberaRsvpPage({
     <div className={styles.root}>
       <header className={styles.rsvpPageHeader}>
         <a href={hrefWithLang} className={styles.rsvpBack}>
-          <span aria-hidden="true">←</span> {dict.ribera.rsvp.backToSite}
+          <span aria-hidden="true" className={styles.rsvpBackArrow}>
+            ←
+          </span>
+          <span className={styles.rsvpBackLabel}>{dict.ribera.rsvp.backToSite}</span>
         </a>
         <a href={hrefWithLang} className={styles.logo} aria-label={names}>
           {initials}

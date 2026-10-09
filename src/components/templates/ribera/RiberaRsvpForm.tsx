@@ -14,10 +14,10 @@ function CheckIcon() {
   );
 }
 
-function CrossIcon() {
+function CloseIcon() {
   return (
-    <svg viewBox="0 0 24 24" className={styles.segIco} aria-hidden="true">
-      <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm5 13.6L15.6 17 12 13.4 8.4 17 7 15.6 10.6 12 7 8.4 8.4 7 12 10.6 15.6 7 17 8.4 13.4 12z" />
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.6} aria-hidden="true">
+      <path strokeLinecap="round" d="M6 6l12 12M18 6L6 18" />
     </svg>
   );
 }
@@ -85,7 +85,7 @@ function YesNoQuestion({
               onKeyDown={onKeyDown}
               className={`${o.cls} ${checked ? styles.segOptActive : ""}`}
             >
-              {o.v === "si" ? checked ? <CheckIcon /> : null : <CrossIcon />}
+              {checked ? <CheckIcon /> : null}
               {o.label}
             </button>
           );
@@ -113,6 +113,7 @@ function TextField({
   invalid,
   describedBy,
   inputMode,
+  asQuestion,
 }: {
   label: string;
   name: string;
@@ -127,11 +128,13 @@ function TextField({
   invalid?: boolean;
   describedBy?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+  /** The label is a full question ("¿Tienes alguna intolerancia…?"): styled like the yes/no questions, not as a small caps label. */
+  asQuestion?: boolean;
 }) {
   const id = useId();
   return (
     <div className={styles.field}>
-      <label htmlFor={id} className={styles.fieldLabel}>
+      <label htmlFor={id} className={asQuestion ? styles.questionLabel : styles.fieldLabel}>
         {label}
         {required ? <span aria-hidden="true"> *</span> : null}
         {optionalText ? <span className={styles.fieldOptional}> ({optionalText})</span> : null}
@@ -312,6 +315,8 @@ export default function RiberaRsvpForm({
     const total = 1 + companions.length;
     return (
       <div className={styles.formThanks} role="status">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/ribera/hero-bouquet.svg" alt="" width={72} height={72} className={styles.formThanksImg} />
         <p className={styles.formThanksText}>{dict.thanks}</p>
         <p className={styles.formThanksSummary}>
           {attending ? dict.summaryAttending.replace("{n}", String(total)) : dict.summaryNotAttending}
@@ -491,6 +496,7 @@ export default function RiberaRsvpForm({
               value={dietary}
               onChange={setDietary}
               optionalText={dict.optional}
+              asQuestion
             />
             {showBus ? (
               <YesNoQuestion
@@ -594,7 +600,8 @@ export default function RiberaRsvpForm({
                 aria-label={`${dict.removeCompanion} ${currentStep.index + 1}`}
                 className={styles.companionRemove}
               >
-                <CrossIcon />
+                <CloseIcon />
+                <span aria-hidden="true">{dict.removeCompanion}</span>
               </button>
             </div>
             <div className={styles.formRow}>
@@ -638,6 +645,7 @@ export default function RiberaRsvpForm({
               value={currentStep.companion.dietary}
               onChange={(v) => updateCompanion(currentStep.companion.id, { dietary: v })}
               optionalText={dict.optional}
+              asQuestion
             />
           </div>
         ) : null}

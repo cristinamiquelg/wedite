@@ -134,6 +134,16 @@ clay, so Ribera overrides it back to navy under `.root`.
   place, detail card, or contact until it actually has content (matching
   the template's own `phase.name || phase.when` etc. conditionals) — don't
   assume array length alone means "visible".
+- **CSS Modules `composes` is not transitive here.** `.btnOutline` composes
+  `.btn`, but a class that does `composes: btnOutline` only gets
+  `btnOutline` — the base `.btn` (inline-flex, border, min-height…) is
+  silently missing. List both: `composes: btn btnOutline;` (as `.formSubmit`
+  and `.copyBtn` do).
+- **Itinerary layout is split at 900px.** ≥900px is the original stacked
+  card layout (the couple likes it as is); <900px is the vertical timeline
+  (rule + coral dot per phase, venue rows with the illustration on the left).
+  `.placeBody` is `display: contents` from 900px up so desktop is unaffected —
+  keep phone-only itinerary rules inside the `max-width: 899px` block.
 - **Duotone image filter**: don't guess with
   `filter: grayscale() sepia() hue-rotate() saturate()` — it never lands on
   an exact hex. Use `filter: grayscale(1)` on the image plus a

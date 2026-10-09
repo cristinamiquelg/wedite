@@ -80,6 +80,27 @@ function MenuIcon({ open }: { open: boolean }) {
   );
 }
 
+function PhoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className={styles.contactIcon} fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M5 4h3.5l1.5 4.5-2.25 1.5a11 11 0 0 0 6.25 6.25L15.5 14l4.5 1.5V19a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"
+      />
+    </svg>
+  );
+}
+
+function MailIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className={styles.contactIcon} fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+      <rect x="3" y="5.5" width="18" height="13" rx="1" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m3.5 6.5 8.5 6.5 8.5-6.5" />
+    </svg>
+  );
+}
+
 export default function RiberaTemplate({
   data: baseData,
   localized,
@@ -387,21 +408,26 @@ export default function RiberaTemplate({
                         decoding="async"
                         className={styles.placeImg}
                       />
-                      {place.name ? <h3 className={styles.placeName}>{place.name}</h3> : null}
-                      {place.address ? (
-                        <p className={styles.placeAddr}>{place.address}</p>
-                      ) : null}
-                      {place.mapsUrl || place.address ? (
-                        <a
-                          href={place.mapsUrl || mapsUrl(place.address)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className={styles.btnOutline}
-                        >
-                          {dict.ribera.itinerary.comoLlegar}
-                          {place.name ? <span className="sr-only"> — {place.name}</span> : null}
-                        </a>
-                      ) : null}
+                      {/* Only a box on phones (illustration left, text right);
+                          from 900px up it's display:contents, so the desktop
+                          layout is exactly the stacked one it always was. */}
+                      <div className={styles.placeBody}>
+                        {place.name ? <h3 className={styles.placeName}>{place.name}</h3> : null}
+                        {place.address ? (
+                          <p className={styles.placeAddr}>{place.address}</p>
+                        ) : null}
+                        {place.mapsUrl || place.address ? (
+                          <a
+                            href={place.mapsUrl || mapsUrl(place.address)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className={`${styles.btnOutline} ${styles.placeBtn}`}
+                          >
+                            {dict.ribera.itinerary.comoLlegar}
+                            {place.name ? <span className="sr-only"> — {place.name}</span> : null}
+                          </a>
+                        ) : null}
+                      </div>
                     </article>
                   ))}
                   {phase.placeholderCount < 2 ? (
@@ -463,23 +489,32 @@ export default function RiberaTemplate({
             {dict.ribera.giftTitle}
           </h2>
           <div data-reveal className={styles.gift}>
-            <div className={styles.giftMat}>
-              <div className={styles.giftPanel}>
-                {data.giftMessage ? (
-                  <p className={styles.leadText}>{data.giftMessage}</p>
-                ) : null}
-                {data.giftHolderName || data.giftAccount ? (
-                  <div className={styles.giftAccount}>
-                    {data.giftHolderName ? <p className={styles.leadText}>{data.giftHolderName}</p> : null}
-                    {data.giftAccount ? (
-                      <div className={styles.giftIbanRow}>
-                        <p className={styles.giftIban}>{data.giftAccount}</p>
-                        <RiberaCopyButton value={data.giftAccount} className={styles.copyBtn} locale={locale} icon />
-                      </div>
-                    ) : null}
-                  </div>
-                ) : null}
-              </div>
+            <div className={styles.giftPanel}>
+              {data.giftMessage ? <p className={styles.giftMessage}>{data.giftMessage}</p> : null}
+              {data.giftHolderName || data.giftAccount ? (
+                <div className={styles.giftSlip}>
+                  {data.giftHolderName ? <p className={styles.giftHolder}>{data.giftHolderName}</p> : null}
+                  {data.giftAccount ? (
+                    <>
+                      <p className={styles.giftIban}>
+                        {/* Each group of the IBAN stays whole, so a narrow
+                            screen wraps between groups ("ES21 2077 0024 /
+                            0031 0257 5766"), not inside one. */}
+                        {data.giftAccount
+                          .trim()
+                          .split(/\s+/)
+                          .map((group, i) => (
+                            <Fragment key={i}>
+                              {i > 0 ? " " : null}
+                              <span className={styles.giftIbanGroup}>{group}</span>
+                            </Fragment>
+                          ))}
+                      </p>
+                      <RiberaCopyButton value={data.giftAccount} className={styles.copyBtn} locale={locale} />
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </section>
@@ -506,20 +541,24 @@ export default function RiberaTemplate({
             <div className={styles.contactPeople}>
               {data.organizerContacts.map((contact, i) =>
                 contact.name || contact.phone || contact.email ? (
-                  <div key={i} id={`contacto-${i}`} className={styles.contactPerson}>
-                    {contact.name ? <p className={styles.leadText}>{contact.name}</p> : null}
-                    <div className={styles.contactLinks}>
-                      {contact.phone ? (
-                        <a href={`tel:${contact.phone.replace(/\s+/g, "")}`} className={styles.contactLink}>
-                          {contact.phone}
-                        </a>
-                      ) : null}
-                      {contact.email ? (
-                        <a href={`mailto:${contact.email}`} className={styles.contactLink}>
-                          {contact.email}
-                        </a>
-                      ) : null}
-                    </div>
+                  <div key={i} id={`contacto-${i}`} className={styles.contactCard}>
+                    {contact.name ? <p className={styles.contactName}>{contact.name}</p> : null}
+                    {contact.phone || contact.email ? (
+                      <div className={styles.contactLinks}>
+                        {contact.phone ? (
+                          <a href={`tel:${contact.phone.replace(/\s+/g, "")}`} className={styles.contactLink}>
+                            <PhoneIcon />
+                            <span>{contact.phone}</span>
+                          </a>
+                        ) : null}
+                        {contact.email ? (
+                          <a href={`mailto:${contact.email}`} className={styles.contactLink}>
+                            <MailIcon />
+                            <span>{contact.email}</span>
+                          </a>
+                        ) : null}
+                      </div>
+                    ) : null}
                   </div>
                 ) : (
                   // A display:none anchor reports no position, so

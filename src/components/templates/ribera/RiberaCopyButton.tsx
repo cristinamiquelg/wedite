@@ -28,7 +28,7 @@ export default function RiberaCopyButton({
   value: string;
   className?: string;
   locale?: Locale;
-  /** Render as a compact icon-only button instead of the full text label. */
+  /** Render as a compact icon-only button instead of the icon plus its text label. */
   icon?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
@@ -51,7 +51,14 @@ export default function RiberaCopyButton({
       aria-label={icon ? label : undefined}
       className={className}
     >
-      {icon ? <CopyGlyph copied={copied} /> : label}
+      {icon ? (
+        <CopyGlyph copied={copied} />
+      ) : (
+        <>
+          <CopyGlyph copied={copied} />
+          {label}
+        </>
+      )}
     </button>
     <span role="status" className="sr-only">
       {copied ? dict.copyButton.copied : ""}

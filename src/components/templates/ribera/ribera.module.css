@@ -63,6 +63,7 @@
 
   /* ---- illustration sizes ---- */
   --r-illus-place: 190px;
+  --r-illus-row: 112px;        /* venue illustration in the phone timeline row */
   --r-illus-detail: 150px;
   --r-illus-bouquet: 84px;
 
@@ -141,7 +142,6 @@
 }
 
 .scriptText { font-style: italic; margin: 0; font-size: var(--r-fs-script); }
-.leadText { font-style: italic; margin: 0; font-size: var(--r-fs-lead); }
 .leadTextLg { font-style: italic; margin: 0; font-size: calc(var(--r-fs-lead) + 2px); }
 
 .sectionTitle {
@@ -552,7 +552,11 @@
   .storyRow .storyText { text-align: left; }
 }
 
-/* ---------- Contacto ---------- */
+/* ---------- Contacto ----------
+   Each person is a framed card: their name on top, then one full-width row
+   per way to reach them (icon + number / address). The rows are the links,
+   so the tap target is the whole row, not a short underlined word — the old
+   coral underlined links read as plain text and were small to hit. */
 .contactSection {
   background: var(--r-cream);
   padding: var(--r-sp-section) 24px;
@@ -560,32 +564,54 @@
   justify-content: center;
 }
 .contactInner {
-  max-width: 640px;
+  width: 100%;
+  max-width: 720px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 24px;
+  gap: 32px;
   text-align: center;
 }
 .contactPeople {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
   width: 100%;
 }
-@media (min-width: 600px) {
-  .contactPeople { flex-direction: row; justify-content: center; gap: 48px; flex-wrap: wrap; }
+.contactCard {
+  flex: 1 1 260px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--r-navy);
 }
-.contactPerson { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.contactLinks { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; }
+.contactName {
+  font-style: italic;
+  font-size: calc(var(--r-fs-lead) + 2px);
+  margin: 0;
+  padding: 20px 16px 16px;
+}
+.contactLinks { display: flex; flex-direction: column; }
+.contactName + .contactLinks,
+.contactLink + .contactLink { border-top: 1px solid rgba(14, 20, 83, 0.15); }
 .contactLink {
-  color: var(--r-coral-text);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 10px 16px;
+  color: var(--r-navy);
+  text-decoration: none;
   font-size: var(--r-fs-small);
+  overflow-wrap: anywhere;
+  transition: background-color 0.18s ease;
 }
-.contactLink:hover { color: var(--r-navy); }
+.contactLink:hover { background: rgba(14, 20, 83, 0.05); }
+.contactLink:hover span { text-decoration: underline; text-underline-offset: 3px; }
+.root .contactLink:focus-visible { outline-offset: -3px; }
+.contactIcon { width: 18px; height: 18px; flex: none; color: var(--r-coral); }
 
 /* ---------- Itinerario ---------- */
 .itinerary {
@@ -630,6 +656,56 @@
   .phase { grid-column: auto; border-top: 0; padding-top: 0; }
   .placeEmpty { display: block; }
 }
+/* The text block only exists as a box on phones (below); from 900px up its
+   children sit straight in .place's centred column, as they always have. */
+.placeBody { display: contents; }
+
+/* Phones and small tablets (<900px): the stacked, centred layout made every
+   venue take most of a screen (a big illustration, then name, address and a
+   full-size button) and the phases didn't read as a sequence. Here the
+   itinerary is a vertical timeline instead: one rule down the left, a coral
+   dot per phase, and each venue a compact row — illustration on the left,
+   name, address and "Cómo llegar" on the right. ≥900px is untouched. */
+@media (max-width: 899px) {
+  /* Capped and centred so a tablet doesn't leave the right half empty. */
+  .itinerary { position: relative; gap: 20px; padding-left: 30px; max-width: 580px; margin-inline: auto; }
+  .itinerary::before {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 12px;
+    bottom: 0;
+    width: 1px;
+    /* Fades out under the last venue instead of stopping dead. */
+    background: linear-gradient(to bottom, rgba(14, 20, 83, 0.3) calc(100% - 56px), transparent);
+  }
+  .phase { position: relative; align-self: start; text-align: left; border-top: 0; padding-top: 0; }
+  .phase:not(:first-child) { margin-top: 20px; }
+  .phase::before {
+    content: "";
+    position: absolute;
+    left: -30px;
+    top: 6px;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: var(--r-coral);
+    box-shadow: 0 0 0 4px var(--r-cream);   /* the rule breaks around the dot */
+  }
+  .phaseName { line-height: 1.3; margin-bottom: 6px; }
+  .phaseWhen { line-height: 1.6; text-wrap: balance; }   /* no lone "· 19:00" line */
+  .place {
+    display: grid;
+    grid-template-columns: var(--r-illus-row) minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+  }
+  .root .placeImg { width: 100%; max-width: none; height: var(--r-illus-row); object-fit: contain; }
+  .placeBody { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; min-width: 0; }
+  .placeName { text-align: left; font-size: calc(var(--r-fs-script) + 1px); line-height: 1.35; }
+  .placeAddr { margin: 0; max-width: none; text-align: left; font-size: var(--r-fs-small); line-height: 1.45; }
+  .placeBtn { margin-top: 8px; min-height: 44px; padding: 0.4em 1em; font-size: var(--r-fs-small); }
+}
 
 /* ---------- Detalles ---------- */
 .details {
@@ -658,7 +734,11 @@
 }
 
 /* ============================================================
-   Regalos — framed card
+   Regalos — one navy card with an inset coral rule (it used to be three
+   nested frames, one of them a brighter blue than anything else in the
+   template), and the bank details on a cream "slip" inside it, so the
+   IBAN is the clear focal point and the copy button is a real, labelled
+   button instead of a 32px circle.
    ============================================================ */
 .giftSection {
   background: var(--r-cream);
@@ -666,32 +746,52 @@
   display: flex;
   justify-content: center;
 }
-.gift { background: var(--r-navy-2); border: 1px solid var(--r-coral); padding: 12px; max-width: var(--r-w-gift); width: 100%; }
-.giftMat { background: var(--r-cream-2); border: 1px solid var(--r-coral); padding: 8px; }
+.gift { background: var(--r-navy); padding: 10px; max-width: var(--r-w-gift); width: 100%; }
 .giftPanel {
-  background-color: var(--r-navy-deep);
   background-image: var(--r-stripe-light);
   border: 1px solid var(--r-coral);
   color: var(--r-cream);
   text-align: center;
-  padding: clamp(32px, 7vw, 96px) clamp(16px, 8vw, 120px);
+  padding: clamp(36px, 6vw, 72px) clamp(20px, 6vw, 72px);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(20px, 3vw, 32px);
+  gap: clamp(24px, 3vw, 32px);
 }
-.giftAccount { display: flex; flex-direction: column; gap: 8px; align-items: center; }
-.giftIbanRow { display: flex; align-items: center; gap: 10px; }
+.giftMessage {
+  font-style: italic;
+  font-size: var(--r-fs-lead);
+  line-height: 1.65;
+  max-width: 460px;
+  margin: 0;
+  text-wrap: pretty;
+}
+.giftSlip {
+  width: 100%;
+  max-width: 440px;
+  background: var(--r-cream);
+  color: var(--r-navy);
+  padding: 24px clamp(16px, 4vw, 32px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.giftHolder { font-style: italic; font-size: var(--r-fs-lead); margin: 0; }
 .giftIban {
   font-family: var(--r-gothic);
   font-weight: 500;
-  letter-spacing: 0.06em;
-  font-size: var(--r-fs-body);
+  letter-spacing: 0.08em;
+  font-size: calc(var(--r-fs-body) + 1px);
+  line-height: 1.5;
   font-variant-numeric: tabular-nums;
-  overflow-wrap: anywhere;
+  text-wrap: balance;
   user-select: all;         /* one tap selects the whole IBAN as a fallback */
   margin: 0;
 }
+/* Kept whole when it fits on the line; a single long run (an account typed
+   without spaces) still breaks inside rather than overflowing the slip. */
+.giftIbanGroup { display: inline-block; max-width: 100%; overflow-wrap: anywhere; }
 
 /* ============================================================
    RSVP — the home only carries a short invitation + button (.rsvpBand);
@@ -737,7 +837,29 @@
   align-items: center;
   gap: 6px;
 }
-.rsvpBack:hover { text-decoration: underline; }
+.rsvpBack:hover .rsvpBackLabel { text-decoration: underline; }
+/* On a phone the link text crowded the monogram: there it becomes a round
+   arrow button, the same shape as the home header's menu button (the text
+   stays for screen readers). */
+@media (max-width: 599px) {
+  .rsvpBack {
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--r-navy);
+    border-radius: 100px;
+  }
+  .rsvpBackArrow { font-size: 18px; line-height: 1; }
+  .rsvpBackLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
 .rsvpPageLocale { justify-self: end; display: flex; align-items: center; }
 .rsvpPageMain {
   min-height: calc(100dvh - 140px);
@@ -762,15 +884,19 @@
 /* Heading kept for screen readers only (the section stepper above already names the step). */
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .question { display: flex; flex-direction: column; gap: 10px; }
-.questionLabel { font-family: var(--r-serif); font-weight: 700; font-size: var(--r-fs-small); margin: 0; }
-.fieldHint { font-size: var(--r-fs-micro); margin: -6px 0 0; opacity: 0.85; }
+/* Every question reads the same — yes/no or free text — in the serif, at
+   body size: they're what the guest is actually being asked. */
+.questionLabel { font-family: var(--r-serif); font-weight: 700; font-size: var(--r-fs-body); line-height: 1.4; margin: 0; }
+.fieldHint { font-size: var(--r-fs-small); margin: -6px 0 0; opacity: 0.85; }
 .fieldError { font-size: var(--r-fs-micro); color: var(--r-coral-text); font-weight: 700; margin: 6px 0 0; }
 .fieldHint + .formRow, .fieldError + .formRow { margin-top: -4px; }
+/* A light tinted strip, not a boxed alarm: the fields themselves already
+   say what's wrong; this is the screen-reader announcement and a pointer. */
 .formErrorSummary {
   margin: 0;
-  padding: 12px 16px;
-  border: 1px solid var(--r-coral-text);
-  border-left-width: 4px;
+  padding: 10px 14px;
+  background: rgba(185, 47, 47, 0.07);
+  border-left: 3px solid var(--r-coral-text);
   color: var(--r-coral-text);
   font-weight: 700;
   font-size: var(--r-fs-small);
@@ -793,40 +919,47 @@
 /* Text field: label always visible above the input. The old notched
    10px label was hard to read and disappeared into the border. Inputs
    are ≥16px so iOS Safari doesn't auto-zoom on focus. */
-.field { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .fieldLabel {
   font-family: var(--r-gothic);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: var(--r-fs-micro);
   color: var(--r-navy);
-  opacity: 0.65;
+  opacity: 0.75;
 }
-.fieldOptional { font-style: italic; opacity: 0.8; text-transform: none; letter-spacing: normal; }
-/* Straight-line style: an underline instead of a boxed field, matching
-   the rest of the template's ruled/striped motifs. */
+.fieldOptional { font-style: italic; font-weight: 400; opacity: 0.8; text-transform: none; letter-spacing: normal; }
+/* Still the template's straight-line style (an underline, square corners),
+   but on a faint lighter fill: a bare line on cream didn't read as
+   somewhere to type, and left a big blank gap under each label. */
 .field input {
   width: 100%;
-  min-height: 40px;
+  min-height: 48px;
   font-family: var(--r-serif);
   font-size: max(16px, var(--r-fs-body));
   color: var(--r-navy);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.55);
   border: 0;
   /* Resting line is a lighter navy; it goes to full navy (and thicker) while active. */
-  border-bottom: 1px solid rgba(14, 20, 83, 0.35);
-  transition: border-color 0.15s ease;
+  border-bottom: 1px solid rgba(14, 20, 83, 0.45);
+  transition: border-color 0.15s ease, background-color 0.15s ease;
   border-radius: 0;
-  padding: 6px 2px;
+  padding: 10px 12px;
 }
 .root .field input:focus,
-.root .field input:focus-visible { border-bottom: 2px solid var(--r-navy); padding-bottom: 5px; outline: none; }
+.root .field input:focus-visible {
+  border-bottom: 2px solid var(--r-navy);
+  padding-bottom: 9px;
+  background: rgba(255, 255, 255, 0.85);
+  outline: none;
+}
 .root .field input[aria-invalid="true"],
 .root .field input[aria-invalid="true"]:focus { border-bottom-color: var(--r-coral-text); }
 
 /* segmented button — square edges, single shared border like a tab bar */
 .seg { display: flex; align-self: stretch; max-width: 100%; border: 1px solid var(--r-navy); }
-.segError { outline: 2px solid var(--r-coral-text); outline-offset: 3px; }
+/* Error: the control's own border turns coral (an offset ring looked like a focus ring). */
+.segError { border-color: var(--r-coral-text); box-shadow: 0 0 0 1px var(--r-coral-text); }
 .segOpt {
   display: inline-flex;
   align-items: center;
@@ -850,7 +983,8 @@
 }
 .segOptFirst { composes: segOpt; border-right: 1px solid var(--r-navy); }
 .segOptLast { composes: segOpt; }
-.segOptActive { background: var(--r-navy); color: var(--r-cream); }
+.segOpt:hover { background: rgba(14, 20, 83, 0.05); }
+.segOptActive, .segOptActive:hover { background: var(--r-navy); color: var(--r-cream); }
 .segIco { width: 15px; height: 15px; flex: none; fill: currentColor; }
 
 @media (min-width: 600px) {
@@ -860,45 +994,57 @@
 }
 
 /* companions */
-.companionsControl { display: flex; flex-direction: column; gap: 10px; margin-top: -12px; }
-.stepper { display: inline-flex; align-items: center; gap: 20px; }
+.companionsControl { display: flex; flex-direction: column; gap: 16px; }
+/* Round − / + like the header's menu button, with the number large between them. */
+.stepper { display: inline-flex; align-items: center; gap: 24px; }
 .stepperBtn {
   display: inline-grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   flex: none;
   font-family: var(--r-serif);
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1;
   color: var(--r-navy);
   background: transparent;
   border: 1px solid var(--r-navy);
+  border-radius: 50%;
   cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
 }
-.stepperBtn:disabled { opacity: 0.35; cursor: not-allowed; }
+.stepperBtn:hover:not(:disabled) { background: var(--r-navy); color: var(--r-cream); }
+.stepperBtn:disabled { opacity: 0.3; cursor: not-allowed; }
 .stepperValue {
-  min-width: 1.5em;
+  min-width: 1.2em;
   text-align: center;
   font-family: var(--r-serif);
-  font-size: var(--r-fs-lead);
+  font-size: 28px;
+  font-variant-numeric: tabular-nums;
   color: var(--r-navy);
 }
 
 .companion { border: 0; margin: 0; padding: 0; min-width: 0; display: flex; flex-direction: column; gap: 24px; }
-.companionHead { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.companionHead { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 16px; }
+/* A quiet navy text action: the red cross it replaces read as an error. */
 .companionRemove {
-  display: inline-grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 2px;
   background: transparent;
   border: 0;
   cursor: pointer;
-  color: var(--r-coral-text);
-  line-height: 0;
+  color: var(--r-navy);
+  font-family: var(--r-serif);
+  font-size: var(--r-fs-small);
+  text-decoration: underline;
+  text-decoration-color: rgba(14, 20, 83, 0.35);
+  text-underline-offset: 3px;
 }
-.companionRemove svg { width: 22px; height: 22px; }
+.companionRemove:hover { text-decoration-color: currentColor; }
+.companionRemove svg { width: 16px; height: 16px; flex: none; }
 .checkbox { display: flex; align-items: center; gap: 12px; font-size: var(--r-fs-small); cursor: pointer; min-height: 44px; }
 .checkbox input { width: 22px; height: 22px; accent-color: var(--r-navy); flex: none; }
 
@@ -926,6 +1072,10 @@
   height: 1px;
   background: rgba(14, 20, 83, 0.25);
 }
+/* The rule fills in navy up to the current section, so progress reads at a glance. */
+.stepSection_done .stepSectionRow::before,
+.stepSection_done .stepSectionRow::after,
+.stepSection_active .stepSectionRow::before { background: var(--r-navy); }
 .stepSection:first-child .stepSectionRow::before,
 .stepSection:last-child .stepSectionRow::after {
   visibility: hidden;
@@ -953,47 +1103,69 @@
   letter-spacing: 0.06em;
   font-size: var(--r-fs-micro);
 }
+/* On a phone the wide uppercase gothic didn't fit three to a row
+   ("INFORMACIÓNACOMPAÑANTES" ran together): sentence-case serif there,
+   free to wrap between words. */
+@media (max-width: 599px) {
+  .stepSectionLabel {
+    font-family: var(--r-serif);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 13px;
+    line-height: 1.3;
+    padding-inline: 4px;
+    text-wrap: balance;
+  }
+}
 
-.stepBody { width: 100%; display: flex; flex-direction: column; justify-content: center; gap: 28px; min-height: 220px; }
+/* Content starts at the top (centring it in the fixed min-height left a
+   short step, like "how many people", floating in empty space). */
+.stepBody { width: 100%; display: flex; flex-direction: column; justify-content: flex-start; gap: 28px; min-height: 220px; }
 .stepNav { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; }
+.stepNav > * { min-height: 52px; }
 .stepNavBackHidden { visibility: hidden; }
+/* On a phone the primary action takes the rest of the row: easy to hit with a thumb. */
+@media (max-width: 599px) {
+  .stepNav .formSubmit { flex: 1; }
+  .stepNavBackHidden { display: none; }
+}
 
 .formSubmit { composes: btn btnSolid; min-height: 52px; margin-left: auto; }
 .formThanks {
   width: 100%;
   border: 1px solid var(--r-navy);
-  border-radius: 4px;
   background: var(--r-cream);
-  padding: 32px 24px;
+  padding: clamp(32px, 6vw, 48px) 24px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
 }
-.formThanksText { font-family: var(--r-serif); font-style: italic; font-size: var(--r-fs-lead); color: var(--r-navy); margin: 0; }
-.formThanksSummary { margin: 0; font-size: var(--r-fs-small); }
+.root .formThanksImg { width: 72px; height: auto; }
+.formThanksText {
+  font-family: var(--r-serif);
+  font-style: italic;
+  font-size: calc(var(--r-fs-lead) + 2px);
+  line-height: 1.45;
+  color: var(--r-navy);
+  margin: 0;
+  text-wrap: balance;
+}
+.formThanksSummary { margin: 0 0 8px; font-size: var(--r-fs-small); }
 
 /* ============================================================
-   Regalos — copy button
+   Regalos — copy button (icon + "Copiar número de cuenta")
    ============================================================ */
 .copyBtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  flex: none;
-  color: var(--r-cream);
-  background: transparent;
-  border: 1px solid var(--r-cream);
-  border-radius: 100px;
-  padding: 0;
-  cursor: pointer;
-  transition: background-color 0.18s ease, color 0.18s ease;
+  composes: btn btnOutline;   /* composes isn't transitive here: list .btn too */
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0.5em 1.1em;
+  font-size: var(--r-fs-small);
 }
-.copyBtn svg { width: 16px; height: 16px; }
-.copyBtn:hover { background: var(--r-cream); color: var(--r-navy); }
+.copyBtn svg { width: 18px; height: 18px; flex: none; }
 
 /* ============================================================
    Footer
@@ -1069,15 +1241,6 @@
     --r-illus-place: 200px;
     --r-illus-detail: 150px;
   }
-  /* A hairline border read as almost nothing between stacked phases on a
-     phone; a solid (if still thin) line plus more breathing room makes the
-     seam between phases unmistakable without turning it into a slab. */
-  .phase {
-    margin-top: 24px;
-    padding-top: 20px;
-    border-top: 1px solid var(--r-navy);
-  }
-  .phase:first-child { margin-top: 0; padding-top: 0; border-top: 0; }
 }
 
 @media (max-width: 599px) {
@@ -1094,6 +1257,7 @@
     --r-sp-stack: 30px;
     --r-sp-header-x: 16px;
     --r-illus-place: 170px;
+    --r-illus-row: clamp(64px, 21vw, 84px);
     --r-illus-detail: 130px;
     --r-illus-bouquet: 64px;
   }
@@ -1103,10 +1267,11 @@
   /* More navy above and below the story card on a phone. */
   .storyBand { padding-block: 56px; }
   .giftSection { padding-inline: 12px; }
-  .gift { padding: 8px; }
-  .giftMat { padding: 6px; }
+  .gift { padding: 6px; }
+  .giftPanel { padding-inline: 16px; }
+  .giftSlip { padding-inline: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .btn, .copyBtn { transition: none; }
+  .btn, .contactLink, .stepperBtn, .field input { transition: none; }
 }
