@@ -2,14 +2,17 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import { useSiteLocale, type SiteLocale } from "@/lib/site-locale";
+
+type Localized<T> = Record<SiteLocale, T>;
 
 type Shot = {
-  src: string;
+  /** One image per language: the card text (names, date) is part of the picture. */
+  src: Localized<string>;
   template: string;
   slug: string;
   label: string;
-  /** Replaces the default "Diseño <template> — <label>" description. */
-  alt?: string;
+  alt: Localized<string>;
 };
 
 // Every card is a vertical (phone-shaped, 435 x 658) image, with plenty of
@@ -18,25 +21,35 @@ type Shot = {
 // and they'll flow into the columns automatically.
 const shots: Shot[] = [
   {
-    src: "/hero/ribera.jpg",
+    // TODO: the Spanish cover still has to be supplied (this one is in English).
+    src: { es: "/hero/ribera-es.png", en: "/hero/ribera-en.png" },
     template: "Ribera",
     slug: "ribera",
     label: "Portada",
-    alt: "Ribera, un diseño de Wedite: la portada con los nombres, la fecha y el lugar de la boda",
+    alt: {
+      es: "Ribera, un diseño de Wedite: la portada con los nombres, la fecha y el lugar de la boda",
+      en: "Ribera, a Wedite design: the cover with the couple's names, the date and the venue",
+    },
   },
   {
-    src: "/hero/proximo-diseno.jpg",
+    src: { es: "/hero/proximo-diseno.jpg", en: "/hero/proximo-diseno.jpg" },
     template: "Rambla",
     slug: "rambla",
     label: "Portada",
-    alt: "Avance de Rambla, próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+    alt: {
+      es: "Avance de Rambla, próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+      en: "Preview of Rambla, an upcoming Wedite design: a line-drawn couple holding two photos of themselves as children",
+    },
   },
   {
-    src: "/hero/proximo-diseno-2.jpg",
+    src: { es: "/hero/proximo-diseno-2.jpg", en: "/hero/proximo-diseno-2.jpg" },
     template: "Vega",
     slug: "vega",
     label: "Portada",
-    alt: "Avance de Vega, próximo diseño de Wedite: marco floral art nouveau rosa sobre fondo burdeos",
+    alt: {
+      es: "Avance de Vega, próximo diseño de Wedite: marco floral art nouveau rosa sobre fondo burdeos",
+      en: "Preview of Vega, an upcoming Wedite design: a pink art nouveau floral frame on a burgundy background",
+    },
   },
 ];
 
@@ -52,12 +65,12 @@ const columns: { order: number[]; speed: number }[] = [
   { order: [0, 2, 1, 0, 2], speed: -0.5 },
 ];
 
-function Card({ shot }: { shot: Shot }) {
+function Card({ shot, locale }: { shot: Shot; locale: SiteLocale }) {
   return (
     <div className="relative aspect-[435/658] w-full shrink-0 overflow-hidden rounded-xl border border-black/5 shadow-[0_16px_30px_-20px_rgba(33,29,26,0.4)]">
       <Image
-        src={shot.src}
-        alt={shot.alt ?? `Diseño ${shot.template} — ${shot.label}`}
+        src={shot.src[locale]}
+        alt={shot.alt[locale]}
         fill
         sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 45vw"
         // These are UI screenshots with fine text and thin lines, not
@@ -71,6 +84,7 @@ function Card({ shot }: { shot: Shot }) {
 }
 
 export default function HeroGrid() {
+  const { locale } = useSiteLocale();
   const containerRef = useRef<HTMLDivElement>(null);
   const columnRefs = useRef<(HTMLDivElement | null)[]>([]);
 
@@ -140,7 +154,7 @@ export default function HeroGrid() {
               className={`${visibility} -mt-24 flex-col gap-6 will-change-transform sm:gap-10 lg:gap-14`}
             >
               {col.order.map((shotIndex, i) => (
-                <Card key={i} shot={shots[shotIndex % shots.length]} />
+                <Card key={i} shot={shots[shotIndex % shots.length]} locale={locale} />
               ))}
             </div>
           );

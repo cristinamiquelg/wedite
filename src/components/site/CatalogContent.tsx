@@ -3,8 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { templates } from "@/lib/templates";
-import { useSiteLocale } from "@/lib/site-locale";
+import { useSiteLocale, type SiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
+
+const THUMBNAILS: Record<string, Record<SiteLocale, string>> = {
+  ribera: { es: "/catalog/ribera-es.png", en: "/catalog/ribera-en.png" },
+};
 
 export default function CatalogContent() {
   const { locale } = useSiteLocale();
@@ -33,15 +37,15 @@ export default function CatalogContent() {
                 tabIndex={-1}
                 className="absolute inset-0 z-0"
               />
-              {/* The card shows only the template's hero: the iframe is exactly as tall
-                  as the hero (749px at 1400px wide) and the box is that height
-                  at the scale in use, so nothing below it (the countdown) peeks in. */}
-              <div className="pointer-events-none relative h-[262px] overflow-hidden border-b border-line bg-paper sm:h-[225px]">
-                <iframe
-                  src={`/preview/${tpl.slug}`}
-                  title={`Preview — ${tpl.name}`}
-                  tabIndex={-1}
-                  className="pointer-events-none absolute left-1/2 top-0 h-[749px] w-[1400px] origin-top -translate-x-1/2 scale-[0.35] sm:scale-[0.3]"
+              {/* The picture carries the names and date, so each language has its own. */}
+              <div className="pointer-events-none relative aspect-[1512/944] overflow-hidden border-b border-line bg-paper">
+                <Image
+                  src={THUMBNAILS[tpl.slug]?.[locale] ?? THUMBNAILS.ribera[locale]}
+                  alt={tplDict.imageAlt}
+                  fill
+                  sizes="(min-width: 1024px) 360px, (min-width: 640px) 45vw, 100vw"
+                  quality={90}
+                  className="object-cover object-center"
                 />
               </div>
               <div className="flex flex-1 flex-col p-6">
@@ -93,7 +97,7 @@ export default function CatalogContent() {
             style={{ transitionDelay: `${(templates.length + i) * 100}ms` }}
             className="relative flex flex-col overflow-hidden rounded-2xl border border-line bg-[#FBFBFA]"
           >
-            <div className="relative h-[262px] overflow-hidden border-b border-line bg-paper sm:h-[225px]">
+            <div className="relative aspect-[1512/944] overflow-hidden border-b border-line bg-paper">
               <Image
                 src={design.image}
                 alt={design.imageAlt}
