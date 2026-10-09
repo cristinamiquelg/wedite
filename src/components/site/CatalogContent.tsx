@@ -104,10 +104,12 @@ export default function CatalogContent() {
                 fill
                 sizes="(min-width: 1024px) 384px, (min-width: 640px) 45vw, 100vw"
                 quality={90}
-                className="object-cover object-center"
+                // Out of focus, a bit desaturated and slightly enlarged (so the blur
+                // doesn't leave a soft edge) — plus a darker veil — so it reads as
+                // "not available yet" next to the live, sharp designs.
+                className="scale-105 object-cover object-center blur-[2px] saturate-[0.8]"
               />
-              {/* A darker veil so it reads as "not available yet" next to the live designs. */}
-              <div aria-hidden="true" className="absolute inset-0 bg-black/15" />
+              <div aria-hidden="true" className="absolute inset-0 bg-black/20" />
               <span className="absolute left-4 top-4 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
                 {dict.catalog.upcomingBadge}
               </span>
