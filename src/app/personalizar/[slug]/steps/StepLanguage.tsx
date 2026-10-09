@@ -48,9 +48,6 @@ export default function StepLanguage({
                   </span>
                 ) : null}
               </span>
-              <span className="text-xs text-ink-soft">
-                {l.id === "es" ? "Menú, confirmación de asistencia y botones en español" : "Menu, RSVP and buttons in English"}
-              </span>
             </button>
           );
         })}
