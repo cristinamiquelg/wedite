@@ -117,7 +117,6 @@ export default function CatalogContent() {
             <div className="flex flex-1 flex-col p-6">
               <h2 className="font-display text-2xl">{design.title}</h2>
               <p className="mt-1 text-sm text-clay">{design.tagline}</p>
-              <p className="mt-4 flex-1 text-sm text-ink-soft">{design.summary}</p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {design.tags.map((tag) => (
                   <span key={tag} className="rounded-full bg-sage-light px-3 py-1 text-xs text-ink-soft">
