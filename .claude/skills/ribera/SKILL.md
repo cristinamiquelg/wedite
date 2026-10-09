@@ -94,6 +94,11 @@ clay, so Ribera overrides it back to navy under `.root`.
 - **The RSVP page's title and note are passed into the form as `intro`**, so
   the thanks screen can replace them (it shows only the bouquet, the thanks
   and the summary — no box, no intro).
+- **The demo story illustration** (`public/ribera/historia-demo-ilustracion.webp`)
+  must be #DD3E3E lines on a *transparent* background — the template shows it
+  as is on cream. If one arrives flattened onto black, rebuild the alpha from
+  the red channel (alpha = R / 220, colour forced to #DD3E3E) instead of
+  shipping the black.
 - **The IBAN must fit on one line**: its font size is capped in `cqi` units of
   the slip (`container-type: inline-size`), measured for this face; if the
   gothic font or the tracking changes, re-measure the width/size ratio.
