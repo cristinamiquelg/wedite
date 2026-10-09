@@ -210,7 +210,7 @@ export function termsDoc(locale: LegalLocale): LegalDoc {
           {
             heading: "Precio y pago",
             paras: [
-              "El precio de cada diseño se muestra en euros con el IVA incluido y se paga una sola vez. El pago se realiza a través de Stripe. Vuestra web se publica cuando se confirma el pago, y os enviamos un email con sus enlaces. Si necesitáis una factura, pedidla en " + E + ".",
+              "El precio de cada diseño se muestra en euros con el IVA incluido y se paga una sola vez. El pago se realiza a través de Stripe. Vuestra web se publica cuando se confirma el pago, y os enviamos un email con sus enlaces. El pago incluye mantener vuestra web pública durante 1 año desde su publicación. Si necesitáis una factura, pedidla en " + E + ".",
             ],
           },
           {
@@ -295,7 +295,7 @@ export function termsDoc(locale: LegalLocale): LegalDoc {
           {
             heading: "Price and payment",
             paras: [
-              "The price of each design is shown in euros including VAT and is paid once. Payment is made through Stripe. Your site is published when payment is confirmed, and we send you an email with its links. If you need an invoice, ask for it at " + E + ".",
+              "The price of each design is shown in euros including VAT and is paid once. Payment is made through Stripe. Your site is published when payment is confirmed, and we send you an email with its links. The payment includes keeping your site public for 1 year from its publication. If you need an invoice, ask for it at " + E + ".",
             ],
           },
           {
