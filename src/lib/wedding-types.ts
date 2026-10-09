@@ -76,8 +76,9 @@ export type WeddingData = {
   rsvpAskContact?: boolean;
   /** RSVP form: let guests flag a companion as a child who needs a kids' menu. Unset = yes. */
   rsvpAskKidsMenu?: boolean;
-  /** Language the couple writes the free texts in (the others are translated from it). Unset = the first of `locales`. */
-  writtenIn?: Locale;
+  /** The language each free text is written in, detected automatically (keyed by the couple's text): it needs a
+   * translation into every other language of the site. null = none of the site's languages (translated into all). */
+  textLocales?: Record<string, Locale | null>;
   /** Translations of the free texts, per target language: the couple's text (the key) → its version in that
    * language. Made automatically, and editable by the couple. Keyed by text, so reordering or deleting a
    * phase or card never mixes them up. */

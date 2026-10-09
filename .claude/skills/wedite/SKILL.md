@@ -104,16 +104,20 @@ Olivar, Sierra, Duna. Check brand/domain/social availability before launching on
 
 ## Multi-language texts (automatic translation)
 
-- A site can be in several languages (`WeddingData.locales`); the couple writes the free texts in one
-  (`writtenIn`, default the first) and the others are translated automatically. Names of people and places,
-  addresses, links, phones, e-mails and the hashtag are never translated.
+- A site can be in several languages (`WeddingData.locales`); the couple writes each free text in whichever
+  language they like (there is no "which language do you write in" question): its language is **detected
+  automatically per text** (`WeddingData.textLocales[text]`, null = none of the site's) and it is translated into
+  the others. Ambiguous texts ("Dress code", "Brunch") count as the couple's main language (`mainLocale()`: the
+  most common detected one, else the language they use Wedite in). Names of people and places, addresses, links,
+  phones, e-mails and the hashtag are never translated.
 - `src/lib/translatable.ts` is the single list of translatable fields (+ length limits, `MAX_LENGTH`),
   `collectTranslatable()` and `localizeWeddingData()` (one `WeddingData` per language, fed to the template's
   `localized` prop in the preview, the RSVP preview and the published pages). **A new free-text field must be
   added there** (collect + inLocale) and get a `<TranslationReview>` under its input in its wizard step.
 - Translations live in `WeddingData.translations[targetLocale][originalText]` (keyed by the couple's text, so
   reordering phases/cards is safe; `edited: true` = corrected by hand). `components/customize/translations.tsx`
-  translates what is missing ~1.2 s after typing stops, via `POST /api/translate` (OpenAI chat model, env
+  detects and translates what is missing ~1.2 s after typing stops, via `POST /api/translate` (one call returns
+  each text's language and its translations; OpenAI chat model, env
   `OPENAI_API_KEY`, optional `OPENAI_TRANSLATE_MODEL`, `OPENAI_BASE_URL` — a fake server works for local QA).
   Without the key the review panel still lets the couple type the translation.
 - `components/customize/TranslationReview.tsx` is the shortcut under each field: opens the editor for the other

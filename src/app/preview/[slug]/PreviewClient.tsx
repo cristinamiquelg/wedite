@@ -89,7 +89,7 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
   return renderTemplate(slug, data, {
     rsvpHref: `/preview/${slug}/rsvp${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
-    // The curated demo is written in both languages; a couple's draft is translated from the one they write in.
+    // The curated demo is written in both languages; a couple's draft texts are translated automatically.
     localized: isDraft ? localizeWeddingData(data) : riberaDemoByLocale,
     forceLocale,
   });

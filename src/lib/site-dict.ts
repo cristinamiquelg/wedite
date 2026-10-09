@@ -183,7 +183,7 @@ export type SiteDict = {
     required: string;
     fieldRequired: string;
     remove: string;
-    stepLanguage: { intro: string; included: string; writtenInTitle: string; writtenInHint: string };
+    stepLanguage: { intro: string; included: string; autoTranslate: string };
     translation: {
       languageName: Record<"es" | "en", string>;
       review: (language: string) => string;
@@ -522,8 +522,7 @@ const es: SiteDict = {
     stepLanguage: {
       intro: "Elegid en qué idiomas estará disponible vuestra web. Podéis elegir más de uno: si la boda es bilingüe, vuestros invitados podrán cambiar de idioma con un selector en la propia web.",
       included: "Incluido",
-      writtenInTitle: "¿En qué idioma vais a escribir los textos?",
-      writtenInHint: "Traducimos automáticamente vuestros textos al otro idioma. En cada campo podréis revisar y corregir la traducción.",
+      autoTranslate: "Escribid cada texto en el idioma que queráis: detectamos cuál es y lo traducimos automáticamente al otro. En cada campo podréis revisar y corregir la traducción.",
     },
     translation: {
       languageName: { es: "español", en: "inglés" },
@@ -864,8 +863,7 @@ const en: SiteDict = {
     stepLanguage: {
       intro: "Choose which languages your website will be available in. You can pick more than one: if the wedding is bilingual, your guests will be able to switch language with a selector on the site itself.",
       included: "Included",
-      writtenInTitle: "Which language will you write your texts in?",
-      writtenInHint: "We automatically translate your texts into the other language. In each field you can review and correct the translation.",
+      autoTranslate: "Write each text in whichever language you like: we detect which one it is and translate it automatically into the other. In each field you can review and correct the translation.",
     },
     translation: {
       languageName: { es: "Spanish", en: "English" },

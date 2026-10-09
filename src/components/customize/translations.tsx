@@ -2,8 +2,9 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { Locale } from "@/lib/i18n";
+import { useSiteLocale } from "@/lib/site-locale";
 import type { TranslatedText, WeddingData } from "@/lib/wedding-types";
-import { collectTranslatable, sourceLocale, translationTargets, type TranslatableText } from "@/lib/translatable";
+import { collectTranslatable, mainLocale, missingLocales, type TranslatableText } from "@/lib/translatable";
 
 // How long the couple has to stop typing before their texts are sent to be translated.
 const DEBOUNCE_MS = 1200;
@@ -11,14 +12,14 @@ const DEBOUNCE_MS = 1200;
 export type TranslationStatus = "ready" | "pending" | "failed";
 
 export type TranslationService = {
-  /** Language the couple writes in. */
-  source: Locale;
-  /** Languages that get a translation (empty on a single-language site). */
-  targets: Locale[];
+  /** The site's languages when it has more than one (texts get translated), else empty. */
+  locales: Locale[];
+  /** The language a text is written in: detected, or the couple's main one until then; null = none of the site's. */
+  languageOf: (text: string) => Locale | null;
   entry: (target: Locale, text: string) => TranslatedText | undefined;
   status: (target: Locale, text: string) => TranslationStatus;
-  /** True while a translation of this text is being (re)made. */
-  busy: (target: Locale, text: string) => boolean;
+  /** True while this text is being detected and translated. */
+  busy: (text: string) => boolean;
   edit: (target: Locale, text: string, value: string) => void;
   retranslate: (target: Locale, field: TranslatableText) => void;
   /** Show this language in the live preview. */
@@ -27,8 +28,8 @@ export type TranslationService = {
 
 const noop = () => {};
 const TranslationContext = createContext<TranslationService>({
-  source: "es",
-  targets: [],
+  locales: [],
+  languageOf: () => null,
   entry: () => undefined,
   status: () => "ready",
   busy: () => false,
@@ -42,45 +43,52 @@ export function useTranslations(): TranslationService {
   return useContext(TranslationContext);
 }
 
-const keyOf = (target: Locale, text: string) => `${target}\u0000${text}`;
+/** A text's language (null = none of the site's) and its version in each of the site's other languages. */
+type Detected = { lang: Locale | null; translations: Partial<Record<Locale, string>> };
 
-/** Asks the server for translations; null where one could not be made. */
-async function requestTranslations(from: Locale, to: Locale, fields: TranslatableText[]): Promise<(string | null)[]> {
+/** Asks the server to detect each text's language and translate it; null where that could not be done. */
+async function requestTranslations(locales: Locale[], main: Locale, fields: TranslatableText[]): Promise<(Detected | null)[]> {
   const res = await fetch("/api/translate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ from, to, items: fields.map(({ text, maxLength }) => ({ text, maxLength })) }),
+    body: JSON.stringify({ locales, main, items: fields.map(({ text, maxLength }) => ({ text, maxLength })) }),
   });
   if (!res.ok) throw new Error(`translate failed: ${res.status}`);
-  const json = (await res.json()) as { items?: (string | null)[] };
+  const json = (await res.json()) as { items?: (Detected | null)[] };
   return fields.map((_, i) => json.items?.[i] ?? null);
 }
 
-/** Adds translations to the draft, keeping only entries whose original text is still in the site. */
+/**
+ * Adds detected languages and translations to the draft, keeping only entries whose original text is still in
+ * the site. Existing translations are kept, except into `overwrite` (the couple asked to translate it again).
+ */
 function mergeTranslations(
   data: WeddingData,
-  target: Locale,
-  made: { text: string; translated: string }[],
-  overwrite: boolean,
+  made: { text: string; result: Detected }[],
+  overwrite?: Locale,
 ): WeddingData {
   const inUse = new Set(collectTranslatable(data).map((f) => f.text));
-  const current = data.translations?.[target] ?? {};
-  const next: Record<string, TranslatedText> = {};
-  for (const [text, value] of Object.entries(current)) if (inUse.has(text)) next[text] = value;
-  for (const { text, translated } of made) {
+  const keep = <T,>(map: Record<string, T> | undefined) =>
+    Object.fromEntries(Object.entries(map ?? {}).filter(([text]) => inUse.has(text)));
+  const textLocales = keep(data.textLocales);
+  const translations: NonNullable<WeddingData["translations"]> = {};
+  for (const [locale, map] of Object.entries(data.translations ?? {})) translations[locale as Locale] = keep(map);
+  for (const { text, result } of made) {
     if (!inUse.has(text)) continue;
-    if (next[text] && !overwrite) continue;
-    next[text] = { text: translated };
+    textLocales[text] = result.lang;
+    // Nothing is translated into a text's own language (it may have been detected differently before).
+    if (result.lang) delete translations[result.lang]?.[text];
+    for (const [locale, translated] of Object.entries(result.translations) as [Locale, string][]) {
+      const map = (translations[locale] ??= {});
+      if (!map[text] || locale === overwrite) map[text] = { text: translated };
+    }
   }
-  // Nothing is translated into the language the couple writes in (it may have been a target before they changed it).
-  const translations = { ...data.translations, [target]: next };
-  delete translations[sourceLocale(data)];
-  return { ...data, translations };
+  return { ...data, textLocales, translations };
 }
 
 /**
- * Keeps the other language's texts up to date: once the couple stops typing, every
- * text without a translation is translated, and what they correct by hand is kept.
+ * Keeps every language's texts up to date: once the couple stops typing, the language of each new text is
+ * detected and it is translated into the site's other languages; what they correct by hand is kept.
  */
 export function useTranslationService({
   data,
@@ -94,76 +102,80 @@ export function useTranslationService({
   enabled: boolean;
   showLocale: (locale: Locale) => void;
 }): TranslationService {
+  const { locale: wizardLocale } = useSiteLocale();
   const [failed, setFailed] = useState<ReadonlySet<string>>(new Set());
   const [working, setWorking] = useState<ReadonlySet<string>>(new Set());
-  const source = sourceLocale(data);
-  const targets = translationTargets(data);
-  const targetsKey = targets.join(",");
+  const localesKey = data.locales.length > 1 ? data.locales.join(",") : "";
+  const main = mainLocale(data, wizardLocale);
 
-  const track = useCallback((keys: string[], on: boolean, set: typeof setWorking | typeof setFailed) => {
+  const track = useCallback((texts: string[], on: boolean, set: typeof setWorking | typeof setFailed) => {
     set((prev) => {
       const next = new Set(prev);
-      for (const k of keys) {
-        if (on) next.add(k);
-        else next.delete(k);
+      for (const t of texts) {
+        if (on) next.add(t);
+        else next.delete(t);
       }
       return next;
     });
   }, []);
 
   const translate = useCallback(
-    async (target: Locale, fields: TranslatableText[], overwrite: boolean) => {
-      if (fields.length === 0) return;
-      const keys = fields.map((f) => keyOf(target, f.text));
-      track(keys, true, setWorking);
-      track(keys, false, setFailed);
+    async (fields: TranslatableText[], overwrite?: Locale) => {
+      if (fields.length === 0 || !localesKey) return;
+      const texts = fields.map((f) => f.text);
+      track(texts, true, setWorking);
+      track(texts, false, setFailed);
       try {
-        const result = await requestTranslations(source, target, fields);
-        const made = fields.flatMap((f, i) => (result[i] ? [{ text: f.text, translated: result[i] as string }] : []));
-        setData((prev) => mergeTranslations(prev, target, made, overwrite));
+        const results = await requestTranslations(localesKey.split(",") as Locale[], main, fields);
+        const made = fields.flatMap((f, i) => (results[i] ? [{ text: f.text, result: results[i] as Detected }] : []));
+        setData((prev) => mergeTranslations(prev, made, overwrite));
         track(
-          keys.filter((_, i) => !result[i]),
+          texts.filter((_, i) => !results[i]),
           true,
           setFailed,
         );
       } catch {
-        track(keys, true, setFailed);
+        track(texts, true, setFailed);
       } finally {
-        track(keys, false, setWorking);
+        track(texts, false, setWorking);
       }
     },
-    [source, setData, track],
+    [localesKey, main, setData, track],
   );
 
-  // Translate whatever has no translation yet, a moment after the couple stops typing.
+  // Detect and translate whatever is new, a moment after the couple stops typing.
   useEffect(() => {
-    if (!enabled || targets.length === 0) return;
+    if (!enabled || !localesKey) return;
     const timer = window.setTimeout(() => {
-      const fields = collectTranslatable(data);
-      for (const target of targetsKey.split(",").filter(Boolean) as Locale[]) {
-        const todo = fields.filter((f) => {
-          const key = keyOf(target, f.text);
-          return !data.translations?.[target]?.[f.text] && !failed.has(key) && !working.has(key);
-        });
-        void translate(target, todo, false);
-      }
+      const todo = collectTranslatable(data).filter(
+        (f) => !failed.has(f.text) && !working.has(f.text) && missingLocales(data, f.text).length > 0,
+      );
+      void translate(todo);
     }, DEBOUNCE_MS);
     return () => window.clearTimeout(timer);
-    // `targets` is derived from `targetsKey`; `failed`/`working` only change as a result of this effect.
+    // `failed`/`working` only change as a result of this effect.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, enabled, targetsKey, translate]);
+  }, [data, enabled, localesKey, translate]);
+
+  const languageOf = useCallback(
+    (text: string) => {
+      const detected = data.textLocales?.[text.trim()];
+      return detected === undefined ? main : detected;
+    },
+    [data.textLocales, main],
+  );
 
   const entry = useCallback((target: Locale, text: string) => data.translations?.[target]?.[text.trim()], [data.translations]);
 
   const status = useCallback(
     (target: Locale, text: string): TranslationStatus => {
       if (data.translations?.[target]?.[text.trim()]) return "ready";
-      return failed.has(keyOf(target, text.trim())) ? "failed" : "pending";
+      return failed.has(text.trim()) ? "failed" : "pending";
     },
     [data.translations, failed],
   );
 
-  const busy = useCallback((target: Locale, text: string) => working.has(keyOf(target, text.trim())), [working]);
+  const busy = useCallback((text: string) => working.has(text.trim()), [working]);
 
   const edit = useCallback(
     (target: Locale, text: string, value: string) => {
@@ -180,13 +192,21 @@ export function useTranslationService({
   );
 
   const retranslate = useCallback(
-    (target: Locale, field: TranslatableText) => void translate(target, [{ ...field, text: field.text.trim() }], true),
+    (target: Locale, field: TranslatableText) => void translate([{ ...field, text: field.text.trim() }], target),
     [translate],
   );
 
   return useMemo(
-    () => ({ source, targets, entry, status, busy, edit, retranslate, showLocale }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- `targets` is derived from `targetsKey`
-    [source, targetsKey, entry, status, busy, edit, retranslate, showLocale],
+    () => ({
+      locales: localesKey ? (localesKey.split(",") as Locale[]) : [],
+      languageOf,
+      entry,
+      status,
+      busy,
+      edit,
+      retranslate,
+      showLocale,
+    }),
+    [localesKey, languageOf, entry, status, busy, edit, retranslate, showLocale],
   );
 }
