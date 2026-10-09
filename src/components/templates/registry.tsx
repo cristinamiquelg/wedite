@@ -6,6 +6,9 @@ import RiberaRsvpPage from "./ribera/RiberaRsvpPage";
 /** Per-language versions of the content (the demo), used when the guest switches language. */
 export type LocalizedData = Partial<Record<Locale, WeddingData>>;
 
+/** Asks the template to show a language (the wizard, while the couple reviews a translation). `n` makes repeats count. */
+export type ForcedLocale = { locale: Locale; n: number };
+
 const knownSlugs = ["ribera"] as const;
 export type TemplateSlug = (typeof knownSlugs)[number];
 
@@ -20,17 +23,17 @@ export function isKnownTemplateSlug(slug: string): slug is TemplateSlug {
 export function renderRsvpPage(
   slug: TemplateSlug,
   data: WeddingData,
-  opts: { backHref: string; initialLocale?: string; siteSlug?: string; localized?: LocalizedData },
+  opts: { backHref: string; initialLocale?: string; siteSlug?: string; localized?: LocalizedData; forceLocale?: ForcedLocale },
 ) {
   switch (slug) {
     case "ribera":
-      return <RiberaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} />;
+      return <RiberaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} forceLocale={opts.forceLocale} />;
   }
 }
 
-export function renderTemplate(slug: TemplateSlug, data: WeddingData, opts: { rsvpHref?: string; initialLocale?: string; localized?: LocalizedData } = {}) {
+export function renderTemplate(slug: TemplateSlug, data: WeddingData, opts: { rsvpHref?: string; initialLocale?: string; localized?: LocalizedData; forceLocale?: ForcedLocale } = {}) {
   switch (slug) {
     case "ribera":
-      return <RiberaTemplate data={data} localized={opts.localized} rsvpHref={opts.rsvpHref} initialLocale={opts.initialLocale} />;
+      return <RiberaTemplate data={data} localized={opts.localized} rsvpHref={opts.rsvpHref} initialLocale={opts.initialLocale} forceLocale={opts.forceLocale} />;
   }
 }

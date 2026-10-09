@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
 import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
-import { renderTemplate, type TemplateSlug } from "@/components/templates/registry";
+import { renderTemplate, type ForcedLocale, type TemplateSlug } from "@/components/templates/registry";
+import { localizeWeddingData } from "@/lib/translatable";
 
 export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
   // A draft view starts from the empty template, never the demo: optional
@@ -15,6 +16,7 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
   const params = useSearchParams();
   const isDraft = params.get("draft") === "1";
   const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingData()));
+  const [forceLocale, setForceLocale] = useState<ForcedLocale>();
   // Marketing previews (catalog cards, "ver preview" links) always show the
   // curated demo — only ?draft=1 (the wizard's own live iframe, "review
   // before buying", "view your site") should reflect a saved draft, so a
@@ -64,6 +66,9 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
         setData(msg.data as WeddingData);
         if (typeof msg.scrollTo === "string") scheduleScroll(msg.scrollTo);
       }
+      if (msg && msg.type === "wedite:setLocale" && msg.slug === slug && (msg.locale === "es" || msg.locale === "en")) {
+        setForceLocale((prev) => ({ locale: msg.locale, n: (prev?.n ?? 0) + 1 }));
+      }
       if (msg && msg.type === "wedite:scrollTo" && typeof msg.sectionId === "string") {
         scheduleScroll(msg.sectionId);
       }
@@ -84,7 +89,8 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
   return renderTemplate(slug, data, {
     rsvpHref: `/preview/${slug}/rsvp${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
-    // The curated demo is written in both languages; a couple's own draft is not.
-    localized: isDraft ? undefined : riberaDemoByLocale,
+    // The curated demo is written in both languages; a couple's draft is translated from the one they write in.
+    localized: isDraft ? localizeWeddingData(data) : riberaDemoByLocale,
+    forceLocale,
   });
 }

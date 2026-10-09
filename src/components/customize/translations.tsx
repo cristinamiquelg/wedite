@@ -72,7 +72,10 @@ function mergeTranslations(
     if (next[text] && !overwrite) continue;
     next[text] = { text: translated };
   }
-  return { ...data, translations: { ...data.translations, [target]: next } };
+  // Nothing is translated into the language the couple writes in (it may have been a target before they changed it).
+  const translations = { ...data.translations, [target]: next };
+  delete translations[sourceLocale(data)];
+  return { ...data, translations };
 }
 
 /**

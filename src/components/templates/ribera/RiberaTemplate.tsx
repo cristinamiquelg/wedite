@@ -85,6 +85,7 @@ export default function RiberaTemplate({
   localized,
   rsvpHref,
   initialLocale,
+  forceLocale,
 }: {
   data: WeddingData;
   /** Content written per language (the demo): the version for the language being read replaces `data`. */
@@ -92,8 +93,16 @@ export default function RiberaTemplate({
   rsvpHref?: string;
   /** Language to open in (e.g. coming back from the RSVP page); defaults to the first enabled. */
   initialLocale?: string;
+  /** Show this language now (the wizard, while a translation is being reviewed). */
+  forceLocale?: { locale: Locale; n: number };
 }) {
   const [locale, setLocale] = useState(baseData.locales.find((l) => l === initialLocale) ?? baseData.locales[0] ?? "es");
+  // A new request from the wizard switches the language; adjusted while rendering, not in an effect.
+  const [forcedSeen, setForcedSeen] = useState(forceLocale?.n);
+  if (forceLocale && forceLocale.n !== forcedSeen) {
+    setForcedSeen(forceLocale.n);
+    if (baseData.locales.includes(forceLocale.locale)) setLocale(forceLocale.locale);
+  }
   const data = localized?.[locale] ?? baseData;
   const [menuOpen, setMenuOpen] = useState(false);
 

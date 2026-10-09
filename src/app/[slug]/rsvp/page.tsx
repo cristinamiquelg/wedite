@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { isKnownTemplateSlug, renderRsvpPage } from "@/components/templates/registry";
 import { loadPublishedSite } from "@/lib/published-site";
+import { localizeWeddingData } from "@/lib/translatable";
 
 export const dynamic = "force-dynamic";
 
@@ -17,5 +18,10 @@ export default async function PublishedRsvpPage({
   const site = await loadPublishedSite(slug);
   if (!site || !isKnownTemplateSlug(site.templateSlug)) notFound();
   const { lang } = await searchParams;
-  return renderRsvpPage(site.templateSlug, site.data, { backHref: `/${slug}`, initialLocale: lang, siteSlug: slug });
+  return renderRsvpPage(site.templateSlug, site.data, {
+    backHref: `/${slug}`,
+    initialLocale: lang,
+    siteSlug: slug,
+    localized: localizeWeddingData(site.data),
+  });
 }
