@@ -717,7 +717,13 @@
 
   /* Only one phase: a rule and a dot would lead nowhere. The phase header is centred
      above its venues, as it is on larger screens, and the rows stay the same. */
-  .itinerarySingle { padding-left: 0; }
+  .itinerarySingle {
+    padding-left: 0;
+    /* One column as wide as its widest row (never wider than the card), centred: the
+       venue rows form a block centred under the phase title. */
+    grid-template-columns: fit-content(100%);
+    justify-content: center;
+  }
   .itinerarySingle::before,
   .itinerarySingle .phase::before { display: none; }
   .itinerarySingle .phase { text-align: center; }
