@@ -195,6 +195,8 @@ export default function RiberaTemplate({
   };
 
   const visiblePhases = hasItinerary ? buildVisiblePhases(data.phases) : [];
+  // A lone phase has no sequence to show, so on phones it drops the timeline rule and dot (see .itinerarySingle).
+  const shownPhaseCount = visiblePhases.filter((ph) => ph.name || ph.when || ph.places.length > 0).length;
 
   function closeMenu() {
     setMenuOpen(false);
@@ -376,7 +378,7 @@ export default function RiberaTemplate({
           <div data-reveal className={styles.card}>
             <h2 className={styles.sectionTitle}>{dict.ribera.itinerary.title}</h2>
 
-            <div className={styles.itinerary}>
+            <div className={`${styles.itinerary} ${shownPhaseCount === 1 ? styles.itinerarySingle : ""}`}>
               {visiblePhases.map((phase, pi) => (
                 <Fragment key={`phase-${pi}`}>
                   {phase.name || phase.when ? (
