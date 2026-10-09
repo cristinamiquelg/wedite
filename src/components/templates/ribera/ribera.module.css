@@ -1110,3 +1110,100 @@
 @media (prefers-reduced-motion: reduce) {
   .btn, .copyBtn { transition: none; }
 }
+
+/* ============================================================
+   Entrance animations
+   Big, slow and sequential: the header drops in, the hero panel and its
+   three blocks arrive one after another, and every section below builds up
+   piece by piece as it scrolls into view (title, then content; cards left to
+   right). Container sections are observed by the shared ScrollReveal
+   (`data-reveal`), which adds `is-visible`; repeated items (phases, places,
+   detail cards, contacts) are their own `data-reveal="item"` so each one
+   enters when *it* reaches the screen. Disabled for reduced motion; the
+   `reveal-ready` gate means nothing stays hidden if scripts don't run.
+   Animations use fill-mode "backwards" so hover transforms keep working.
+   ============================================================ */
+@keyframes ribRise {
+  from { opacity: 0; transform: translateY(72px) scale(0.92); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ribFromLeft {
+  from { opacity: 0; transform: translateX(-110px) scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ribFromRight {
+  from { opacity: 0; transform: translateX(110px) scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ribPop {
+  from { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ribDrop {
+  from { opacity: 0; transform: translateY(-100%); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .root {
+    --r-reveal-ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --r-reveal-dur: 1.5s;
+    --r-reveal-step: 190ms;
+  }
+
+  /* ---- load-in: header, then the hero, block by block ---- */
+  .header { animation: ribDrop 1s var(--r-reveal-ease) backwards; }
+  .heroPanel { animation: ribRise 1.3s var(--r-reveal-ease) 0.2s backwards; }
+  .heroPanel > * { animation: ribRise var(--r-reveal-dur) var(--r-reveal-ease) backwards; }
+  .heroPanel > :nth-child(1) { animation-delay: 0.7s; }
+  .heroPanel > :nth-child(2) { animation-delay: 1.3s; }
+  .heroPanel > :nth-child(3) { animation-delay: 1.9s; }
+  .heroDate > :nth-child(1) { animation: ribFromLeft 1.2s var(--r-reveal-ease) 1.5s backwards; }
+  .heroDate > :nth-child(2) { animation: ribPop 1.2s var(--r-reveal-ease) 1.7s backwards; }
+  .heroDate > :nth-child(3) { animation: ribFromRight 1.2s var(--r-reveal-ease) 1.5s backwards; }
+
+  /* ---- scroll reveals ---- */
+  /* The container itself no longer fades as one block (that is the shared rule in globals.css)... */
+  html:global(.reveal-ready) .root div[data-reveal]:not([data-reveal="item"]),
+  html:global(.reveal-ready) .root [data-reveal="item"] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  /* ...its children do, one after another. */
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]):not(:global(.is-visible)) > :not(.itinerary):not(.details):not(.contactPeople):not(.storyRow),
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]):not(:global(.is-visible)) .storyRow > * {
+    opacity: 0;
+  }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]):global(.is-visible) > :not(.itinerary):not(.details):not(.contactPeople):not(.storyRow) {
+    animation: ribRise var(--r-reveal-dur) var(--r-reveal-ease) backwards;
+    animation-delay: calc(var(--rv-i, 0) * var(--r-reveal-step));
+  }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]):global(.is-visible) .storyRow > :nth-child(1) {
+    animation: ribFromLeft var(--r-reveal-dur) var(--r-reveal-ease) var(--r-reveal-step) backwards;
+  }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]):global(.is-visible) .storyRow > :nth-child(2) {
+    animation: ribFromRight var(--r-reveal-dur) var(--r-reveal-ease) calc(2 * var(--r-reveal-step)) backwards;
+  }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(1) { --rv-i: 0; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(2) { --rv-i: 1; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(3) { --rv-i: 2; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(4) { --rv-i: 3; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(5) { --rv-i: 4; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(6) { --rv-i: 5; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(7) { --rv-i: 6; }
+  html:global(.reveal-ready) .root [data-reveal]:not([data-reveal="item"]) > :nth-child(8) { --rv-i: 7; }
+
+  /* Repeated items enter on their own, staggered by --rv-i (set in the markup: the item's
+     position in its row). */
+  html:global(.reveal-ready) .root [data-reveal="item"]:not(:global(.is-visible)) { opacity: 0; }
+  html:global(.reveal-ready) .root [data-reveal="item"]:global(.is-visible) {
+    animation: ribRise var(--r-reveal-dur) var(--r-reveal-ease) backwards;
+    animation-delay: calc(var(--rv-i, 0) * var(--r-reveal-step));
+  }
+}
+
+/* Printing never scrolls: show everything. */
+@media print {
+  .root [data-reveal] > *, .root [data-reveal="item"] { opacity: 1 !important; transform: none !important; animation: none !important; }
+}
