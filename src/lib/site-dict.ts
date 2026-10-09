@@ -52,7 +52,7 @@ export type SiteDict = {
     choose: string;
     upcomingBadge: string;
     /** Designs that aren't available yet, shown as non-clickable cards. */
-    upcoming: { image: string; title: string; tagline: string; summary: string; imageAlt: string; tags: string[] }[];
+    upcoming: { image: string; title: string; tagline: string; imageAlt: string; tags: string[] }[];
   };
   product: {
     back: string;
@@ -337,7 +337,6 @@ const es: SiteDict = {
         image: "/catalog/cala-es.webp",
         title: "Cala",
         tagline: "Botánico y romántico, en azul",
-        summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
         imageAlt: "Avance de Cala, próximo diseño: marco de amapolas y una mariposa en azul oscuro sobre fondo azul, con los nombres Lucía y Martín",
         tags: ["Botánico", "Romántico"],
       },
@@ -345,7 +344,6 @@ const es: SiteDict = {
         image: "/catalog/rambla-es.png",
         title: "Rambla",
         tagline: "Minimalista y a trazo",
-        summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
         imageAlt: "Avance de Rambla, próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
         tags: ["Minimalista", "A trazo"],
       },
@@ -353,7 +351,6 @@ const es: SiteDict = {
         image: "/catalog/vega-es.webp",
         title: "Vega",
         tagline: "Art nouveau, en burdeos y rosa",
-        summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
         imageAlt: "Avance de Vega, próximo diseño: marco floral art nouveau rosa sobre fondo burdeos, con los nombres Alex y David",
         tags: ["Romántico", "Art nouveau"],
       },
@@ -665,7 +662,6 @@ const en: SiteDict = {
         image: "/catalog/cala-en.webp",
         title: "Cala",
         tagline: "Botanical and romantic, in blue",
-        summary: "You'll soon be able to see it here and make it yours.",
         imageAlt: "Preview of Cala, an upcoming design: a frame of poppies and a butterfly in dark blue on a blue background, with the names Lucie and Martin",
         tags: ["Botanical", "Romantic"],
       },
@@ -673,7 +669,6 @@ const en: SiteDict = {
         image: "/catalog/rambla-en.png",
         title: "Rambla",
         tagline: "Minimal and line-drawn",
-        summary: "You'll soon be able to see it here and make it yours.",
         imageAlt: "Preview of Rambla, an upcoming design: a line-drawn couple holding two photos of themselves as children",
         tags: ["Minimal", "Line-drawn"],
       },
@@ -681,7 +676,6 @@ const en: SiteDict = {
         image: "/catalog/vega-en.webp",
         title: "Vega",
         tagline: "Art nouveau, in burgundy and pink",
-        summary: "You'll soon be able to see it here and make it yours.",
         imageAlt: "Preview of Vega, an upcoming design: a pink art nouveau floral frame on a burgundy background, with the names Alex and David",
         tags: ["Romantic", "Art nouveau"],
       },
