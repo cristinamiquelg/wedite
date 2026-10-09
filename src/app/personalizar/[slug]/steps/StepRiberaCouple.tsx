@@ -1,3 +1,5 @@
+import TranslationReview from "@/components/customize/TranslationReview";
+import { MAX_LENGTH } from "@/lib/translatable";
 import type { WeddingData } from "@/lib/wedding-types";
 import { Field, TextArea, TextInput } from "@/components/customize/fields";
 import DatePicker, { todayISO } from "@/components/customize/DatePicker";
@@ -7,7 +9,6 @@ import { hasMinLength, missingForStep, type RequiredField } from "@/lib/wizard-r
 
 const NAME_MAX_LENGTH = 40;
 const PLACE_MAX_LENGTH = 60;
-const WELCOME_MAX_LENGTH = 160;
 
 export default function StepRiberaCouple({
   data,
@@ -101,9 +102,16 @@ export default function StepRiberaCouple({
             aria-invalid={errorFor("welcomeMessage") ? true : undefined}
             onChange={(e) => onChange({ welcomeMessage: e.target.value })}
             placeholder={dict.stepCouple.welcomeMessagePlaceholder}
-            maxLength={WELCOME_MAX_LENGTH}
+            maxLength={MAX_LENGTH.welcomeMessage}
           />
         </Field>
+        <div className="mt-2">
+          <TranslationReview
+            fields={[
+              { label: dict.stepCouple.welcomeMessage, text: data.welcomeMessage, maxLength: MAX_LENGTH.welcomeMessage, multiline: true },
+            ]}
+          />
+        </div>
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
+import TranslationReview from "@/components/customize/TranslationReview";
+import { MAX_LENGTH } from "@/lib/translatable";
 import { useState } from "react";
-import type { WeddingData } from "@/lib/wedding-types";
+import { emptyWeddingData, type WeddingData } from "@/lib/wedding-types";
 import { blobToDataUrl, resizeImageToJpeg } from "@/lib/resize-image";
 import { Field, TextArea, TextInput } from "@/components/customize/fields";
 import IllustrationLoader from "@/components/customize/IllustrationLoader";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
-const TITLE_MAX_LENGTH = 50;
-const STORY_MAX_LENGTH = 600;
 const HASHTAG_MAX_LENGTH = 30;
 
 // A hashtag is one run of text with no spaces, always led by "#". The field
@@ -67,18 +67,31 @@ export default function StepStory({
           value={data.storyTitle}
           onChange={(e) => onChange({ storyTitle: e.target.value })}
           placeholder={dict.sectionTitlePlaceholder}
-          maxLength={TITLE_MAX_LENGTH}
+          maxLength={MAX_LENGTH.storyTitle}
         />
       </Field>
+      <TranslationReview
+        fields={[
+          {
+            label: dict.sectionTitle,
+            // Untouched, the title is each language's own default and needs no translation.
+            text: data.storyTitle === emptyWeddingData.storyTitle ? "" : data.storyTitle,
+            maxLength: MAX_LENGTH.storyTitle,
+          },
+        ]}
+      />
       <Field label={dict.yourStory}>
         <TextArea
           rows={10}
           value={data.story}
           onChange={(e) => onChange({ story: e.target.value })}
           placeholder={dict.yourStoryPlaceholder}
-          maxLength={STORY_MAX_LENGTH}
+          maxLength={MAX_LENGTH.story}
         />
       </Field>
+      <TranslationReview
+        fields={[{ label: dict.yourStory, text: data.story, maxLength: MAX_LENGTH.story, multiline: true }]}
+      />
       <Field label={dict.storyImage}>
         <div className="flex items-center gap-4">
           {drawing ? (

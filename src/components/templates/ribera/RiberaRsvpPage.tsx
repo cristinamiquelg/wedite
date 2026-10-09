@@ -17,6 +17,7 @@ export default function RiberaRsvpPage({
   backHref,
   initialLocale,
   siteSlug,
+  forceLocale,
 }: {
   data: WeddingData;
   /** Content written per language (the demo): the version for the language being read replaces `data`. */
@@ -25,10 +26,17 @@ export default function RiberaRsvpPage({
   initialLocale?: string;
   /** Set on a couple's published site, so the answers are sent to the server. */
   siteSlug?: string;
+  /** Show this language now (the wizard, while a translation is being reviewed). */
+  forceLocale?: { locale: Locale; n: number };
 }) {
   const [locale, setLocale] = useState<Locale>(() =>
     baseData.locales.find((l) => l === initialLocale) ?? baseData.locales[0] ?? "es",
   );
+  const [forcedSeen, setForcedSeen] = useState(forceLocale?.n);
+  if (forceLocale && forceLocale.n !== forcedSeen) {
+    setForcedSeen(forceLocale.n);
+    if (baseData.locales.includes(forceLocale.locale)) setLocale(forceLocale.locale);
+  }
   const dict = getDict(locale);
   // A language the couple has since turned off falls back to what's left.
   const activeLocale = baseData.locales.includes(locale) ? locale : (baseData.locales[0] ?? "es");

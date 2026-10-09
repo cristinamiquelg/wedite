@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
 import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
-import { renderRsvpPage, type TemplateSlug } from "@/components/templates/registry";
+import { renderRsvpPage, type ForcedLocale, type TemplateSlug } from "@/components/templates/registry";
+import { localizeWeddingData } from "@/lib/translatable";
 
 // The standalone RSVP page of a template. Mirrors PreviewClient's data
 // rules: the curated demo by default, the saved draft only with ?draft=1.
@@ -14,6 +15,7 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
   const isDraft = params.get("draft") === "1";
   // A draft starts from the empty template, never the demo (see PreviewClient).
   const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingData()));
+  const [forceLocale, setForceLocale] = useState<ForcedLocale>();
 
   useEffect(() => {
     if (!isDraft) return;
@@ -31,6 +33,9 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
       if (event.origin === window.location.origin && msg && msg.type === "wedite:update" && msg.slug === slug) {
         setData({ ...emptyWeddingData, ...(msg.data as WeddingData) });
       }
+      if (event.origin === window.location.origin && msg && msg.type === "wedite:setLocale" && msg.slug === slug && (msg.locale === "es" || msg.locale === "en")) {
+        setForceLocale((prev) => ({ locale: msg.locale, n: (prev?.n ?? 0) + 1 }));
+      }
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
@@ -39,6 +44,7 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
   return renderRsvpPage(slug, data, {
     backHref: `/preview/${slug}${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
-    localized: isDraft ? undefined : riberaDemoByLocale,
+    localized: isDraft ? localizeWeddingData(data) : riberaDemoByLocale,
+    forceLocale,
   });
 }

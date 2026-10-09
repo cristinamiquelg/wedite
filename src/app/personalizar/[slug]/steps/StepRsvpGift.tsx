@@ -1,10 +1,11 @@
+import TranslationReview from "@/components/customize/TranslationReview";
+import { MAX_LENGTH } from "@/lib/translatable";
 import type { ContactPerson, WeddingData } from "@/lib/wedding-types";
 import { Field, TextArea, TextInput } from "@/components/customize/fields";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
 const MAX_CONTACTS = 2;
-const GIFT_MESSAGE_MAX_LENGTH = 300;
 const GIFT_HOLDER_MAX_LENGTH = 60;
 const GIFT_ACCOUNT_MAX_LENGTH = 40;
 const CONTACT_NAME_MAX_LENGTH = 40;
@@ -48,9 +49,12 @@ export default function StepRsvpGift({
               value={data.giftMessage}
               onChange={(e) => onChange({ giftMessage: e.target.value })}
               placeholder={dict.messagePlaceholder}
-              maxLength={GIFT_MESSAGE_MAX_LENGTH}
+              maxLength={MAX_LENGTH.giftMessage}
             />
           </Field>
+          <TranslationReview
+            fields={[{ label: dict.message, text: data.giftMessage, maxLength: MAX_LENGTH.giftMessage, multiline: true }]}
+          />
           <Field label={dict.accountHolder}>
             <TextInput
               value={data.giftHolderName}

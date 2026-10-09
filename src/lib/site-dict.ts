@@ -183,7 +183,19 @@ export type SiteDict = {
     required: string;
     fieldRequired: string;
     remove: string;
-    stepLanguage: { intro: string; included: string };
+    stepLanguage: { intro: string; included: string; writtenInTitle: string; writtenInHint: string };
+    translation: {
+      languageName: Record<"es" | "en", string>;
+      review: (language: string) => string;
+      title: (language: string) => string;
+      hint: string;
+      close: string;
+      pending: string;
+      ready: string;
+      edited: string;
+      failed: string;
+      retranslate: string;
+    };
     stepCouple: {
       yourName: string;
       partnerName: string;
@@ -510,6 +522,20 @@ const es: SiteDict = {
     stepLanguage: {
       intro: "Elegid en qué idiomas estará disponible vuestra web. Podéis elegir más de uno: si la boda es bilingüe, vuestros invitados podrán cambiar de idioma con un selector en la propia web.",
       included: "Incluido",
+      writtenInTitle: "¿En qué idioma vais a escribir los textos?",
+      writtenInHint: "Traducimos automáticamente vuestros textos al otro idioma. En cada campo podréis revisar y corregir la traducción.",
+    },
+    translation: {
+      languageName: { es: "español", en: "inglés" },
+      review: (language) => `Revisar la traducción al ${language}`,
+      title: (language) => `Traducción al ${language}`,
+      hint: "Es lo que leerán vuestros invitados en ese idioma. Corregidla si queréis.",
+      close: "Cerrar",
+      pending: "Traduciendo…",
+      ready: "Traducido automáticamente",
+      edited: "Corregido por vosotros",
+      failed: "No hemos podido traducirlo. Escribidlo vosotros o probad otra vez.",
+      retranslate: "Volver a traducir",
     },
     stepCouple: {
       yourName: "Tu nombre",
@@ -838,6 +864,20 @@ const en: SiteDict = {
     stepLanguage: {
       intro: "Choose which languages your website will be available in. You can pick more than one: if the wedding is bilingual, your guests will be able to switch language with a selector on the site itself.",
       included: "Included",
+      writtenInTitle: "Which language will you write your texts in?",
+      writtenInHint: "We automatically translate your texts into the other language. In each field you can review and correct the translation.",
+    },
+    translation: {
+      languageName: { es: "Spanish", en: "English" },
+      review: (language) => `Review the ${language} translation`,
+      title: (language) => `${language} translation`,
+      hint: "This is what your guests will read in that language. Correct it if you like.",
+      close: "Close",
+      pending: "Translating…",
+      ready: "Translated automatically",
+      edited: "Corrected by you",
+      failed: "We couldn't translate it. Write it yourselves or try again.",
+      retranslate: "Translate again",
     },
     stepCouple: {
       yourName: "Your name",

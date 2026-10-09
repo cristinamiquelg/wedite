@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { isKnownTemplateSlug, renderTemplate } from "@/components/templates/registry";
 import { loadPublishedSite } from "@/lib/published-site";
+import { localizeWeddingData } from "@/lib/translatable";
 
 export const dynamic = "force-dynamic";
 
@@ -21,5 +22,9 @@ export default async function PublishedSitePage({
   const site = await loadPublishedSite(slug);
   if (!site || !isKnownTemplateSlug(site.templateSlug)) notFound();
   const { lang } = await searchParams;
-  return renderTemplate(site.templateSlug, site.data, { rsvpHref: `/${slug}/rsvp`, initialLocale: lang });
+  return renderTemplate(site.templateSlug, site.data, {
+    rsvpHref: `/${slug}/rsvp`,
+    initialLocale: lang,
+    localized: localizeWeddingData(site.data),
+  });
 }
