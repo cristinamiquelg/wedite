@@ -536,7 +536,6 @@ export default function RiberaTemplate({
       )}
 
       <footer id="footer" className={styles.footer}>
-        {data.hashtag ? <p className={styles.footerHashtag}>{data.hashtag}</p> : null}
         <p>
           {dict.ribera.footer.madeWith}{" "}
           <Link href="/" className="group inline-flex items-center gap-1" style={{ color: "var(--r-coral)" }}>
@@ -544,6 +543,7 @@ export default function RiberaTemplate({
             <SparkleIcon className="h-3 w-3 transition-transform duration-300 group-hover:rotate-90 group-hover:scale-125" />
           </Link>
         </p>
+        {data.hashtag ? <p className={styles.footerHashtag}>{data.hashtag}</p> : null}
       </footer>
     </div>
   );
