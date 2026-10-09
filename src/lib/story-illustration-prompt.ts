@@ -13,22 +13,24 @@ LINEWORK (match the second image closely)
 - Rich but selective interior detail, as in the references: hair drawn as many separate flowing strands that follow its direction (and a few loose stray hairs), folds and creases in the clothes drawn with short curved strokes, collars, cuffs, seams, buttons, small accessories, the shape of hands and fingers. Clothes and hair are described by lines that follow their form, never by shading.
 - Show only the lines that matter: let some contours break open, as the references do, so the drawing breathes.
 
-NO FILLS (very important)
-- Nothing is filled. No solid colour, no wash, no beige / cream / peach / pink patches behind or inside the figures, no blobs of ink, no shading, no gradients, no cross-hatching, no shadows. Everything inside the outlines stays empty and transparent.
+NO FILLS, NO SOLID INK (very important)
+- Nothing is filled. Every shape is drawn as an OUTLINE and its inside stays empty and transparent. No solid or blacked-in areas of any size: not in the hair, not in the mouth or eyes, not in clothes, shoes, objects, shadows or under the chin. No beige / cream / peach / pink patches, no blobs of ink, no shading, no gradients, no cross-hatching, no dense masses of parallel strokes, no shadows.
+- Hair is NEVER a dark mass: draw it as an outline of its shape plus a limited number of separate, flowing strand lines with clear empty space between them, as the woman's hair in the second image.
+- Where the photograph is dark (hair, shadows, a dark garment), leave it empty and suggest it with a few lines only.
 
 COLOUR
 - One single flat colour for every line: Ribera coral red, exactly #DD3E3E (RGB 221, 62, 62), the same red as the three drawings of the second image. Not orange, not vermilion, not salmon, not pink, not brick. No black, no grey, no second colour, no tints.
 
 SUBJECT
 - Stay faithful to the photograph: the pose, how the people sit or stand relative to each other, their proportions, their hairstyles, their clothes and the objects they hold. They must be recognisable as this couple through silhouette, clothes and gesture.
-- Draw faces simply and with very few lines (eyes, brows, nose, mouth as small confident marks), kept natural and flattering; never a realistic or cartoonish face. People seen from behind need no face.
+- Faces: simple, calm, natural and flattering, with true-to-life proportions (never enlarged eyes, never exaggerated features, never a caricature or a cartoon). Use very few lines: a small curved line per eye with a tiny pupil dot, light eyebrows, a short nose line, a mouth drawn with one or two thin lines (a gentle smile if the person smiles). Keep both eyes the same size and the face symmetrical in its own perspective. For babies and young children use soft round cheeks and a small nose and mouth, with eyes no bigger than an adult's relative to the face. If a hand, toy or object covers part of the face, simply draw the outline of the hand and the object in front and leave the face's hidden part out. People seen from behind need no face.
 - The people are the only subject. Leave out the room, furniture, wallpaper, curtains, carpet and every other element of the photograph's background.
 
 GROUND
 - Below the figures draw a few loose, horizontal ground strokes of different lengths (short dashes and a couple of longer lines), exactly like the strokes under the church and the bus in the second image, so the figures sit on something. Nothing else: no sky, no clouds, no horizon, no hills, no trees, no scenery, no floating strokes in the air.
 
 CANVAS
-- A SQUARE canvas (1:1). The drawing is centred, with its ground strokes included, and fills roughly 75% of the width or height, with an even empty margin around it on every side; nothing touches or is cut by the edge.
+- A SQUARE canvas (1:1). The WHOLE drawing, ground strokes included, is centred and fits inside the middle 70% of the canvas, leaving an empty margin of at least 15% of the canvas on every side. No part of any figure touches, crowds or is cut by the edge; if the photograph is cropped tightly, show the figures a little smaller and complete (draw the lower part of the arms and clothes as an open, fading outline) rather than running out of the canvas.
 - Transparent background. No frame, no border, no text, no signature, no paper texture, no photographic lighting.
 
-Final check before you answer: bold-to-fine brush-pen strokes with tapered ends and detailed hair and clothes folds, nothing filled in, only the colour #DD3E3E, square canvas with generous margin, a few ground strokes underneath, and it sits naturally next to the church, the woman and the bus of the second image.`;
+Final check before you answer: bold-to-fine brush-pen strokes with tapered ends and detailed hair and clothes folds, no solid ink anywhere (hair as separate strands), simple natural faces, only the colour #DD3E3E, square canvas with a generous margin on every side, a few ground strokes underneath, and it sits naturally next to the church, the woman and the bus of the second image.`;
