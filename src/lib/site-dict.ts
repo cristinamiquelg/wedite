@@ -224,12 +224,10 @@ export type SiteDict = {
       removeContactPerson: string;
     };
     stepRsvpForm: {
-      intro: string;
       askBus: string;
       askBusHint: string;
       askContact: string;
       askContactHint: string;
-      phoneNote: string;
     };
     stepItinerary: {
       intro: string;
@@ -553,12 +551,10 @@ const es: SiteDict = {
       removeContactPerson: "Quitar",
     },
     stepRsvpForm: {
-      intro: "Así es el formulario que rellenarán vuestros invitados: primero su nombre y si vienen, luego sus intolerancias y datos, y por último sus acompañantes. Aquí decidís qué más les preguntáis.",
       askBus: "Preguntar si necesitan autobús",
       askBusHint: "Cada invitado (y cada acompañante) indicará si va en bus.",
-      askContact: "Pedir datos de contacto",
-      askContactHint: "Teléfono y/o e-mail, por si hay cambios. Si lo desactiváis, no se piden.",
-      phoneNote: "El campo de teléfono solo admite números (y un + al principio).",
+      askContact: "Pedir teléfono o e-mail a los invitados",
+      askContactHint: "Por si hay cambios. Si lo desactiváis, no se piden.",
     },
     stepItinerary: {
       intro: "Organizad el día en fases: puede haber solo una (la boda) o tantas como queráis (pre-boda, boda, post-boda...). Dentro de cada fase, añadid los lugares donde sucede.",
@@ -883,12 +879,10 @@ const en: SiteDict = {
       removeContactPerson: "Remove",
     },
     stepRsvpForm: {
-      intro: "This is the form your guests will fill in: first their name and whether they're coming, then their intolerances and details, and finally their plus-ones. Here you decide what else to ask them.",
       askBus: "Ask whether they need the bus",
       askBusHint: "Each guest (and each plus-one) says whether they'll take the bus.",
-      askContact: "Ask for contact details",
-      askContactHint: "Phone and/or e-mail, in case anything changes. If you turn it off, they aren't asked.",
-      phoneNote: "The phone field only accepts numbers (and a + at the start).",
+      askContact: "Ask guests for a phone or e-mail",
+      askContactHint: "In case anything changes. If you turn it off, they aren't asked.",
     },
     stepItinerary: {
       intro: "Organize the day into phases: there can be just one (the wedding) or as many as you like (pre-wedding, wedding, after-party...). Within each phase, add the places where it happens.",

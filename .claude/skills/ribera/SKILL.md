@@ -29,7 +29,7 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
   (intolerances, bus, phone/e-mail — all on one screen), 3. Tus acompañantes.
   A "no" to attending ends the flow after screen 1. Only the section stepper
   is shown (no "step X of Y"). The couple turns the bus question and the
-  contact fields on/off in the wizard's "Formulario" step
+  contact fields on/off in the wizard's "Formulario" step (which also holds the intro text shown on the form page, `rsvpNote`, and the organizers' contact people)
   (`WeddingData.rsvpAskBus` / `rsvpAskContact`, read through `rsvpAsksBus()` /
   `rsvpAsksContact()`); the phone only accepts digits (optional leading `+`),
   validated again in `/api/rsvp`. While that wizard step is open the preview

@@ -446,7 +446,7 @@ export default function RiberaRsvpForm({
       <div className={styles.stepBody}>
         {currentStep.kind === "attendance" ? (
           <fieldset className={styles.fieldset}>
-            <legend className={styles.formLegend}>{dict.sectionAttendance}</legend>
+            <legend className={styles.srOnly}>{dict.sectionAttendance}</legend>
             <div className={styles.formRow}>
               <TextField
                 label={dict.firstName}
@@ -481,7 +481,7 @@ export default function RiberaRsvpForm({
 
         {currentStep.kind === "info" ? (
           <fieldset className={styles.fieldset}>
-            <legend className={styles.formLegend}>{dict.legend}</legend>
+            <legend className={styles.srOnly}>{dict.legend}</legend>
             <TextField
               label={dict.dietary}
               name="dietary"
