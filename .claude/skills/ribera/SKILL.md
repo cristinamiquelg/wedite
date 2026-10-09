@@ -66,6 +66,11 @@ a real invitation (github.com/cristinamiquelg/invitacion-lk).
 - Fonts: `--r-serif` (Libre Baskerville) for body/headings, `--r-gothic`
   (Science Gothic, falls back to Oswald) for uppercase/eyebrow/labels.
 - Breakpoints: 599px, 899px, 1199px (mobile → tablet → desktop nav).
+- Vertical rhythm: `--r-sp-section` (section/card padding), `--r-sp-stack`
+  (title → content), `--r-sp-grid-row`, `--r-sp-band-y` (navy frame above and
+  below each cream card). The hero and the countdown use their own
+  `--r-sp-hero-y` on purpose — the couple likes them as they are, so opening up
+  the rest of the template's spacing must not move them.
 
 **Never use Wedite's own Tailwind tokens (`clay`, `clay-dark`, `sage`,
 `gold`, etc. from `src/app/globals.css`) inside Ribera.** Ribera is meant to
