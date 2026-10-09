@@ -69,6 +69,12 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
       }
     }
     window.addEventListener("message", onMessage);
+    // Tell the wizard this page is now listening: anything it sent before
+    // (while loading, or while the pane was hidden) was lost, so it resends the
+    // draft and the section to scroll to.
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "wedite:ready", slug }, window.location.origin);
+    }
     return () => {
       window.removeEventListener("message", onMessage);
       if (scrollTimer) clearTimeout(scrollTimer);

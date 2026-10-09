@@ -36,7 +36,7 @@ const steps: StepDef[] = [
   { key: "story", sectionId: "historia", Component: StepStory },
   { key: "itinerary", sectionId: "itinerario", Component: StepItinerary },
   { key: "details", sectionId: "detalles", Component: StepDetails },
-  { key: "rsvp", sectionId: "rsvp", Component: StepRsvpGift },
+  { key: "rsvp", sectionId: "regalos", Component: StepRsvpGift },
   // Its own preview: the guests' RSVP form page instead of the home.
   { key: "form", sectionId: null, Component: StepRsvpForm },
 ];
@@ -120,6 +120,20 @@ export default function CustomizeClient({ template }: { template: Template }) {
   }
 
   useEffect(sendDraft, [data, template.slug]);
+
+  // The preview page announces when it is really listening (it may have loaded
+  // before it could hear us, or inside a hidden pane): answer with the draft
+  // and the section the couple is working on.
+  useEffect(() => {
+    function onReady(event: MessageEvent) {
+      if (event.origin !== window.location.origin) return;
+      if (event.source !== iframeRef.current?.contentWindow) return;
+      if (event.data?.type === "wedite:ready") sendDraft();
+    }
+    window.addEventListener("message", onReady);
+    return () => window.removeEventListener("message", onReady);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- sendDraft only reads `data` and refs
+  }, [data, template.slug]);
 
   // Next/Back (or a step chip) is pressed at the bottom of a long step: the
   // next one has to start at its top, not wherever the pane was scrolled to.
@@ -253,6 +267,9 @@ export default function CustomizeClient({ template }: { template: Template }) {
           onClick={() => {
             setPreviewOpened(true);
             setMobileTab("preview");
+            // A hidden pane can't scroll (no layout), so whatever the couple
+            // was editing is brought into view once the preview is showing.
+            window.setTimeout(() => scrollToSection(focusedSectionRef.current), 350);
           }}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
             mobileTab === "preview" ? "bg-ink text-paper" : "text-ink-soft"

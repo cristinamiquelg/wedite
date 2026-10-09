@@ -114,6 +114,23 @@ export default function RiberaTemplate({
     }
   }, [data.locales, locale]);
   const dict = getDict(locale);
+
+  // The sticky header's real height (it changes with the breakpoint, the font
+  // and the language), published as --r-header-h: the hero takes exactly what
+  // is left of the viewport below it, and anchors land clear of the header.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const root = rootRef.current;
+    const header = headerRef.current;
+    if (!root || !header) return;
+    const publish = () => root.style.setProperty("--r-header-h", `${header.offsetHeight}px`);
+    publish();
+    const observer = new ResizeObserver(publish);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
   // The RSVP form lives on its own page; carry the guest's current language
   // over so the form opens in the language they were reading.
   const rsvpLink = rsvpHref ? `${rsvpHref}${rsvpHref.includes("?") ? "&" : "?"}lang=${locale}` : "#rsvp";
@@ -177,8 +194,8 @@ export default function RiberaTemplate({
   ) : null;
 
   return (
-    <div className={styles.root}>
-      <header className={styles.header}>
+    <div className={styles.root} ref={rootRef}>
+      <header className={styles.header} ref={headerRef}>
         <button
           type="button"
           onClick={() => setMenuOpen((open) => !open)}

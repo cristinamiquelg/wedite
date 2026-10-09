@@ -310,9 +310,19 @@
   background-color: var(--r-cream);
   background-image: var(--r-stripe-navy);
   padding: var(--r-sp-section) var(--r-sp-hero-x);
+  /* Header + hero always fill the whole viewport: the hero is whatever is left
+     below the (sticky) header, with its panel centred in it. A taller
+     panel (long names on a short screen) simply makes it taller. dvh follows
+     the mobile browser's collapsing address bar. */
+  min-height: calc(100vh - var(--r-header-h));
+  min-height: calc(100dvh - var(--r-header-h));
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .heroPanel {
   background: var(--r-cream);
+  width: 100%;
   max-width: var(--r-w-hero-panel);
   margin-inline: auto;
   padding: clamp(36px, 6vw, 80px) 24px;
@@ -360,6 +370,21 @@
   font-weight: 500;
 }
 .heroBouquet { width: var(--r-illus-bouquet); height: auto; }
+
+/* Short viewports (landscape phones, small laptop windows): tighten the hero's
+   spacing and illustration so header + hero still fit the screen exactly. */
+@media (max-height: 760px) {
+  .hero { padding-block: clamp(8px, 2.4vh, 24px); }
+  .heroPanel { padding-block: clamp(12px, 3vh, 40px); gap: clamp(8px, 2.2vh, 28px); }
+  .heroGroup { gap: clamp(4px, 1vh, 12px); }
+  .heroBouquet { width: min(var(--r-illus-bouquet), 13vh); }
+}
+@media (max-height: 420px) {
+  .hero { padding-block: 6px; }
+  .heroPanel { padding-block: 8px; gap: 6px; }
+  .heroGroup { gap: 2px; }
+  .heroBouquet { width: 10vh; }
+}
 .heroCta { padding-block: 0.75em; }
 
 /* ============================================================
