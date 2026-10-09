@@ -154,6 +154,8 @@ export type SiteDict = {
     previewTab: string;
     livePreview: string;
     iframeTitle: string;
+    fullscreen: string;
+    exitFullscreen: string;
     personalizing: (name: string) => string;
     back: string;
     next: string;
@@ -302,7 +304,7 @@ const es: SiteDict = {
     howItWorksHeading: "De cero a web de boda en tres pasos",
     steps: [
       { title: "Configurad vuestro diseño", body: "Añadid vuestra historia, itinerario, RSVP y todo lo que necesiten saber vuestros invitados. Sin registros ni compromiso." },
-      { title: "Publicadla", body: "Elegid vuestro propio dominio entre los disponibles y hacedla pública con un único pago." },
+      { title: "Publicadla", body: "Elegid la dirección de vuestra web, como wedite.com/elenayjuan, y hacedla pública con un único pago." },
       { title: "Compartidla y recoged las confirmaciones", body: "Tendréis una tabla descargable en la que gestionar todas las respuestas al formulario de confirmación." },
     ],
     mockupPublishCta: "Pagar y publicar",
@@ -461,6 +463,8 @@ const es: SiteDict = {
     previewTab: "Vista previa",
     livePreview: "Vista previa en directo",
     iframeTitle: "Vista previa en directo de vuestra web de boda",
+    fullscreen: "Pantalla completa",
+    exitFullscreen: "Salir de pantalla completa",
     personalizing: (name) => `Personalizando · ${name}`,
     back: "Atrás",
     next: "Siguiente",
@@ -613,7 +617,7 @@ const en: SiteDict = {
     howItWorksHeading: "From zero to wedding website in three steps",
     steps: [
       { title: "Set up your design", body: "Add your story, itinerary, RSVP and everything your guests need to know. No sign-ups, no commitment." },
-      { title: "Publish it", body: "Choose your own domain from the ones available and make it live with a single payment." },
+      { title: "Publish it", body: "Pick your website address, like wedite.com/elenayjuan, and make it live with a single payment." },
       { title: "Share it and start collecting responses", body: "We'll send you a downloadable spreadsheet where you can sort and filter every RSVP response." },
     ],
     mockupPublishCta: "Pay & publish",
@@ -772,6 +776,8 @@ const en: SiteDict = {
     previewTab: "Preview",
     livePreview: "Live preview",
     iframeTitle: "Live preview of your wedding website",
+    fullscreen: "Full screen",
+    exitFullscreen: "Exit full screen",
     personalizing: (name) => `Personalizing · ${name}`,
     back: "Back",
     next: "Next",
