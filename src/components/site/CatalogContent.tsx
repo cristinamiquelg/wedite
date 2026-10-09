@@ -107,7 +107,7 @@ export default function CatalogContent() {
                 className="object-cover object-center"
               />
               {/* A darker veil so it reads as "not available yet" next to the live designs. */}
-              <div aria-hidden="true" className="absolute inset-0 bg-black/20" />
+              <div aria-hidden="true" className="absolute inset-0 bg-black/15" />
               <span className="absolute left-4 top-4 rounded-full bg-ink px-3 py-1 text-xs font-medium text-paper">
                 {dict.catalog.upcomingBadge}
               </span>
