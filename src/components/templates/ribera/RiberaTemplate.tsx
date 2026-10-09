@@ -218,6 +218,7 @@ export default function RiberaTemplate({
           key={id}
           type="button"
           onClick={() => setLocale(id)}
+          aria-pressed={locale === id}
           className={`${styles.localeBtn} ${locale === id ? styles.localeBtnActive : ""}`}
         >
           {localeOptions.find((l) => l.id === id)?.id ?? id}
@@ -280,7 +281,7 @@ export default function RiberaTemplate({
         ) : null}
       </header>
 
-      <section id="top" className={`${styles.hero} fade-in-load`}>
+      <section id="top" className={styles.hero}>
         <div className={styles.heroPanel}>
           <div className={styles.heroGroup}>
             <p className={styles.scriptText}>{dict.ribera.hero.saveTheDate}</p>
@@ -339,9 +340,10 @@ export default function RiberaTemplate({
               <div className={styles.storyRow}>
                 {data.storyImageKind === "illustration" ? (
                   <figure className={styles.storyFigure}>
+                    {/* No visible caption; the AI disclosure the wizard promises
+                        the couple lives in the image's description instead. */}
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={data.storyImage} alt="" className={styles.storyIllustration} />
-                    <figcaption className={styles.storyAiNote}>{dict.ribera.storyIllustrationAiNote}</figcaption>
+                    <img src={data.storyImage} alt={dict.ribera.storyIllustrationAiNote} className={styles.storyIllustration} />
                   </figure>
                 ) : (
                   <div className={styles.storyImageWrap}>
@@ -384,7 +386,12 @@ export default function RiberaTemplate({
                     // it is a silent no-op. The phase header is the natural
                     // target when it exists; the first place picks it up
                     // otherwise (see below).
-                    <div id={`fase-${pi}`} className={styles.phase}>
+                    <div
+                      id={`fase-${pi}`}
+                      className={styles.phase}
+                      data-reveal="item"
+                      style={{ "--rv-i": 0 } as React.CSSProperties}
+                    >
                       {phase.name ? <p className={styles.phaseName}>{phase.name}</p> : null}
                       {phase.when ? (
                         <p className={styles.phaseWhen}>
@@ -393,11 +400,13 @@ export default function RiberaTemplate({
                       ) : null}
                     </div>
                   ) : null}
-                  {phase.places.map((place) => (
+                  {phase.places.map((place, k) => (
                     <article
                       key={`place-${pi}-${place.index}`}
                       id={`fase-${pi}-lugar-${place.index}`}
                       className={styles.place}
+                      data-reveal="item"
+                      style={{ "--rv-i": k + 1 } as React.CSSProperties}
                     >
                       <img
                         src={place.illus}
@@ -450,7 +459,13 @@ export default function RiberaTemplate({
               {data.detailCards.map((card, i) => {
                 const fallback = DETAIL_DEFAULTS[card.icon];
                 return (
-                  <article key={i} id={`detalle-${i}`} className={styles.detail}>
+                  <article
+                    key={i}
+                    id={`detalle-${i}`}
+                    className={styles.detail}
+                    data-reveal="item"
+                    style={{ "--rv-i": i % 3 } as React.CSSProperties}
+                  >
                     <img
                       src={DETAIL_ILLUSTRATIONS[card.icon]}
                       alt=""
@@ -541,7 +556,13 @@ export default function RiberaTemplate({
             <div className={styles.contactPeople}>
               {data.organizerContacts.map((contact, i) =>
                 contact.name || contact.phone || contact.email ? (
-                  <div key={i} id={`contacto-${i}`} className={styles.contactCard}>
+                  <div
+                    key={i}
+                    id={`contacto-${i}`}
+                    className={styles.contactCard}
+                    data-reveal="item"
+                    style={{ "--rv-i": i } as React.CSSProperties}
+                  >
                     {contact.name ? <p className={styles.contactName}>{contact.name}</p> : null}
                     {contact.phone || contact.email ? (
                       <div className={styles.contactLinks}>

@@ -66,6 +66,7 @@ export default function RiberaRsvpPage({
                   key={id}
                   type="button"
                   onClick={() => setLocale(id)}
+                  aria-pressed={activeLocale === id}
                   className={`${styles.localeBtn} ${activeLocale === id ? styles.localeBtnActive : ""}`}
                 >
                   {localeOptions.find((l) => l.id === id)?.id ?? id}
@@ -78,14 +79,18 @@ export default function RiberaRsvpPage({
 
       <main className={styles.rsvpPageMain}>
         <div className={styles.rsvpCard}>
-          <h1 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h1>
-          {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
           <RiberaRsvpForm
             locale={activeLocale}
             showBus={rsvpAsksBus(data)}
             askContact={rsvpAsksContact(data)}
             showKidsMenu={rsvpAsksKidsMenu(data)}
             siteSlug={siteSlug}
+            intro={
+              <>
+                <h1 className={styles.sectionTitle}>{dict.ribera.rsvp.title}</h1>
+                {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
+              </>
+            }
           />
         </div>
       </main>

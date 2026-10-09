@@ -188,7 +188,7 @@ export const riberaDemoWeddingData: WeddingData = {
     },
   ],
   rsvpNote:
-    "Esperamos veros el gran día. Confirmad vuestra asistencia lo antes posible; si venís en pareja o familia, con que lo rellene uno es suficiente.",
+    "Esperamos veros el gran día. Si venís en pareja o familia, con que lo rellene uno es suficiente.",
   giftMessage:
     "Tu presencia es nuestro mejor regalo, pero si quieres ayudarnos a crear nuestro nuevo hogar, puedes hacerlo por transferencia a",
   giftAccount: "ES21 2077 0024 0031 0257 5766",
@@ -257,7 +257,7 @@ export const riberaDemoWeddingDataEn: WeddingData = {
     },
   ],
   rsvpNote:
-    "We can't wait to see you on the big day. Please RSVP as soon as you can; if you're coming as a couple or a family, one reply is enough.",
+    "We can't wait to see you on the big day. If you're coming as a couple or a family, one reply is enough.",
   giftMessage:
     "Your presence is our best gift, but if you'd like to help us build our new home, you can do so by bank transfer to",
   giftAccount: "ES21 2077 0024 0031 0257 5766",

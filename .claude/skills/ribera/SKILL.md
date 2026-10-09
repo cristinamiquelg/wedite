@@ -81,6 +81,23 @@ clay, so Ribera overrides it back to navy under `.root`.
 
 ## Known gotchas (learned the hard way this session)
 
+- **Entrance fades are Ribera's own and deliberately gentle** (end of
+  `ribera.module.css`, "Entrance fades"): opacity + an 18px rise, 1.3s,
+  160ms between pieces. The hero panel and its 3 blocks fade in on load; each
+  `data-reveal` section keeps still while its children fade in order; repeated
+  items (phases, places, detail cards, contact cards) are `data-reveal="item"`
+  with `--rv-i` set in the markup so each enters when it reaches the screen.
+  An earlier "big" version (scale, rotation, sideways slides) was rejected —
+  don't add those back. Selectors need `:global(.reveal-ready)` /
+  `:global(.is-visible)`, fill-mode `backwards`, and everything stays inside
+  `prefers-reduced-motion: no-preference`.
+- **The RSVP page's title and note are passed into the form as `intro`**, so
+  the thanks screen can replace them (it shows only the bouquet, the thanks
+  and the summary — no box, no intro).
+- **The IBAN must fit on one line**: its font size is capped in `cqi` units of
+  the slip (`container-type: inline-size`), measured for this face; if the
+  gothic font or the tracking changes, re-measure the width/size ratio.
+
 - **Header + hero always fill the viewport.** `RiberaTemplate` measures the
   sticky header (ResizeObserver) and publishes it as `--r-header-h` on `.root`;
   `.hero` is `min-height: calc(100dvh - var(--r-header-h))` with its panel
