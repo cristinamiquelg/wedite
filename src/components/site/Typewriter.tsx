@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 
 const TYPING_MS_PER_CHAR = 75;
-const CARET_LINGER_MS = 1600;
 
 /**
  * Types its text out character by character, as if being written live, the
@@ -50,19 +49,16 @@ export default function Typewriter({
   useEffect(() => {
     if (!started) return;
     let i = 0;
-    let caretTimer: ReturnType<typeof setTimeout> | undefined;
     const timer = setInterval(() => {
       i += 1;
       setTyped(i);
       if (i >= text.length) {
+        // Done writing: the caret goes away at once, it doesn't stay blinking.
         clearInterval(timer);
-        caretTimer = setTimeout(() => setCaretGone(true), CARET_LINGER_MS);
+        setCaretGone(true);
       }
     }, TYPING_MS_PER_CHAR);
-    return () => {
-      clearInterval(timer);
-      if (caretTimer) clearTimeout(caretTimer);
-    };
+    return () => clearInterval(timer);
   }, [started, text]);
 
   // Regular + italic parts of any slice of the text.
