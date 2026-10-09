@@ -60,6 +60,11 @@ export default function CustomizeClient({ template }: { template: Template }) {
     () => false,
   );
   const [previewOpened, setPreviewOpened] = useState(false);
+  // Desktop: the preview pane can fill the whole screen, so the couple sees the
+  // site as their guests will. It is the same element (same iframe, no reload),
+  // stretched with CSS and, where the browser allows it, put in real fullscreen.
+  const [expanded, setExpanded] = useState(false);
+  const previewPaneRef = useRef<HTMLDivElement>(null);
   const previewShown = isDesktop || previewOpened;
   // The step where the couple already tried to continue with a mandatory field empty.
   const [attemptedStep, setAttemptedStep] = useState<number | null>(null);
@@ -72,6 +77,37 @@ export default function CustomizeClient({ template }: { template: Template }) {
   // rides along with every data update too, not just the initial focus:
   // once the target exists, the very next keystroke's re-render reveals it.
   const focusedSectionRef = useRef<string | null>(null);
+
+  function toggleExpanded() {
+    if (expanded) {
+      setExpanded(false);
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+      return;
+    }
+    setExpanded(true);
+    void previewPaneRef.current?.requestFullscreen?.().catch(() => {
+      // not allowed here: the stretched pane alone still fills the window
+    });
+  }
+
+  useEffect(() => {
+    if (!expanded) return;
+    // Leaving real fullscreen with Esc, or the key in the stretched-pane fallback.
+    const onFullscreenChange = () => {
+      if (!document.fullscreenElement) setExpanded(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setExpanded(false);
+      if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
+    };
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [expanded]);
 
   function sendDraft() {
     iframeRef.current?.contentWindow?.postMessage(
@@ -302,8 +338,9 @@ export default function CustomizeClient({ template }: { template: Template }) {
         </div>
 
         <div
+          ref={previewPaneRef}
           className={`flex-col border-line bg-paper lg:flex lg:border-l ${
-            mobileTab === "preview" ? "flex" : "hidden"
+            expanded ? "fixed inset-0 z-50 flex" : mobileTab === "preview" ? "flex" : "hidden"
           }`}
         >
           <div className="flex items-center gap-1.5 border-b border-line px-4 py-3">
@@ -311,6 +348,21 @@ export default function CustomizeClient({ template }: { template: Template }) {
             <span className="h-2.5 w-2.5 rounded-full bg-line" />
             <span className="h-2.5 w-2.5 rounded-full bg-line" />
             <span className="ml-3 text-xs text-ink-soft">{dict.wizard.livePreview}</span>
+            <button
+              type="button"
+              onClick={toggleExpanded}
+              aria-pressed={expanded}
+              className="ml-auto hidden cursor-pointer items-center gap-1.5 rounded-full border border-line px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:border-ink hover:text-ink lg:inline-flex"
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                {expanded ? (
+                  <path d="M6 2v4H2M10 14v-4h4M14 6h-4V2M2 10h4v4" />
+                ) : (
+                  <path d="M2 6V2h4M14 10v4h-4M10 2h4v4M6 14H2v-4" />
+                )}
+              </svg>
+              {expanded ? dict.wizard.exitFullscreen : dict.wizard.fullscreen}
+            </button>
           </div>
           {/* The iframe is absolutely sized inside a relative box: some mobile
               browsers (iOS Safari) size an in-flow iframe to its content, or
