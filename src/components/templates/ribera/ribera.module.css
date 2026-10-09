@@ -1002,16 +1002,21 @@
   background: var(--r-navy);
   color: var(--r-cream);
   padding: 28px var(--r-sp-header-x);
+  /* "Hecho con Wedite" on the far left, the couple's hashtag on the far right;
+     if they don't fit side by side the hashtag drops to its own line, still at the right. */
   display: flex;
-  flex-direction: column;
-  gap: 8px;
-  text-align: center;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 24px;
 }
 .footer p { margin: 0; font-size: var(--r-fs-small); }
-.footerHashtag {
+.footer .footerHashtag {
   font-family: var(--r-gothic);
   color: var(--r-coral);
   letter-spacing: 0.02em;
+  margin-left: auto;
+  text-align: right;
 }
 
 /* ============================================================
