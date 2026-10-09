@@ -21,7 +21,6 @@ type Shot = {
 // and they'll flow into the columns automatically.
 const shots: Shot[] = [
   {
-    // TODO: the Spanish cover still has to be supplied (this one is in English).
     src: { es: "/hero/ribera-es.png", en: "/hero/ribera-en.png" },
     template: "Ribera",
     slug: "ribera",
@@ -29,6 +28,16 @@ const shots: Shot[] = [
     alt: {
       es: "Ribera, un diseño de Wedite: la portada con los nombres, la fecha y el lugar de la boda",
       en: "Ribera, a Wedite design: the cover with the couple's names, the date and the venue",
+    },
+  },
+  {
+    src: { es: "/hero/cala-es.png", en: "/hero/cala-en.png" },
+    template: "Cala",
+    slug: "cala",
+    label: "Portada",
+    alt: {
+      es: "Avance de Cala, próximo diseño de Wedite: marco de amapolas y una mariposa en azul oscuro sobre fondo azul",
+      en: "Preview of Cala, an upcoming Wedite design: a frame of poppies and a butterfly in dark blue on a blue background",
     },
   },
   {
@@ -42,7 +51,7 @@ const shots: Shot[] = [
     },
   },
   {
-    src: { es: "/hero/proximo-diseno-2.jpg", en: "/hero/proximo-diseno-2.jpg" },
+    src: { es: "/hero/vega-es.webp", en: "/hero/vega-en.webp" },
     template: "Vega",
     slug: "vega",
     label: "Portada",
@@ -59,10 +68,10 @@ const shots: Shot[] = [
 // of moving in lockstep. Five cards per column (not four) so there's
 // enough buffer height for the bigger travel distance below.
 const columns: { order: number[]; speed: number }[] = [
-  { order: [0, 1, 2, 0, 1], speed: 0.55 },
-  { order: [1, 2, 0, 1, 2], speed: -0.75 },
-  { order: [2, 0, 1, 2, 0], speed: 0.9 },
-  { order: [0, 2, 1, 0, 2], speed: -0.5 },
+  { order: [0, 1, 2, 3, 0], speed: 0.55 },
+  { order: [2, 3, 0, 1, 2], speed: -0.75 },
+  { order: [1, 2, 3, 0, 1], speed: 0.9 },
+  { order: [3, 0, 1, 2, 3], speed: -0.5 },
 ];
 
 function Card({ shot, locale }: { shot: Shot; locale: SiteLocale }) {

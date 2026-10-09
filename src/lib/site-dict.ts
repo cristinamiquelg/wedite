@@ -336,6 +336,14 @@ const es: SiteDict = {
     upcomingBadge: "Próximamente",
     upcoming: [
       {
+        image: "/catalog/cala-es.webp",
+        title: "Cala",
+        tagline: "Botánico y romántico, en azul",
+        summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
+        imageAlt: "Avance de Cala, próximo diseño: marco de amapolas y una mariposa en azul oscuro sobre fondo azul, con los nombres Lucía y Martín",
+        tags: ["Botánico", "Romántico"],
+      },
+      {
         image: "/catalog/proximo-diseno.jpg",
         title: "Rambla",
         tagline: "Minimalista y a trazo",
@@ -344,7 +352,7 @@ const es: SiteDict = {
         tags: ["Minimalista", "A trazo"],
       },
       {
-        image: "/catalog/proximo-diseno-2.jpg",
+        image: "/catalog/vega-es.webp",
         title: "Vega",
         tagline: "Art nouveau, en burdeos y rosa",
         summary: "Muy pronto podréis verlo aquí y hacerlo vuestro.",
@@ -658,6 +666,14 @@ const en: SiteDict = {
     upcomingBadge: "Coming soon",
     upcoming: [
       {
+        image: "/catalog/cala-en.webp",
+        title: "Cala",
+        tagline: "Botanical and romantic, in blue",
+        summary: "You'll soon be able to see it here and make it yours.",
+        imageAlt: "Preview of Cala, an upcoming design: a frame of poppies and a butterfly in dark blue on a blue background, with the names Lucie and Martin",
+        tags: ["Botanical", "Romantic"],
+      },
+      {
         image: "/catalog/proximo-diseno.jpg",
         title: "Rambla",
         tagline: "Minimal and line-drawn",
@@ -666,7 +682,7 @@ const en: SiteDict = {
         tags: ["Minimal", "Line-drawn"],
       },
       {
-        image: "/catalog/proximo-diseno-2.jpg",
+        image: "/catalog/vega-en.webp",
         title: "Vega",
         tagline: "Art nouveau, in burgundy and pink",
         summary: "You'll soon be able to see it here and make it yours.",
