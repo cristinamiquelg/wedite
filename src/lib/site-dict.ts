@@ -27,6 +27,8 @@ export type SiteDict = {
     otherProvidersLabel: string;
     painPoints: string[];
     wediteLabel: string;
+    compareNo: string;
+    compareYes: string;
     promisesHeadingPre: string;
     promisesHeadingItalic: string;
     promises: { title: string; body: string }[];
@@ -314,6 +316,8 @@ const es: SiteDict = {
       "Webs pensadas para ordenador cuando tus invitados están en WhatsApp.",
     ],
     wediteLabel: "Wedite",
+    compareNo: "No",
+    compareYes: "Sí",
     promisesHeadingPre: "Wedite crea las webs que",
     promisesHeadingItalic: "deberían de ser.",
     promises: [
@@ -654,6 +658,8 @@ const en: SiteDict = {
       "Websites built for desktop when your guests are on WhatsApp.",
     ],
     wediteLabel: "Wedite",
+    compareNo: "No",
+    compareYes: "Yes",
     promisesHeadingPre: "Wedite builds the websites weddings",
     promisesHeadingItalic: "deserve.",
     promises: [

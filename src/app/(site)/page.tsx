@@ -163,51 +163,65 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div
-            data-reveal
-            style={{ transitionDelay: "120ms" }}
-            className="relative mt-14 grid overflow-hidden rounded-2xl border border-line sm:grid-cols-2"
-          >
-            <div className="flex flex-col gap-5 p-8 sm:p-10">
-              <p className="text-xs uppercase tracking-[0.3em] text-ink-soft">{home.otherProvidersLabel}</p>
-              <ul className="flex flex-col gap-4">
-                {home.painPoints.map((p, i) => (
-                  <li
-                    key={p}
+          {/* A real comparison: each problem sits opposite the answer to it. Wedite's column is the dark,
+              raised one (it is the one to look at); the others are plain, with a filled "no" mark. On a
+              phone every pair becomes a small card: the problem, then the answer. */}
+          <div className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-[1fr_1.08fr] sm:gap-0">
+            <div data-reveal className="hidden items-end px-8 pb-5 text-xs uppercase tracking-[0.3em] text-ink-soft sm:flex">
+              {home.otherProvidersLabel}
+            </div>
+            <div
+              data-reveal
+              className="hidden items-center gap-2 rounded-t-2xl bg-ink px-8 pb-5 pt-7 font-display text-2xl text-paper shadow-[0_24px_50px_-30px_rgba(33,29,26,0.6)] sm:flex"
+            >
+              {home.wediteLabel}
+              <SparkleIcon className="h-4 w-4 -translate-y-1 text-clay" />
+            </div>
+            {home.painPoints.map((pain, i) => {
+              const promise = home.promises[i];
+              const last = i === home.painPoints.length - 1;
+              return (
+                <div key={pain} className="overflow-hidden rounded-2xl border border-line sm:contents">
+                  <div
                     data-reveal
                     style={{ transitionDelay: `${i * 90}ms` }}
-                    className="flex items-start gap-3 text-ink-soft"
+                    className={`flex items-start gap-4 bg-paper-raised p-6 sm:bg-transparent sm:px-8 sm:py-7 sm:border-t sm:border-line`}
                   >
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line text-[10px] text-ink-soft/70">
-                      ✕
+                    <span
+                      role="img"
+                      aria-label={home.compareNo}
+                      className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-clay-dark text-paper"
+                    >
+                      <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+                        <path d="M4 4l8 8M12 4l-8 8" />
+                      </svg>
                     </span>
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-5 border-t border-line bg-clay/5 p-8 sm:border-t-0 sm:border-l sm:p-10">
-              <p className="text-xs uppercase tracking-[0.3em] text-clay">{home.wediteLabel}</p>
-              <ul className="flex flex-col gap-4">
-                {home.promises.map((p, i) => (
-                  <li
-                    key={p.title}
-                    data-reveal
-                    style={{ transitionDelay: `${i * 90}ms` }}
-                    className="flex items-start gap-3 text-ink"
-                  >
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-clay text-[10px] font-bold text-paper">
-                      ✓
-                    </span>
-                    <span>
-                      <span className="font-medium text-ink">{p.title}</span>
-                      <span className="block text-sm text-ink-soft">{p.body}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    <p className="text-ink-soft">{pain}</p>
+                  </div>
+                  {promise ? (
+                    <div
+                      data-reveal
+                      style={{ transitionDelay: `${i * 90 + 60}ms` }}
+                      className={`flex items-start gap-4 bg-ink p-6 text-paper sm:px-8 sm:py-7 sm:border-t sm:border-paper/10 ${last ? "sm:rounded-b-2xl" : ""} sm:shadow-[0_24px_50px_-30px_rgba(33,29,26,0.6)]`}
+                    >
+                      <span
+                        role="img"
+                        aria-label={home.compareYes}
+                        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-light text-sage"
+                      >
+                        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 8.5l3 3 7-7" />
+                        </svg>
+                      </span>
+                      <p>
+                        <span className="block text-lg font-medium leading-snug">{promise.title}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-paper/75">{promise.body}</span>
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
 
           <h2 className="mt-14 text-center font-display text-3xl">
