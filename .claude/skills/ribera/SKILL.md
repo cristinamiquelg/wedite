@@ -120,7 +120,7 @@ clay, so Ribera overrides it back to navy under `.root`.
   menu sends `wedite:rsvpFocus` (via `PreviewControlContext`) to the RSVP preview,
   where `RiberaRsvpForm`'s `demoFocus` prop takes the form to that screen (answers
   "yes, I'm coming", adds a companion for the kids' menu), scrolls to `#rsvp-bus` /
-  `#rsvp-contact` / `#rsvp-kids` and makes it glow (`data-flash`). The mobile
+  `#rsvp-contact` / `#rsvp-kids` and draws a thin navy rule across its top edge (`data-flash`, never a coloured halo). The mobile
   Preview tab re-sends it when opened. If you add a switch, give its element an id
   `rsvp-<target>` and handle the target in `RiberaRsvpForm`.
 

@@ -44,11 +44,14 @@ function SortablePhase({
   id,
   index,
   handleLabel,
+  reorderable,
   children,
 }: {
   id: string;
   index: number;
   handleLabel: string;
+  /** With a single phase there is nothing to reorder, so no handle is shown. */
+  reorderable: boolean;
   children: React.ReactNode;
 }) {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
@@ -61,20 +64,22 @@ function SortablePhase({
         isDragging ? "relative z-20 border-clay shadow-[0_18px_40px_-20px_rgba(33,29,26,0.45)]" : "border-line"
       }`}
     >
-      <button
-        type="button"
-        ref={setActivatorNodeRef}
-        aria-label={handleLabel}
-        title={handleLabel}
-        {...attributes}
-        {...listeners}
-        // touch-none: a finger on the handle drags instead of scrolling the page.
-        className={`-ml-1 mt-0.5 flex h-8 w-6 shrink-0 touch-none items-center justify-center rounded text-ink-soft/70 transition-colors hover:bg-sage-light hover:text-ink focus-visible:outline-2 focus-visible:outline-clay ${
-          isDragging ? "cursor-grabbing" : "cursor-grab"
-        }`}
-      >
-        <GripIcon />
-      </button>
+      {reorderable ? (
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          aria-label={handleLabel}
+          title={handleLabel}
+          {...attributes}
+          {...listeners}
+          // touch-none: a finger on the handle drags instead of scrolling the page.
+          className={`-ml-1 mt-0.5 flex h-8 w-6 shrink-0 touch-none items-center justify-center rounded text-ink-soft/70 transition-colors hover:bg-sage-light hover:text-ink focus-visible:outline-2 focus-visible:outline-clay ${
+            isDragging ? "cursor-grabbing" : "cursor-grab"
+          }`}
+        >
+          <GripIcon />
+        </button>
+      ) : null}
       <div className="flex min-w-0 flex-1 flex-col gap-4">{children}</div>
     </div>
   );
@@ -172,7 +177,7 @@ export default function StepItinerary({
       >
       <SortableContext items={keys} strategy={verticalListSortingStrategy}>
       {data.phases.map((phase, pi) => (
-        <SortablePhase key={keys[pi]} id={keys[pi]} index={pi} handleLabel={dict.stepItinerary.dragHandle}>
+        <SortablePhase key={keys[pi]} id={keys[pi]} index={pi} handleLabel={dict.stepItinerary.dragHandle} reorderable={data.phases.length > 1}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
               <TextInput
