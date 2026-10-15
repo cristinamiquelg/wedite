@@ -116,6 +116,14 @@ clay, so Ribera overrides it back to navy under `.root`.
   draft and the section to scroll to — needed on mobile, where the iframe is
   hidden or unmounted until the Preview tab opens.
 
+- **Wizard "Formulario" switches steer the preview**: toggling bus / contact / kids
+  menu sends `wedite:rsvpFocus` (via `PreviewControlContext`) to the RSVP preview,
+  where `RiberaRsvpForm`'s `demoFocus` prop takes the form to that screen (answers
+  "yes, I'm coming", adds a companion for the kids' menu), scrolls to `#rsvp-bus` /
+  `#rsvp-contact` / `#rsvp-kids` and makes it glow (`data-flash`). The mobile
+  Preview tab re-sends it when opened. If you add a switch, give its element an id
+  `rsvp-<target>` and handle the target in `RiberaRsvpForm`.
+
 - **`display:none` elements report an all-zero `getBoundingClientRect()`.**
   Never put a scroll-target `id` on a `display:none` anchor —
   `scrollIntoView()` on it is a silent no-op. Put ids on real, rendered

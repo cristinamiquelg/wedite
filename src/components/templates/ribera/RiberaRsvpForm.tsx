@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { getDict, type Locale } from "@/lib/i18n";
 import styles from "./ribera.module.css";
 
@@ -217,6 +217,7 @@ export default function RiberaRsvpForm({
   showKidsMenu = true,
   siteSlug,
   intro,
+  demoFocus,
 }: {
   locale?: Locale;
   /** Ask each guest whether they need the bus (the couple can turn this off). */
@@ -229,6 +230,8 @@ export default function RiberaRsvpForm({
   siteSlug?: string;
   /** The page's title and the couple's note: shown above the questions, gone on the thanks screen. */
   intro?: React.ReactNode;
+  /** The wizard's live preview only: take the form to the question the couple just switched on or off. `n` makes repeats count. */
+  demoFocus?: { target: "bus" | "contact" | "kids"; n: number };
 }) {
   const dict = getDict(locale).ribera.form;
   const formRef = useRef<HTMLFormElement>(null);
@@ -257,6 +260,44 @@ export default function RiberaRsvpForm({
   const [stepTried, setStepTried] = useState(false);
 
   const attending = asiste === "si";
+
+  // Preview: the wizard asks to show a question (the couple just switched it on or off). The form
+  // answers "yes, I'm coming" (and brings a companion for the kids' menu) and goes to that screen. Done
+  // while rendering, as the state it changes is this component's own.
+  const [focusSeen, setFocusSeen] = useState(demoFocus?.n);
+  const [flash, setFlash] = useState<string | null>(null);
+  if (demoFocus && demoFocus.n !== focusSeen) {
+    setFocusSeen(demoFocus.n);
+    setSubmitted(false);
+    setAsiste("si");
+    setStepTried(false);
+    if (demoFocus.target === "kids") {
+      setAcompanante("si");
+      if (companions.length === 0) {
+        setCompanions([newCompanion(nextId)]);
+        setNextId(nextId + 1);
+      }
+      setStepIndex(4); // attendance, information, "anyone with you?", how many, then the first companion
+    } else {
+      setStepIndex(1);
+    }
+  }
+  const focusN = demoFocus?.n;
+  const focusTarget = demoFocus?.target;
+  useEffect(() => {
+    if (focusN === undefined || !focusTarget) return;
+    // Wait for the new screen (and the couple's latest answer) to be on the page.
+    const timer = window.setTimeout(() => {
+      const el = document.getElementById(`rsvp-${focusTarget}`) ?? document.querySelector<HTMLElement>("[data-step-body]");
+      el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFlash(el?.id ?? null);
+    }, 150);
+    const clear = window.setTimeout(() => setFlash(null), 2200);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearTimeout(clear);
+    };
+  }, [focusN, focusTarget]);
 
   function newCompanion(id: number): Companion {
     return { id, firstName: "", lastName: "", kid: false, bus: null, dietary: "" };
@@ -473,7 +514,7 @@ export default function RiberaRsvpForm({
           </p>
         ) : null}
 
-        <div className={styles.stepBody}>
+        <div className={styles.stepBody} data-step-body="">
           {currentStep.kind === "attendance" ? (
             <fieldset className={styles.fieldset}>
               <legend className={styles.srOnly}>{dict.sectionAttendance}</legend>
@@ -513,7 +554,7 @@ export default function RiberaRsvpForm({
             <fieldset className={styles.fieldset}>
               <legend className={styles.srOnly}>{dict.legend}</legend>
               {askContact ? (
-                <>
+                <div id="rsvp-contact" data-flash={flash === "rsvp-contact" ? "" : undefined} className={styles.flashable}>
                   <div className={styles.formRow}>
                     <TextField
                       label={dict.phone}
@@ -545,7 +586,7 @@ export default function RiberaRsvpForm({
                       {errors.contact}
                     </p>
                   ) : null}
-                </>
+                </div>
               ) : null}
               <TextField
                 label={dict.dietary}
@@ -556,13 +597,15 @@ export default function RiberaRsvpForm({
                 asQuestion
               />
               {showBus ? (
-                <YesNoQuestion
-                  question={dict.busQ}
-                  value={bus}
-                  onChange={setBus}
-                  yesLabel={dict.busYes}
-                  noLabel={dict.busNo}
-                />
+                <div id="rsvp-bus" data-flash={flash === "rsvp-bus" ? "" : undefined} className={styles.flashable}>
+                  <YesNoQuestion
+                    question={dict.busQ}
+                    value={bus}
+                    onChange={setBus}
+                    yesLabel={dict.busYes}
+                    noLabel={dict.busNo}
+                  />
+                </div>
               ) : null}
             </fieldset>
           ) : null}
@@ -645,7 +688,7 @@ export default function RiberaRsvpForm({
                 />
               </div>
               {showKidsMenu ? (
-                <label className={styles.checkbox}>
+                <label id="rsvp-kids" data-flash={flash === "rsvp-kids" ? "" : undefined} className={`${styles.checkbox} ${styles.flashable}`}>
                   <input
                     type="checkbox"
                     checked={currentStep.companion.kid}

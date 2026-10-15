@@ -2,6 +2,7 @@ import TranslationReview from "@/components/customize/TranslationReview";
 import { MAX_LENGTH } from "@/lib/translatable";
 import { rsvpAsksBus, rsvpAsksContact, rsvpAsksKidsMenu, type WeddingData } from "@/lib/wedding-types";
 import { Field, TextArea } from "@/components/customize/fields";
+import { usePreviewControl } from "@/components/customize/preview-control";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
@@ -54,6 +55,8 @@ export default function StepRsvpForm({
   const wizard = getSiteDict(locale).wizard;
   const dict = wizard.stepRsvpForm;
   const giftDict = wizard.stepRsvpGift;
+  // Each switch also takes the live preview to the question it adds or removes.
+  const { showRsvpQuestion } = usePreviewControl();
 
   return (
     <div className="flex flex-col gap-5">
@@ -71,19 +74,28 @@ export default function StepRsvpForm({
       />
       <Switch
         checked={rsvpAsksBus(data)}
-        onChange={(v) => onChange({ rsvpAskBus: v })}
+        onChange={(v) => {
+          onChange({ rsvpAskBus: v });
+          showRsvpQuestion("bus");
+        }}
         label={dict.askBus}
         hint={dict.askBusHint}
       />
       <Switch
         checked={rsvpAsksContact(data)}
-        onChange={(v) => onChange({ rsvpAskContact: v })}
+        onChange={(v) => {
+          onChange({ rsvpAskContact: v });
+          showRsvpQuestion("contact");
+        }}
         label={dict.askContact}
         hint={dict.askContactHint}
       />
       <Switch
         checked={rsvpAsksKidsMenu(data)}
-        onChange={(v) => onChange({ rsvpAskKidsMenu: v })}
+        onChange={(v) => {
+          onChange({ rsvpAskKidsMenu: v });
+          showRsvpQuestion("kids");
+        }}
         label={dict.askKidsMenu}
         hint={dict.askKidsMenuHint}
       />

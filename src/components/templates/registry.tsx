@@ -9,6 +9,9 @@ export type LocalizedData = Partial<Record<Locale, WeddingData>>;
 /** Asks the template to show a language (the wizard, while the couple reviews a translation). `n` makes repeats count. */
 export type ForcedLocale = { locale: Locale; n: number };
 
+/** Asks the RSVP page to show one of the form's questions (the wizard's preview, when a switch is toggled). */
+export type DemoFocus = { target: "bus" | "contact" | "kids"; n: number };
+
 const knownSlugs = ["ribera"] as const;
 export type TemplateSlug = (typeof knownSlugs)[number];
 
@@ -23,11 +26,11 @@ export function isKnownTemplateSlug(slug: string): slug is TemplateSlug {
 export function renderRsvpPage(
   slug: TemplateSlug,
   data: WeddingData,
-  opts: { backHref: string; initialLocale?: string; siteSlug?: string; localized?: LocalizedData; forceLocale?: ForcedLocale },
+  opts: { backHref: string; initialLocale?: string; siteSlug?: string; localized?: LocalizedData; forceLocale?: ForcedLocale; demoFocus?: DemoFocus },
 ) {
   switch (slug) {
     case "ribera":
-      return <RiberaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} forceLocale={opts.forceLocale} />;
+      return <RiberaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} forceLocale={opts.forceLocale} demoFocus={opts.demoFocus} />;
   }
 }
 
