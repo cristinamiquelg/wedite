@@ -239,12 +239,18 @@ label:has(> input[type="radio"]) {
   to { transform: translate3d(0, 0, 0); }
 }
 
-/* Configurator on a phone: the "Vista previa" tab pulses softly a few times while there is something new to
-   look at, so people notice the live preview behind it. Still for people who prefer reduced motion. */
+/* Configurator on a phone: a green star on the "Vista previa" tab that turns into a circle and back,
+   in a loop, while there is something new to look at (the polygons are set inline, see morph-shapes.ts).
+   A still star for people who prefer reduced motion. */
+.preview-morph {
+  background: var(--color-sage);
+  clip-path: var(--star);
+}
 @media (prefers-reduced-motion: no-preference) {
-  .preview-nudge { animation: preview-ring 1.8s ease-out 3; }
+  .preview-morph { animation: preview-morph 2.8s ease-in-out infinite; }
 }
-@keyframes preview-ring {
-  0% { box-shadow: 0 0 0 0 rgba(181, 88, 58, 0.5); }
-  70%, 100% { box-shadow: 0 0 0 12px rgba(181, 88, 58, 0); }
+@keyframes preview-morph {
+  0%, 100% { clip-path: var(--star); transform: rotate(0deg); }
+  50% { clip-path: var(--circle); transform: rotate(90deg); }
 }
+

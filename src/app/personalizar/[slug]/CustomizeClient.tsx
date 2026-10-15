@@ -18,6 +18,7 @@ import StepDetails from "./steps/StepDetails";
 import StepLanguage from "./steps/StepLanguage";
 import { TranslationProvider, useTranslationService } from "@/components/customize/translations";
 import { BusyContext } from "@/components/customize/busy";
+import { CIRCLE_POLYGON, STAR_POLYGON } from "@/components/customize/morph-shapes";
 import { PreviewControlContext, type RsvpFocusTarget } from "@/components/customize/preview-control";
 import type { Locale } from "@/lib/i18n";
 
@@ -60,8 +61,8 @@ export default function CustomizeClient({ template }: { template: Template }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
   // Phone: people don't notice there is a live preview behind the "Vista previa" tab. Until they have
-  // looked at what they just changed, the tab has a dot and gives a few soft pulses, and a line under
-  // the tabs says what it is (it goes away once they open it, or on its own).
+  // looked at what they just changed, the tab carries a green star that keeps turning into a circle and
+  // back, and a line under the tabs says what it is (it goes away once they open it, or on its own).
   const [viewedData, setViewedData] = useState<WeddingData | null>(null);
   const [hintGone, setHintGone] = useState(false);
   const previewStale = viewedData !== data;
@@ -343,7 +344,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
           }}
           className={`relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
             mobileTab === "preview" ? "bg-ink text-paper" : "text-ink"
-          } ${mobileTab === "form" && previewStale ? "preview-nudge" : ""}`}
+          }`}
         >
           <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
             <path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10Z" />
@@ -351,7 +352,12 @@ export default function CustomizeClient({ template }: { template: Template }) {
           </svg>
           {dict.wizard.previewTab}
           {mobileTab === "form" && previewStale ? (
-            <span aria-hidden="true" className="absolute right-3 top-2 h-2 w-2 rounded-full bg-clay" />
+            // A green star that turns into a circle and back, again and again, while there is something new to see.
+            <span
+              aria-hidden="true"
+              className="preview-morph absolute right-3 top-1.5 h-4 w-4"
+              style={{ "--star": STAR_POLYGON, "--circle": CIRCLE_POLYGON } as React.CSSProperties}
+            />
           ) : null}
         </button>
         </div>
