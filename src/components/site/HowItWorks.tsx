@@ -105,8 +105,10 @@ function useInView<T extends Element>(): [React.RefObject<T | null>, boolean] {
   return [ref, inView];
 }
 
-// How long each step plays, then a short moment with all three finished before it starts over.
-const STEP_MS = [2600, 2600, 2600, 1500];
+// How long each step plays: exactly as long as its scene takes (its last animation ends at 1.66 s, 1.50 s and 1.61 s),
+// so the next step starts the moment the previous one finishes. The last value is the short rest with all three
+// finished before it starts over.
+const STEP_MS = [1700, 1550, 1650, 1200];
 
 /** Which step is playing now (0, 1 or 2), or -1 while all three rest. Starts when the row is on screen. */
 function useSequence(running: boolean): number {
