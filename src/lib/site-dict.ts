@@ -35,7 +35,6 @@ export type SiteDict = {
     howItWorksLabel: string;
     howItWorksHeading: string;
     steps: { title: string; body: string }[];
-    mockupPublishCta: string;
     testimonialsLabel: string;
     ctaFinalPre: string;
     ctaFinalItalic: string;
@@ -333,7 +332,6 @@ const es: SiteDict = {
       { title: "Publicadla", body: "Elegid la dirección de vuestra web, como wedite.com/elenayjuan, y hacedla pública con un único pago." },
       { title: "Compartidla y recoged las confirmaciones", body: "Tendréis una tabla descargable en la que gestionar todas las respuestas al formulario de confirmación." },
     ],
-    mockupPublishCta: "Pagar y publicar",
     testimonialsLabel: "Parejas reales",
     ctaFinalPre: "Vuestra boda merece",
     ctaFinalItalic: "algo mejor",
@@ -346,8 +344,8 @@ const es: SiteDict = {
   catalog: {
     metaTitle: "Diseños de webs de boda — Wedite",
     metaDescription: "Explora el catálogo de diseños de webs de boda de Wedite, con preview en directo y personalización al instante.",
-    h1: "Elegid vuestro estilo",
-    sub: "Cada diseño se puede probar en directo antes de decidir nada. Cuando lo tengáis claro, lo personalizáis y lo hacéis vuestro sin salir del navegador.",
+    h1: "Diseñad vuestra web gratis y pagad solo si os enamora",
+    sub: "Elegid un estilo, personalizadlo con la vista previa en directo y probad todo lo que queráis sin pagar nada. Solo pagáis cuando decidís publicarla.",
     viewPreview: "Ver preview",
     choose: "Elegir",
     upcomingBadge: "Próximamente",
@@ -675,7 +673,6 @@ const en: SiteDict = {
       { title: "Publish it", body: "Pick your website address, like wedite.com/elenayjuan, and make it live with a single payment." },
       { title: "Share it and start collecting responses", body: "We'll send you a downloadable spreadsheet where you can sort and filter every RSVP response." },
     ],
-    mockupPublishCta: "Pay & publish",
     testimonialsLabel: "Real couples",
     ctaFinalPre: "Your wedding deserves",
     ctaFinalItalic: "something better",
@@ -688,8 +685,8 @@ const en: SiteDict = {
   catalog: {
     metaTitle: "Wedding website designs — Wedite",
     metaDescription: "Explore Wedite's catalog of wedding website designs, with a live preview and instant personalization.",
-    h1: "Choose your style",
-    sub: "Every design can be tried live before deciding anything. Once you're sure, you personalize it and make it yours without leaving the browser.",
+    h1: "Design your website for free and pay only if you love it",
+    sub: "Pick a style, personalize it with the live preview and try as much as you like without paying anything. You only pay when you decide to publish it.",
     viewPreview: "View preview",
     choose: "Choose",
     upcomingBadge: "Coming soon",
