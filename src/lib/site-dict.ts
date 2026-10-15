@@ -162,6 +162,7 @@ export type SiteDict = {
     next: string;
     reviewAndBuy: string;
     completeToContinue: (labels: string) => string;
+    waitIllustration: string;
     fieldTooShort: string;
     missing: {
       partnerA: string;
@@ -217,7 +218,23 @@ export type SiteDict = {
       storyImageChoose: string;
       storyImageRemove: string;
       storyImageDrawing: string;
-      storyImageFallback: string;
+      storyImageHelp: string;
+      storyImageChange: string;
+      storyImageUnreadable: string;
+      storyImageCreate: string;
+      storyImageAttempts: (left: number, max: number) => string;
+      storyImageNoAttempts: string;
+      storyImageChooseOther: string;
+      storyImageCancel: string;
+      storyImageUseOriginal: string;
+      storyImageRetry: string;
+      storyImageFailed: string;
+      storyImageBusy: string;
+      storyImagePreviewTitle: string;
+      storyImagePreviewHint: string;
+      storyImageAccept: string;
+      storyImageAnother: string;
+      storyImageDiscard: string;
       hashtag: string;
     };
     stepRsvpGift: {
@@ -498,6 +515,7 @@ const es: SiteDict = {
     next: "Siguiente",
     reviewAndBuy: "Revisar y comprar",
     completeToContinue: (labels) => `Para continuar, completad: ${labels}.`,
+    waitIllustration: "Estamos dibujando vuestra ilustración. Podréis continuar en cuanto termine.",
     fieldTooShort: "Escribid al menos 2 caracteres.",
     missing: {
       partnerA: "tu nombre",
@@ -555,8 +573,24 @@ const es: SiteDict = {
       storyImage: "Foto (opcional)",
       storyImageChoose: "Elegir imagen",
       storyImageRemove: "Quitar",
-      storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto.",
-      storyImageFallback: "No hemos podido crear la ilustración, así que usaremos vuestra foto tal cual.",
+      storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto. No cerréis esta pestaña.",
+      storyImageHelp: "Subid una foto y la convertimos en una ilustración con el estilo de la plantilla. Dibujamos solo lo que aparece en la foto, y antes de añadirla veréis cómo queda.",
+      storyImageChange: "Cambiar imagen",
+      storyImageUnreadable: "No hemos podido leer esa imagen. Probad con otra.",
+      storyImageCreate: "Crear ilustración",
+      storyImageAttempts: (left, max) => `Intentos que os quedan: ${left} de ${max}.`,
+      storyImageNoAttempts: "Ya habéis usado todos los intentos de ilustración de esta web.",
+      storyImageChooseOther: "Elegir otra foto",
+      storyImageCancel: "Cancelar",
+      storyImageUseOriginal: "Usar mi foto tal cual",
+      storyImageRetry: "Volver a probar",
+      storyImageFailed: "No hemos podido crear la ilustración. No ha gastado ningún intento: podéis volver a probar o usar vuestra foto tal cual.",
+      storyImageBusy: "Ahora mismo hay mucha demanda y no podemos crear más ilustraciones. Podéis usar vuestra foto tal cual o volver a probar más tarde.",
+      storyImagePreviewTitle: "Así quedaría vuestra ilustración",
+      storyImagePreviewHint: "No se añade a la web hasta que pulséis «Usar esta ilustración».",
+      storyImageAccept: "Usar esta ilustración",
+      storyImageAnother: "Crear otra versión",
+      storyImageDiscard: "Descartar",
       hashtag: "Hashtag de la boda",
     },
     stepRsvpGift: {
@@ -838,6 +872,7 @@ const en: SiteDict = {
     next: "Next",
     reviewAndBuy: "Review and buy",
     completeToContinue: (labels) => `To continue, please fill in: ${labels}.`,
+    waitIllustration: "We're drawing your illustration. You'll be able to continue as soon as it's done.",
     fieldTooShort: "Please write at least 2 characters.",
     missing: {
       partnerA: "your name",
@@ -895,8 +930,24 @@ const en: SiteDict = {
       storyImage: "Photo (optional)",
       storyImageChoose: "Choose image",
       storyImageRemove: "Remove",
-      storyImageDrawing: "Drawing your illustration… this can take up to a minute.",
-      storyImageFallback: "We couldn't create the illustration, so we'll use your photo as it is.",
+      storyImageDrawing: "Drawing your illustration… this can take up to a minute. Please don't close this tab.",
+      storyImageHelp: "Upload a photo and we turn it into an illustration in the template's style. We only draw what is in the photo, and you'll see the result before it is added.",
+      storyImageChange: "Change image",
+      storyImageUnreadable: "We couldn't read that image. Try another one.",
+      storyImageCreate: "Create illustration",
+      storyImageAttempts: (left, max) => `Attempts left: ${left} of ${max}.`,
+      storyImageNoAttempts: "You've used all the illustration attempts for this website.",
+      storyImageChooseOther: "Choose another photo",
+      storyImageCancel: "Cancel",
+      storyImageUseOriginal: "Use my photo as it is",
+      storyImageRetry: "Try again",
+      storyImageFailed: "We couldn't create the illustration. It didn't use up an attempt: you can try again or use your photo as it is.",
+      storyImageBusy: "There is a lot of demand right now and we can't create more illustrations. You can use your photo as it is or try again later.",
+      storyImagePreviewTitle: "This is how your illustration would look",
+      storyImagePreviewHint: "It isn't added to your website until you press “Use this illustration”.",
+      storyImageAccept: "Use this illustration",
+      storyImageAnother: "Create another version",
+      storyImageDiscard: "Discard",
       hashtag: "Wedding hashtag",
     },
     stepRsvpGift: {
