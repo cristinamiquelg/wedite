@@ -39,6 +39,7 @@ const COPY = {
     step1Text: "Esta es la dirección de vuestra web. Mandadla por WhatsApp o por email, con el mensaje ya escrito:",
     whatsapp: "Compartir por WhatsApp",
     mail: "Compartir por email",
+    shareFallback: "Si WhatsApp no conserva el texto, copiadlo desde aquí:",
     shareText: (url: string) => `¡Nos casamos! Aquí tenéis la web de nuestra boda, con toda la información: ${url}`,
     shareSubject: "La web de nuestra boda",
     step2: "Seguid sus respuestas",
@@ -69,6 +70,7 @@ const COPY = {
     step1Text: "This is your website's address. Send it on WhatsApp or by email, with the message already written:",
     whatsapp: "Share on WhatsApp",
     mail: "Share by email",
+    shareFallback: "If WhatsApp doesn't keep the text, copy it from here:",
     shareText: (url: string) => `We're getting married! Here is our wedding website, with all the details: ${url}`,
     shareSubject: "Our wedding website",
     step2: "Follow their answers",
@@ -190,7 +192,9 @@ ${step(
     t.step1,
     `<p style="margin:0 0 10px;font:15px/1.6 ${SANS};color:${SOFT};">${prose(t.step1Text)}</p>
 <p style="margin:0 0 16px;font:600 15px ${SANS};word-break:break-all;"><a href="${escapeHtml(siteUrl)}" style="color:${CLAY};text-decoration:underline;">${escapeHtml(siteUrl)}</a></p>
-<p style="margin:0;">${button(whatsappUrl, t.whatsapp, false)}${button(mailUrl, t.mail, false)}</p>`,
+<p style="margin:0 0 16px;">${button(whatsappUrl, t.whatsapp, false)}${button(mailUrl, t.mail, false)}</p>
+<p style="margin:0 0 8px;font:13px/1.5 ${SANS};color:#7a7168;">${escapeHtml(t.shareFallback)}</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0;background-color:#f6f5f2;border:1px solid ${LINE};border-radius:12px;"><tr><td style="padding:14px 16px;font:14px/1.6 ${SANS};color:${INK};word-break:break-word;">${escapeHtml(shareText)}</td></tr></table>`,
   )}
 ${step(
     2,
@@ -236,6 +240,8 @@ ${step(
     siteUrl,
     `WhatsApp: ${whatsappUrl}`,
     `Email: ${mailUrl}`,
+    t.shareFallback,
+    shareText,
     "",
     t.step2,
     t.step2Text,
