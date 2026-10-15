@@ -11,6 +11,13 @@ import HowItWorks from "@/components/site/HowItWorks";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
+// Start point and rhythm of the banner's shooting stars (long, uneven cycles so they feel random).
+const shootingStars = [
+  { "--ss-top": "14%", "--ss-left": "62%", "--ss-dur": "11s", "--ss-delay": "2s" },
+  { "--ss-top": "30%", "--ss-left": "18%", "--ss-dur": "17s", "--ss-delay": "7s" },
+  { "--ss-top": "8%", "--ss-left": "34%", "--ss-dur": "23s", "--ss-delay": "13s" },
+];
+
 const ctaScatter: { top: string; left: string; size: string; opacity: number; rotate: string }[] = [
   { top: "12%", left: "8%", size: "2rem", opacity: 0.45, rotate: "-10deg" },
   { top: "72%", left: "12%", size: "1.3rem", opacity: 0.3, rotate: "18deg" },
@@ -188,6 +195,10 @@ export default function HomePage() {
                 animationDelay: `${i * 0.35}s`,
               }}
             />
+          ))}
+          {/* Occasional shooting stars: each one crosses the banner once per (long, different) cycle. */}
+          {shootingStars.map((s, i) => (
+            <span key={i} className="shooting-star" style={s as React.CSSProperties} />
           ))}
         </div>
         <div
