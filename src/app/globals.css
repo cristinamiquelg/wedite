@@ -238,3 +238,13 @@ label:has(> input[type="radio"]) {
   from { transform: translate3d(0, -50%, 0); }
   to { transform: translate3d(0, 0, 0); }
 }
+
+/* Configurator on a phone: the "Vista previa" tab pulses softly a few times while there is something new to
+   look at, so people notice the live preview behind it. Still for people who prefer reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .preview-nudge { animation: preview-ring 1.8s ease-out 3; }
+}
+@keyframes preview-ring {
+  0% { box-shadow: 0 0 0 0 rgba(181, 88, 58, 0.5); }
+  70%, 100% { box-shadow: 0 0 0 12px rgba(181, 88, 58, 0); }
+}

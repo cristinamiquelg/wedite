@@ -164,6 +164,7 @@ export type SiteDict = {
     reviewAndBuy: string;
     completeToContinue: (labels: string) => string;
     waitIllustration: string;
+    previewHint: string;
     fieldTooShort: string;
     missing: {
       partnerA: string;
@@ -518,6 +519,7 @@ const es: SiteDict = {
     reviewAndBuy: "Revisar y comprar",
     completeToContinue: (labels) => `Para continuar, completad: ${labels}.`,
     waitIllustration: "Estamos dibujando vuestra ilustración. Podréis continuar en cuanto termine.",
+    previewHint: "Lo que cambiéis se ve al momento en «Vista previa».",
     fieldTooShort: "Escribid al menos 2 caracteres.",
     missing: {
       partnerA: "tu nombre",
@@ -876,6 +878,7 @@ const en: SiteDict = {
     reviewAndBuy: "Review and buy",
     completeToContinue: (labels) => `To continue, please fill in: ${labels}.`,
     waitIllustration: "We're drawing your illustration. You'll be able to continue as soon as it's done.",
+    previewHint: "Whatever you change shows up instantly in “Preview”.",
     fieldTooShort: "Please write at least 2 characters.",
     missing: {
       partnerA: "your name",
