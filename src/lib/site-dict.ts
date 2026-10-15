@@ -271,7 +271,6 @@ export type SiteDict = {
       timeMinute: string;
       timeUnknown: string;
       pickerDone: string;
-      timeNeedsDate: string;
       removePhase: string;
       dragHandle: string;
       dragInstructions: string;
@@ -637,7 +636,6 @@ const es: SiteDict = {
       timeMinute: "Minutos",
       timeUnknown: "Aún no sabemos la hora exacta",
       pickerDone: "Listo",
-      timeNeedsDate: "Elegid primero el día para poder elegir la hora.",
       removePhase: "Quitar fase",
       dragHandle: "Arrastrar para cambiar el orden de la fase",
       dragInstructions: "Para reordenar, pulsad espacio sobre el asa de la fase, moveos con las flechas arriba y abajo y volved a pulsar espacio para soltarla. Escape cancela.",
@@ -1004,7 +1002,6 @@ const en: SiteDict = {
       timeMinute: "Minutes",
       timeUnknown: "We don't know the exact time yet",
       pickerDone: "Done",
-      timeNeedsDate: "Pick a day first to choose the time.",
       removePhase: "Remove phase",
       dragHandle: "Drag to change the order of the phase",
       dragInstructions: "To reorder, press space on the phase's handle, move with the up and down arrow keys and press space again to drop it. Escape cancels.",

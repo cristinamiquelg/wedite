@@ -181,8 +181,8 @@ clay, so Ribera overrides it back to navy under `.root`.
   `touch-none` so a finger drags instead of scrolling, and the keyboard works
   (space, arrows, space) with translated announcements. Anchors such as
   `fase-<i>` are by position, so they follow the new order.
-- **The phase date-time picker** shows a hint and greys out its time controls
-  until a day is chosen (`timeNeedsDateLabel`).
+- **The phase date-time picker** greys out its time controls until a day is
+  chosen (no extra hint text: the disabled state is enough).
 - **`buildVisiblePhases()` / per-section visibility filters** hide a phase,
   place, detail card, or contact until it actually has content (matching
   the template's own `phase.name || phase.when` etc. conditionals) — don't

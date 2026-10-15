@@ -194,7 +194,6 @@ export default function StepItinerary({
                 minuteLabel={dict.stepItinerary.timeMinute}
                 timeUnknownLabel={dict.stepItinerary.timeUnknown}
                 doneLabel={dict.stepItinerary.pickerDone}
-                timeNeedsDateLabel={dict.stepItinerary.timeNeedsDate}
                 ariaLabel={dict.stepItinerary.phaseWhenPlaceholder}
                 onChange={(when) => updatePhase(pi, { when })}
               />
