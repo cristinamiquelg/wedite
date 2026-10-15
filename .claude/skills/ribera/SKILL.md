@@ -153,6 +153,16 @@ clay, so Ribera overrides it back to navy under `.root`.
   bounds and centres it with a 12% margin on every side (the model alone tends
   to run into the edge). Quality: env `OPENAI_IMAGE_QUALITY`
   (default `medium`, `high` draws finer lines at a higher price).
+  **It must never invent**: the prompt's first rule is "draw only what is in the
+  photograph" (a balloon is a balloon, never a couple), anchored by a one-line
+  vision description of the photo (`describeSubjects` in the route, a small
+  vision model). Don't reintroduce "couple" wording in the prompt. Each drawing
+  costs money, so the wizard step is deliberate and capped: choose photo →
+  "Crear ilustración" → preview → "Usar esta ilustración" (nothing is added
+  before that), 3 attempts per web (sessionStorage), same photo = cached, no
+  attempt; the server has a per-IP hourly limit and `ILLUSTRATION_DAILY_CAP`.
+  While drawing, the wizard is locked (`BusyContext` / `useReportBusy` in
+  `components/customize/busy.tsx`).
 - **The mobile header grid must stay symmetric.** `grid-template-columns`
   needs equal-fraction side columns (`1fr auto 1fr`), not `auto 1fr auto` —
   otherwise the hamburger button and the (wider) RSVP button pull the

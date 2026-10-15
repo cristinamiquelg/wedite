@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { recolorToCoral } from "@/lib/recolor-illustration";
-import { STORY_ILLUSTRATION_PROMPT } from "@/lib/story-illustration-prompt";
+import { buildStoryIllustrationPrompt } from "@/lib/story-illustration-prompt";
 import { STORY_STYLE_REFERENCE_PNG_BASE64 } from "@/lib/story-style-reference";
 
 export const runtime = "nodejs";
@@ -13,8 +13,23 @@ const MAX_BYTES = 4 * 1024 * 1024;
 // Best-effort abuse guard for a paid, public endpoint. In-memory, so it only
 // holds per server instance — a real limit needs a shared store.
 const WINDOW_MS = 60 * 60 * 1000;
-const MAX_PER_WINDOW = 8;
+const MAX_PER_WINDOW = 5;
 const hits = new Map<string, number[]>();
+
+// Every generation costs real money, so there is also a ceiling for the whole day (UTC), per server
+// instance: ILLUSTRATION_DAILY_CAP generations (default 150). Also best effort until it lives in a shared store.
+const DAILY_CAP = Number(process.env.ILLUSTRATION_DAILY_CAP) || 150;
+let dailyDay = "";
+let dailyCount = 0;
+
+function dailyCapReached(): boolean {
+  const today = new Date().toISOString().slice(0, 10);
+  if (today !== dailyDay) {
+    dailyDay = today;
+    dailyCount = 0;
+  }
+  return dailyCount >= DAILY_CAP;
+}
 
 function rateLimited(ip: string): boolean {
   const now = Date.now();
@@ -28,6 +43,39 @@ function rateLimited(ip: string): boolean {
   return false;
 }
 
+// A short description of what the photo shows, so the drawing is anchored to it and nothing gets invented
+// (a balloon must not become a couple). Cheap (a small vision model, a low-detail image); if it fails the
+// drawing is still made, from the photo and the rules of the prompt alone.
+async function describeSubjects(apiKey: string, photo: File): Promise<string | null> {
+  try {
+    const dataUrl = `data:${photo.type || "image/jpeg"};base64,${Buffer.from(await photo.arrayBuffer()).toString("base64")}`;
+    const res = await fetch(`${process.env.OPENAI_BASE_URL || "https://api.openai.com/v1"}/chat/completions`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: process.env.OPENAI_VISION_MODEL || "gpt-4o-mini",
+        temperature: 0,
+        max_tokens: 120,
+        messages: [
+          {
+            role: "system",
+            content:
+              "You describe photographs for an illustrator. Reply with ONE short English sentence that lists exactly what the main subject(s) of the photograph are: how many people (and roughly their age and what they do), animals or objects, and nothing else. Do not describe the background. Do not guess or add anything that is not clearly visible. Example: \"A single red balloon floating in the air.\" or \"Two young boys sitting side by side.\"",
+          },
+          { role: "user", content: [{ type: "image_url", image_url: { url: dataUrl, detail: "low" } }] },
+        ],
+      }),
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!res.ok) return null;
+    const json = (await res.json().catch(() => null)) as { choices?: { message?: { content?: string } }[] } | null;
+    const text = json?.choices?.[0]?.message?.content?.trim().replace(/\s+/g, " ");
+    return text && text.length <= 400 ? text : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -35,6 +83,9 @@ export async function POST(request: Request) {
   }
 
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (dailyCapReached()) {
+    return NextResponse.json({ error: "daily_limit" }, { status: 429 });
+  }
   if (rateLimited(ip)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
@@ -60,7 +111,7 @@ export async function POST(request: Request) {
     new Blob([Buffer.from(STORY_STYLE_REFERENCE_PNG_BASE64, "base64")], { type: "image/png" }),
     "style-reference.png",
   );
-  body.append("prompt", STORY_ILLUSTRATION_PROMPT);
+  body.append("prompt", buildStoryIllustrationPrompt(await describeSubjects(apiKey, file)));
   body.append("background", "transparent");
   body.append("output_format", "webp");
   body.append("output_compression", "90");
@@ -95,6 +146,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "no_image" }, { status: 502 });
   }
 
+  dailyCount += 1;
   // Same coral as the rest of Ribera whatever shade the model drew, no pale washes, square.
   const coral = await recolorToCoral(Buffer.from(b64, "base64"));
   return NextResponse.json({ image: `data:image/webp;base64,${coral.toString("base64")}` });

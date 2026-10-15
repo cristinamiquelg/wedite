@@ -17,6 +17,7 @@ import StepItinerary from "./steps/StepItinerary";
 import StepDetails from "./steps/StepDetails";
 import StepLanguage from "./steps/StepLanguage";
 import { TranslationProvider, useTranslationService } from "@/components/customize/translations";
+import { BusyContext } from "@/components/customize/busy";
 import type { Locale } from "@/lib/i18n";
 
 type StepDef = {
@@ -73,6 +74,18 @@ export default function CustomizeClient({ template }: { template: Template }) {
   const previewShown = isDesktop || previewOpened;
   // The step where the couple already tried to continue with a mandatory field empty.
   const [attemptedStep, setAttemptedStep] = useState<number | null>(null);
+  // Things that can't be interrupted (drawing the illustration): while any is running, the wizard doesn't move on.
+  const [busyKeys, setBusyKeys] = useState<ReadonlySet<string>>(new Set());
+  const setBusy = useCallback((key: string, on: boolean) => {
+    setBusyKeys((prev) => {
+      if (prev.has(key) === on) return prev;
+      const next = new Set(prev);
+      if (on) next.add(key);
+      else next.delete(key);
+      return next;
+    });
+  }, []);
+  const busy = busyKeys.size > 0;
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const formPaneRef = useRef<HTMLDivElement>(null);
   // The section/item id the preview should be following right now — kept
@@ -164,6 +177,14 @@ export default function CustomizeClient({ template }: { template: Template }) {
     trackEvent("wizard_step", { props: { step: stepKey } });
   }, [stepKey]);
 
+  // Leaving the page while an illustration is being drawn would lose it (and its cost).
+  useEffect(() => {
+    if (!busy) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [busy]);
+
   function scrollToSection(id: string | null) {
     if (!id) return;
     iframeRef.current?.contentWindow?.postMessage(
@@ -214,6 +235,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
   const missingLabels = missingNow.map((f) => dict.wizard.missing[f]).join(", ");
 
   function tryAdvance() {
+    if (busy) return;
     if (!blocked) {
       setStepIndex((i) => Math.min(steps.length - 1, i + 1));
       return;
@@ -307,7 +329,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
               <li key={s.key}>
                 <button
                   type="button"
-                  disabled={i > lastReachable}
+                  disabled={i > lastReachable || busy}
                   onClick={() => setStepIndex(i)}
                   className={`rounded-full border px-3.5 py-1.5 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
                     i === stepIndex
@@ -330,13 +352,20 @@ export default function CustomizeClient({ template }: { template: Template }) {
                 not just once when the step first opens — since a step like
                 "Detalles" can have several cards spread further down. */}
             <div className="mt-6" onFocus={onFieldFocus}>
-              <TranslationProvider value={translationService}>
-                <Step data={data} onChange={patch} showErrors={showErrors} />
-              </TranslationProvider>
+              <BusyContext.Provider value={setBusy}>
+                <TranslationProvider value={translationService}>
+                  <Step data={data} onChange={patch} showErrors={showErrors} />
+                </TranslationProvider>
+              </BusyContext.Provider>
             </div>
           </div>
 
-          {blocked ? (
+          {busy ? (
+            <p role="status" className="mx-auto mt-8 w-full max-w-xl text-sm text-ink-soft">
+              {dict.wizard.waitIllustration}
+            </p>
+          ) : null}
+          {blocked && !busy ? (
             <p
               role="status"
               className={`mx-auto mt-8 w-full max-w-xl text-sm ${showErrors ? "text-clay-dark" : "text-ink-soft"}`}
@@ -347,13 +376,13 @@ export default function CustomizeClient({ template }: { template: Template }) {
           <div className={`mx-auto flex w-full max-w-xl flex-col-reverse gap-3 sm:flex-row sm:justify-between ${blocked ? "mt-4" : "mt-10"}`}>
             <button
               type="button"
-              disabled={stepIndex === 0}
+              disabled={stepIndex === 0 || busy}
               onClick={() => setStepIndex((i) => Math.max(0, i - 1))}
               className="w-full rounded-full border border-line px-6 py-3 text-center text-sm font-medium text-ink disabled:opacity-40 sm:w-auto"
             >
               {dict.wizard.back}
             </button>
-            {isLast && !blocked ? (
+            {isLast && !blocked && !busy ? (
               <Link
                 href={`/personalizar/${template.slug}/confirmar`}
                 className="w-full rounded-full bg-ink px-6 py-3 text-center text-sm font-medium text-paper transition-opacity hover:opacity-90 sm:w-auto"
@@ -363,10 +392,10 @@ export default function CustomizeClient({ template }: { template: Template }) {
             ) : (
               <button
                 type="button"
-                aria-disabled={blocked}
+                aria-disabled={blocked || busy}
                 onClick={tryAdvance}
                 className={`w-full rounded-full bg-ink px-6 py-3 text-center text-sm font-medium text-paper transition-opacity sm:w-auto ${
-                  blocked ? "opacity-50" : "hover:opacity-90"
+                  blocked || busy ? "opacity-50" : "hover:opacity-90"
                 }`}
               >
                 {isLast ? dict.wizard.reviewAndBuy : dict.wizard.next}
