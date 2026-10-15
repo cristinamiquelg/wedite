@@ -78,6 +78,7 @@ export default function DatePicker({
   minuteLabel = "Minutes",
   timeUnknownLabel = "Exact time not known yet",
   doneLabel = "Done",
+  timeNeedsDateLabel = "Pick a day first to choose the time.",
 }: {
   /** YYYY-MM-DD, or YYYY-MM-DDTHH:mm with `withTime`. */
   value: string;
@@ -99,6 +100,8 @@ export default function DatePicker({
   /** Label of the checkbox that drops the time (the date alone is kept). */
   timeUnknownLabel?: string;
   doneLabel?: string;
+  /** Shown (and the time controls look disabled) while no day is chosen yet. */
+  timeNeedsDateLabel?: string;
 }) {
   // Date part ("YYYY-MM-DD") and time part ("HH:mm") of the value. Free text
   // saved before this picker existed doesn't parse and reads as "nothing chosen".
@@ -327,7 +330,15 @@ export default function DatePicker({
 
           {withTime ? (
             <div className="mt-3 flex flex-wrap items-end gap-x-3 gap-y-3 border-t border-line pt-3">
-              <label className="flex w-full cursor-pointer items-center gap-2 text-sm text-ink has-[:disabled]:cursor-default has-[:disabled]:opacity-50">
+              {!selected ? (
+                <p role="note" className="flex w-full items-center gap-2 rounded-lg bg-clay/10 px-3 py-2 text-xs font-medium text-clay-dark">
+                  <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10 3v10M6 9l4 4 4-4M4 17h12" />
+                  </svg>
+                  {timeNeedsDateLabel}
+                </p>
+              ) : null}
+              <label className="flex w-full cursor-pointer items-center gap-2 text-sm text-ink has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50">
                 <input
                   type="checkbox"
                   checked={timeUnknown}
@@ -337,7 +348,7 @@ export default function DatePicker({
                 />
                 {timeUnknownLabel}
               </label>
-              <label className="flex flex-1 flex-col gap-1 text-xs text-ink-soft">
+              <label className={`flex flex-1 flex-col gap-1 text-xs text-ink-soft ${!selected || timeUnknown ? "cursor-not-allowed opacity-50" : ""}`}>
                 {hourLabel}
                 <Select
                   value={hh}
@@ -351,7 +362,7 @@ export default function DatePicker({
                   ))}
                 </Select>
               </label>
-              <label className="flex flex-1 flex-col gap-1 text-xs text-ink-soft">
+              <label className={`flex flex-1 flex-col gap-1 text-xs text-ink-soft ${!selected || timeUnknown ? "cursor-not-allowed opacity-50" : ""}`}>
                 {minuteLabel}
                 <Select
                   value={MINUTES.includes(mm) ? mm : "00"}

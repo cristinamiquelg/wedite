@@ -18,6 +18,8 @@ export type WeddingPlace = {
 export type PlaceIllustration = "casa" | "catedral" | "cortijo" | "restaurante";
 
 export type WeddingPhase = {
+  /** Stable identity, so the couple can drag phases into another order (older drafts lack it). */
+  id?: string;
   name: string;
   when: string;
   places: WeddingPlace[];
