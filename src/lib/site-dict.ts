@@ -270,7 +270,15 @@ export type SiteDict = {
       timeMinute: string;
       timeUnknown: string;
       pickerDone: string;
+      timeNeedsDate: string;
       removePhase: string;
+      dragHandle: string;
+      dragInstructions: string;
+      dragPicked: (name: string, position: number, total: number) => string;
+      dragMoved: (name: string, position: number, total: number) => string;
+      dragDropped: (name: string, position: number, total: number) => string;
+      dragCancelled: (name: string) => string;
+      phaseFallbackName: (n: number) => string;
       placeNamePlaceholder: string;
       placeAddressPlaceholder: string;
       placeMapsUrlPlaceholder: string;
@@ -627,7 +635,15 @@ const es: SiteDict = {
       timeMinute: "Minutos",
       timeUnknown: "Aún no sabemos la hora exacta",
       pickerDone: "Listo",
+      timeNeedsDate: "Elegid primero el día para poder elegir la hora.",
       removePhase: "Quitar fase",
+      dragHandle: "Arrastrar para cambiar el orden de la fase",
+      dragInstructions: "Para reordenar, pulsad espacio sobre el asa de la fase, moveos con las flechas arriba y abajo y volved a pulsar espacio para soltarla. Escape cancela.",
+      dragPicked: (name, position, total) => `Fase «${name}» cogida. Está en la posición ${position} de ${total}.`,
+      dragMoved: (name, position, total) => `Fase «${name}» movida a la posición ${position} de ${total}.`,
+      dragDropped: (name, position, total) => `Fase «${name}» soltada en la posición ${position} de ${total}.`,
+      dragCancelled: (name) => `Se ha cancelado el movimiento de la fase «${name}».`,
+      phaseFallbackName: (n) => `Fase ${n}`,
       placeNamePlaceholder: "Ermita de Sant Baldiri",
       placeAddressPlaceholder: "Dirección",
       placeMapsUrlPlaceholder: "Enlace de Google Maps (opcional)",
@@ -985,7 +1001,15 @@ const en: SiteDict = {
       timeMinute: "Minutes",
       timeUnknown: "We don't know the exact time yet",
       pickerDone: "Done",
+      timeNeedsDate: "Pick a day first to choose the time.",
       removePhase: "Remove phase",
+      dragHandle: "Drag to change the order of the phase",
+      dragInstructions: "To reorder, press space on the phase's handle, move with the up and down arrow keys and press space again to drop it. Escape cancels.",
+      dragPicked: (name, position, total) => `Phase “${name}” picked up. It is at position ${position} of ${total}.`,
+      dragMoved: (name, position, total) => `Phase “${name}” moved to position ${position} of ${total}.`,
+      dragDropped: (name, position, total) => `Phase “${name}” dropped at position ${position} of ${total}.`,
+      dragCancelled: (name) => `Moving phase “${name}” was cancelled.`,
+      phaseFallbackName: (n) => `Phase ${n}`,
       placeNamePlaceholder: "St. Baldiri's Chapel",
       placeAddressPlaceholder: "Address",
       placeMapsUrlPlaceholder: "Google Maps link (optional)",

@@ -167,6 +167,14 @@ clay, so Ribera overrides it back to navy under `.root`.
   needs equal-fraction side columns (`1fr auto 1fr`), not `auto 1fr auto` —
   otherwise the hamburger button and the (wider) RSVP button pull the
   middle logo column off the header's true center.
+- **Phases can be reordered by dragging** (StepItinerary, `@dnd-kit`): each
+  `WeddingPhase` carries a stable `id` (older drafts get one the first time the
+  order changes; until then they are known by position). The handle is
+  `touch-none` so a finger drags instead of scrolling, and the keyboard works
+  (space, arrows, space) with translated announcements. Anchors such as
+  `fase-<i>` are by position, so they follow the new order.
+- **The phase date-time picker** shows a hint and greys out its time controls
+  until a day is chosen (`timeNeedsDateLabel`).
 - **`buildVisiblePhases()` / per-section visibility filters** hide a phase,
   place, detail card, or contact until it actually has content (matching
   the template's own `phase.name || phase.when` etc. conditionals) — don't
