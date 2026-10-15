@@ -312,19 +312,24 @@ export default function CustomizeClient({ template }: { template: Template }) {
         </div>
       </header>
 
-      <div className="border-b border-line px-6 py-3 lg:hidden">
-        <div className="flex items-center gap-1 rounded-full border border-line bg-paper-raised p-1">
+      {/* Edit / Preview: two plain text tabs with an underline, so they don't compete with the language switch
+          and the step chips (both are pills). */}
+      <div role="tablist" className="flex border-b border-line px-6 lg:hidden">
         <button
           type="button"
+          role="tab"
+          aria-selected={mobileTab === "form"}
           onClick={() => setMobileTab("form")}
-          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
-            mobileTab === "form" ? "bg-ink text-paper" : "text-ink-soft"
+          className={`-mb-px flex flex-1 items-center justify-center border-b-2 py-3.5 text-sm font-medium transition-colors ${
+            mobileTab === "form" ? "border-ink text-ink" : "border-transparent text-ink-soft hover:text-ink"
           }`}
         >
-          {dict.wizard.editTab}
+          <span className="inline-flex h-5 items-center">{dict.wizard.editTab}</span>
         </button>
         <button
           type="button"
+          role="tab"
+          aria-selected={mobileTab === "preview"}
           onClick={() => {
             setPreviewOpened(true);
             setViewedData(data);
@@ -336,25 +341,26 @@ export default function CustomizeClient({ template }: { template: Template }) {
               if (stepKey === "form" && rsvpFocusRef.current) showRsvpQuestion(rsvpFocusRef.current);
             }, 350);
           }}
-          className={`relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
-            mobileTab === "preview" ? "bg-ink text-paper" : "text-ink"
+          className={`-mb-px flex flex-1 items-center justify-center border-b-2 py-3.5 text-sm font-medium transition-colors ${
+            mobileTab === "preview" ? "border-ink text-ink" : "border-transparent text-ink-soft hover:text-ink"
           }`}
         >
-          <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10Z" />
-            <circle cx="10" cy="10" r="2.5" />
-          </svg>
-          {dict.wizard.previewTab}
-          {mobileTab === "form" && previewStale ? (
-            // A green star that turns into a circle and back, again and again, while there is something new to see.
-            <span
-              aria-hidden="true"
-              className="preview-morph absolute right-3 top-2 h-3.5 w-3.5"
-              style={{ "--star": STAR_POLYGON, "--circle": CIRCLE_POLYGON } as React.CSSProperties}
-            />
-          ) : null}
+          <span className="relative inline-flex h-5 items-center gap-2">
+            <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10Z" />
+              <circle cx="10" cy="10" r="2.5" />
+            </svg>
+            {dict.wizard.previewTab}
+            {mobileTab === "form" && previewStale ? (
+              // A green star that turns into a circle and back, again and again, while there is something new to see.
+              <span
+                aria-hidden="true"
+                className="preview-morph absolute -right-5 top-0 h-3.5 w-3.5"
+                style={{ "--star": STAR_POLYGON, "--circle": CIRCLE_POLYGON } as React.CSSProperties}
+              />
+            ) : null}
+          </span>
         </button>
-        </div>
       </div>
 
       <div className="grid flex-1 overflow-hidden lg:grid-cols-2">

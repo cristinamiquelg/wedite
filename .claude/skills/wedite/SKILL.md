@@ -55,6 +55,8 @@ Olivar, Sierra, Duna. Check brand/domain/social availability before launching on
   borders. Keep new CTAs quiet — loud, oversized buttons were rejected.
 - Text fields on touch screens are 16 px (global rule in `globals.css`) so iOS doesn't zoom;
   don't set smaller sizes on inputs.
+- Keep pills for one job per screen: in the configurator the language switch and the step chips are pills, so the
+  mobile Edit / Preview tabs are plain text tabs with an underline (not a pill segmented control).
 - Animations respect `prefers-reduced-motion`. Above-the-fold content uses `fade-in-load` /
   `fade-in-slow`; below the fold uses `data-reveal` (see `ScrollReveal`).
 
