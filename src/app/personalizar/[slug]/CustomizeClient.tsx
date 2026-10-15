@@ -59,6 +59,16 @@ export default function CustomizeClient({ template }: { template: Template }) {
   const dict = getSiteDict(locale);
   const [stepIndex, setStepIndex] = useState(0);
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
+  // Phone: people don't notice there is a live preview behind the "Vista previa" tab. Until they have
+  // looked at what they just changed, the tab has a dot and gives a few soft pulses, and a line under
+  // the tabs says what it is (it goes away once they open it, or on its own).
+  const [viewedData, setViewedData] = useState<WeddingData | null>(null);
+  const [hintGone, setHintGone] = useState(false);
+  const previewStale = viewedData !== data;
+  useEffect(() => {
+    const timer = window.setTimeout(() => setHintGone(true), 12000);
+    return () => window.clearTimeout(timer);
+  }, []);
   // Both panes are visible on desktop; on mobile the preview iframe is only
   // mounted the first time its tab opens (see the iframe's comment below).
   const isDesktop = useSyncExternalStore(
@@ -306,7 +316,8 @@ export default function CustomizeClient({ template }: { template: Template }) {
         </div>
       </header>
 
-      <div className="flex items-center gap-2 border-b border-line px-6 py-3 lg:hidden">
+      <div className="border-b border-line px-6 py-3 lg:hidden">
+        <div className="flex items-center gap-1 rounded-full border border-line bg-paper-raised p-1">
         <button
           type="button"
           onClick={() => setMobileTab("form")}
@@ -320,6 +331,8 @@ export default function CustomizeClient({ template }: { template: Template }) {
           type="button"
           onClick={() => {
             setPreviewOpened(true);
+            setViewedData(data);
+            setHintGone(true);
             setMobileTab("preview");
             // A hidden pane can't scroll (no layout), so whatever the couple
             // was editing is brought into view once the preview is showing.
@@ -328,12 +341,23 @@ export default function CustomizeClient({ template }: { template: Template }) {
               if (stepKey === "form" && rsvpFocusRef.current) showRsvpQuestion(rsvpFocusRef.current);
             }, 350);
           }}
-          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
-            mobileTab === "preview" ? "bg-ink text-paper" : "text-ink-soft"
-          }`}
+          className={`relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium ${
+            mobileTab === "preview" ? "bg-ink text-paper" : "text-ink"
+          } ${mobileTab === "form" && previewStale ? "preview-nudge" : ""}`}
         >
+          <svg viewBox="0 0 20 20" aria-hidden="true" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M1.5 10S4.5 4.5 10 4.5 18.5 10 18.5 10 15.5 15.5 10 15.5 1.5 10 1.5 10Z" />
+            <circle cx="10" cy="10" r="2.5" />
+          </svg>
           {dict.wizard.previewTab}
+          {mobileTab === "form" && previewStale ? (
+            <span aria-hidden="true" className="absolute right-3 top-2 h-2 w-2 rounded-full bg-clay" />
+          ) : null}
         </button>
+        </div>
+        {mobileTab === "form" && !hintGone ? (
+          <p className="mt-2 text-center text-xs text-ink-soft">{dict.wizard.previewHint}</p>
+        ) : null}
       </div>
 
       <div className="grid flex-1 overflow-hidden lg:grid-cols-2">
