@@ -342,8 +342,8 @@ const es: SiteDict = {
   catalog: {
     metaTitle: "Diseños de webs de boda — Wedite",
     metaDescription: "Explora el catálogo de diseños de webs de boda de Wedite, con preview en directo y personalización al instante.",
-    h1: "Elegid vuestro estilo",
-    sub: "Cada diseño se puede probar en directo antes de decidir nada. Cuando lo tengáis claro, lo personalizáis y lo hacéis vuestro sin salir del navegador.",
+    h1: "Diseñad vuestra web gratis y pagad solo si os enamora",
+    sub: "Elegid un estilo, personalizadlo con la vista previa en directo y probad todo lo que queráis sin pagar nada. Solo pagáis cuando decidís publicarla.",
     viewPreview: "Ver preview",
     choose: "Elegir",
     upcomingBadge: "Próximamente",
@@ -682,8 +682,8 @@ const en: SiteDict = {
   catalog: {
     metaTitle: "Wedding website designs — Wedite",
     metaDescription: "Explore Wedite's catalog of wedding website designs, with a live preview and instant personalization.",
-    h1: "Choose your style",
-    sub: "Every design can be tried live before deciding anything. Once you're sure, you personalize it and make it yours without leaving the browser.",
+    h1: "Design your website for free and pay only if you love it",
+    sub: "Pick a style, personalize it with the live preview and try as much as you like without paying anything. You only pay when you decide to publish it.",
     viewPreview: "View preview",
     choose: "Choose",
     upcomingBadge: "Coming soon",
