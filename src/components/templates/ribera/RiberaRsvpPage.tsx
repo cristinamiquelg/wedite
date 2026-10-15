@@ -18,6 +18,7 @@ export default function RiberaRsvpPage({
   initialLocale,
   siteSlug,
   forceLocale,
+  demoFocus,
 }: {
   data: WeddingData;
   /** Content written per language (the demo): the version for the language being read replaces `data`. */
@@ -28,6 +29,8 @@ export default function RiberaRsvpPage({
   siteSlug?: string;
   /** Show this language now (the wizard, while a translation is being reviewed). */
   forceLocale?: { locale: Locale; n: number };
+  /** The wizard's preview: show this question of the form now (see RiberaRsvpForm). */
+  demoFocus?: { target: "bus" | "contact" | "kids"; n: number };
 }) {
   const [locale, setLocale] = useState<Locale>(() =>
     baseData.locales.find((l) => l === initialLocale) ?? baseData.locales[0] ?? "es",
@@ -84,6 +87,7 @@ export default function RiberaRsvpPage({
             showBus={rsvpAsksBus(data)}
             askContact={rsvpAsksContact(data)}
             showKidsMenu={rsvpAsksKidsMenu(data)}
+            demoFocus={demoFocus}
             siteSlug={siteSlug}
             intro={
               <div className={styles.rsvpHead}>

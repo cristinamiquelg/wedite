@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
 import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
-import { renderRsvpPage, type ForcedLocale, type TemplateSlug } from "@/components/templates/registry";
+import { renderRsvpPage, type DemoFocus, type ForcedLocale, type TemplateSlug } from "@/components/templates/registry";
 import { localizeWeddingData } from "@/lib/translatable";
 
 // The standalone RSVP page of a template. Mirrors PreviewClient's data
@@ -16,6 +16,7 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
   // A draft starts from the empty template, never the demo (see PreviewClient).
   const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingData()));
   const [forceLocale, setForceLocale] = useState<ForcedLocale>();
+  const [demoFocus, setDemoFocus] = useState<DemoFocus>();
 
   useEffect(() => {
     if (!isDraft) return;
@@ -33,6 +34,15 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
       if (event.origin === window.location.origin && msg && msg.type === "wedite:update" && msg.slug === slug) {
         setData({ ...emptyWeddingData, ...(msg.data as WeddingData) });
       }
+      if (
+        event.origin === window.location.origin &&
+        msg &&
+        msg.type === "wedite:rsvpFocus" &&
+        msg.slug === slug &&
+        (msg.target === "bus" || msg.target === "contact" || msg.target === "kids")
+      ) {
+        setDemoFocus((prev) => ({ target: msg.target, n: (prev?.n ?? 0) + 1 }));
+      }
       if (event.origin === window.location.origin && msg && msg.type === "wedite:setLocale" && msg.slug === slug && (msg.locale === "es" || msg.locale === "en")) {
         setForceLocale((prev) => ({ locale: msg.locale, n: (prev?.n ?? 0) + 1 }));
       }
@@ -46,5 +56,6 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
     initialLocale: params.get("lang") ?? undefined,
     localized: isDraft ? localizeWeddingData(data) : riberaDemoByLocale,
     forceLocale,
+    demoFocus,
   });
 }

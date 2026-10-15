@@ -1396,3 +1396,15 @@
   .root [data-reveal="item"],
   .root :is(.giftPanel, .storyRow) > * { opacity: 1 !important; transform: none !important; animation: none !important; }
 }
+
+/* ---------- The wizard's preview points at a form question ---------- */
+/* When the couple switches a question on or off, the preview scrolls to it and it glows for a moment. */
+.flashable { border-radius: 4px; }
+.root [data-flash] { animation: ribFlash 2s ease-out 1; }
+@keyframes ribFlash {
+  0%, 55% { box-shadow: 0 0 0 6px rgba(221, 62, 62, 0.28); background-color: rgba(221, 62, 62, 0.07); }
+  100% { box-shadow: 0 0 0 6px rgba(221, 62, 62, 0); background-color: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .root [data-flash] { animation: none; box-shadow: 0 0 0 4px rgba(221, 62, 62, 0.28); }
+}
