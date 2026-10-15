@@ -62,14 +62,9 @@ export default function CustomizeClient({ template }: { template: Template }) {
   const [mobileTab, setMobileTab] = useState<"form" | "preview">("form");
   // Phone: people don't notice there is a live preview behind the "Vista previa" tab. Until they have
   // looked at what they just changed, the tab carries a green star that keeps turning into a circle and
-  // back, and a line under the tabs says what it is (it goes away once they open it, or on its own).
+  // back (it goes away once they open it). No explanatory text next to it: the star is enough.
   const [viewedData, setViewedData] = useState<WeddingData | null>(null);
-  const [hintGone, setHintGone] = useState(false);
   const previewStale = viewedData !== data;
-  useEffect(() => {
-    const timer = window.setTimeout(() => setHintGone(true), 12000);
-    return () => window.clearTimeout(timer);
-  }, []);
   // Both panes are visible on desktop; on mobile the preview iframe is only
   // mounted the first time its tab opens (see the iframe's comment below).
   const isDesktop = useSyncExternalStore(
@@ -333,7 +328,6 @@ export default function CustomizeClient({ template }: { template: Template }) {
           onClick={() => {
             setPreviewOpened(true);
             setViewedData(data);
-            setHintGone(true);
             setMobileTab("preview");
             // A hidden pane can't scroll (no layout), so whatever the couple
             // was editing is brought into view once the preview is showing.
@@ -361,9 +355,6 @@ export default function CustomizeClient({ template }: { template: Template }) {
           ) : null}
         </button>
         </div>
-        {mobileTab === "form" && !hintGone ? (
-          <p className="mt-2 text-center text-xs text-ink-soft">{dict.wizard.previewHint}</p>
-        ) : null}
       </div>
 
       <div className="grid flex-1 overflow-hidden lg:grid-cols-2">
