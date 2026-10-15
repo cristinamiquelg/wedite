@@ -355,7 +355,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
             // A green star that turns into a circle and back, again and again, while there is something new to see.
             <span
               aria-hidden="true"
-              className="preview-morph absolute right-3 top-1.5 h-4 w-4"
+              className="preview-morph absolute right-3 top-2 h-3.5 w-3.5"
               style={{ "--star": STAR_POLYGON, "--circle": CIRCLE_POLYGON } as React.CSSProperties}
             />
           ) : null}
