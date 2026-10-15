@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { firstIncompleteStep, missingAll, missingForStep } from "@/lib/wizard-required";
 import type { Template } from "@/lib/templates";
@@ -17,6 +17,7 @@ import StepItinerary from "./steps/StepItinerary";
 import StepDetails from "./steps/StepDetails";
 import StepLanguage from "./steps/StepLanguage";
 import { TranslationProvider, useTranslationService } from "@/components/customize/translations";
+import { PreviewControlContext, type RsvpFocusTarget } from "@/components/customize/preview-control";
 import type { Locale } from "@/lib/i18n";
 
 type StepDef = {
@@ -113,6 +114,21 @@ export default function CustomizeClient({ template }: { template: Template }) {
       document.removeEventListener("keydown", onKey);
     };
   }, [expanded]);
+
+  // The question of the guests' form the couple last switched on or off: the preview goes to it, and
+  // again when the mobile preview tab is opened (a hidden pane can't scroll).
+  const rsvpFocusRef = useRef<RsvpFocusTarget | null>(null);
+  const showRsvpQuestion = useCallback(
+    (target: RsvpFocusTarget) => {
+      rsvpFocusRef.current = target;
+      iframeRef.current?.contentWindow?.postMessage(
+        { type: "wedite:rsvpFocus", slug: template.slug, target },
+        window.location.origin,
+      );
+    },
+    [template.slug],
+  );
+  const previewControl = useMemo(() => ({ showRsvpQuestion }), [showRsvpQuestion]);
 
   // Shows a language in the live preview (to review a translation there).
   const showPreviewLocale = useCallback((target: Locale) => {
@@ -285,7 +301,10 @@ export default function CustomizeClient({ template }: { template: Template }) {
             setMobileTab("preview");
             // A hidden pane can't scroll (no layout), so whatever the couple
             // was editing is brought into view once the preview is showing.
-            window.setTimeout(() => scrollToSection(focusedSectionRef.current), 350);
+            window.setTimeout(() => {
+              scrollToSection(focusedSectionRef.current);
+              if (stepKey === "form" && rsvpFocusRef.current) showRsvpQuestion(rsvpFocusRef.current);
+            }, 350);
           }}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium ${
             mobileTab === "preview" ? "bg-ink text-paper" : "text-ink-soft"
@@ -330,9 +349,11 @@ export default function CustomizeClient({ template }: { template: Template }) {
                 not just once when the step first opens — since a step like
                 "Detalles" can have several cards spread further down. */}
             <div className="mt-6" onFocus={onFieldFocus}>
-              <TranslationProvider value={translationService}>
-                <Step data={data} onChange={patch} showErrors={showErrors} />
-              </TranslationProvider>
+              <PreviewControlContext.Provider value={previewControl}>
+                <TranslationProvider value={translationService}>
+                  <Step data={data} onChange={patch} showErrors={showErrors} />
+                </TranslationProvider>
+              </PreviewControlContext.Provider>
             </div>
           </div>
 
