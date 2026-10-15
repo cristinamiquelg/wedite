@@ -180,11 +180,11 @@ label:has(> input[type="radio"]) {
     animation-delay: var(--d, 0s);
     animation-iteration-count: 1;
   }
-  [data-play] .hw-grow { transform-origin: left center; animation: hw-grow 0.7s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
-  [data-play] .hw-rise { animation: hw-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
-  [data-play] .hw-type { animation: hw-type 1.5s steps(21, end) var(--d, 0s) both; }
-  [data-play] .hw-pop { animation: hw-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s) both; }
-  [data-play] .hw-draw { animation: hw-draw 0.6s ease-out var(--d, 0s) both; }
+  [data-play] .hw-grow { transform-origin: left center; animation: hw-grow 0.5s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
+  [data-play] .hw-rise { animation: hw-rise 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--d, 0s) both; }
+  [data-play] .hw-type { animation: hw-type 1s steps(21, end) var(--d, 0s) both; }
+  [data-play] .hw-pop { animation: hw-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0s) both; }
+  [data-play] .hw-draw { animation: hw-draw 0.4s ease-out var(--d, 0s) both; }
 }
 .hw-draw path { stroke-dasharray: 1; }
 @keyframes hw-grow {

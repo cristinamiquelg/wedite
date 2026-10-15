@@ -77,6 +77,20 @@ const columns: { order: number[]; speed: number; drift: "up" | "down"; seconds: 
   { order: [3, 0, 1, 2], speed: -0.5, drift: "down", seconds: 78, startAt: 9 },
 ];
 
+// The wall fades into the page at the top and the bottom. A plain linear gradient reads as a hard cut
+// (the cards' dark stripes stay visible until the very end), so the fade is long (22% of the height each
+// side) and eased with a smoothstep curve: it starts almost imperceptibly and only then picks up speed.
+const FADE_PERCENT = 22;
+const FADE_STEPS = 10;
+const easedEdge = Array.from({ length: FADE_STEPS + 1 }, (_, i) => {
+  const t = i / FADE_STEPS;
+  return { alpha: t * t * (3 - 2 * t), at: t * FADE_PERCENT };
+});
+const WALL_FADE = `linear-gradient(to bottom, ${[
+  ...easedEdge.map((e) => `rgba(0,0,0,${e.alpha.toFixed(3)}) ${e.at.toFixed(1)}%`),
+  ...[...easedEdge].reverse().map((e) => `rgba(0,0,0,${e.alpha.toFixed(3)}) ${(100 - e.at).toFixed(1)}%`),
+].join(", ")})`;
+
 function Card({ shot, locale }: { shot: Shot; locale: SiteLocale }) {
   return (
     <div className="relative aspect-[435/658] w-full shrink-0 overflow-hidden rounded-xl border border-black/5 shadow-[0_16px_30px_-20px_rgba(33,29,26,0.4)]">
@@ -147,11 +161,7 @@ export default function HeroGrid() {
     <div
       ref={containerRef}
       className="relative h-[600px] overflow-hidden sm:h-[780px] lg:h-[880px]"
-      style={{
-        maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
-        WebkitMaskImage:
-          "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
-      }}
+      style={{ maskImage: WALL_FADE, WebkitMaskImage: WALL_FADE }}
     >
       <div className="mx-auto grid h-full max-w-[1240px] grid-flow-col auto-cols-fr gap-4 px-4 sm:gap-6 sm:px-8 lg:gap-7">
         {columns.map((col, ci) => {
