@@ -63,15 +63,18 @@ const shots: Shot[] = [
 ];
 
 // Each column starts on a different shot (so neighbouring columns never show
-// the same one at the same height) and its own parallax speed + direction —
-// that's what makes the columns visibly drift apart as you scroll instead
-// of moving in lockstep. Five cards per column (not four) so there's
-// enough buffer height for the bigger travel distance below.
-const columns: { order: number[]; speed: number }[] = [
-  { order: [0, 1, 2, 3, 0], speed: 0.55 },
-  { order: [2, 3, 0, 1, 2], speed: -0.75 },
-  { order: [1, 2, 3, 0, 1], speed: 0.9 },
-  { order: [3, 0, 1, 2, 3], speed: -0.5 },
+// the same one at the same height) and has its own scroll-parallax speed and
+// direction — that's what makes the columns visibly drift apart as you scroll
+// instead of moving in lockstep. On top of that every column slowly drifts on
+// its own (alternating up and down, at slightly different paces), so the wall
+// is alive even while you're not scrolling. The cards of a column are listed
+// twice so the drift can loop without a jump (see `.hero-drift` in globals.css).
+// `startAt` (seconds into the loop) keeps the columns out of step from the first frame.
+const columns: { order: number[]; speed: number; drift: "up" | "down"; seconds: number; startAt: number }[] = [
+  { order: [0, 1, 2, 3], speed: 0.55, drift: "up", seconds: 70, startAt: 0 },
+  { order: [2, 3, 0, 1], speed: -0.75, drift: "down", seconds: 85, startAt: 21 },
+  { order: [1, 2, 3, 0], speed: 0.9, drift: "up", seconds: 62, startAt: 40 },
+  { order: [3, 0, 1, 2], speed: -0.5, drift: "down", seconds: 78, startAt: 9 },
 ];
 
 function Card({ shot, locale }: { shot: Shot; locale: SiteLocale }) {
@@ -81,7 +84,7 @@ function Card({ shot, locale }: { shot: Shot; locale: SiteLocale }) {
         src={shot.src[locale]}
         alt={shot.alt[locale]}
         fill
-        sizes="(min-width: 1024px) 20vw, (min-width: 640px) 33vw, 45vw"
+        sizes="(min-width: 1280px) 280px, (min-width: 1024px) 22vw, (min-width: 640px) 30vw, 46vw"
         // These are UI screenshots with fine text and thin lines, not
         // photos — the default quality (75) shows visible JPEG artifacting
         // on that kind of high-frequency content at small sizes.
@@ -116,7 +119,7 @@ export default function HeroGrid() {
         1,
         Math.max(0, (viewportH - rect.top) / (viewportH + rect.height)),
       );
-      const shift = (progress - 0.5) * 380; // px of total travel per column at speed 1
+      const shift = (progress - 0.5) * 520; // px of total travel per column at speed 1
 
       columnRefs.current.forEach((col, i) => {
         if (!col) return;
@@ -143,28 +146,34 @@ export default function HeroGrid() {
   return (
     <div
       ref={containerRef}
-      className="relative h-[520px] overflow-hidden sm:h-[680px]"
+      className="relative h-[600px] overflow-hidden sm:h-[780px] lg:h-[880px]"
       style={{
-        maskImage: "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
+        maskImage: "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
         WebkitMaskImage:
-          "linear-gradient(to bottom, transparent, black 12%, black 88%, transparent)",
+          "linear-gradient(to bottom, transparent, black 10%, black 90%, transparent)",
       }}
     >
-      <div className="mx-auto grid h-full max-w-5xl grid-flow-col auto-cols-fr gap-6 px-8 sm:gap-10 sm:px-10 lg:gap-14">
+      <div className="mx-auto grid h-full max-w-[1240px] grid-flow-col auto-cols-fr gap-4 px-4 sm:gap-6 sm:px-8 lg:gap-7">
         {columns.map((col, ci) => {
           const visibility =
             ci === 2 ? "hidden sm:flex" : ci >= 3 ? "hidden lg:flex" : "flex";
+          // The parallax moves this outer box with the scroll; the inner box drifts by itself.
           return (
             <div
               key={ci}
               ref={(el) => {
                 columnRefs.current[ci] = el;
               }}
-              className={`${visibility} -mt-24 flex-col gap-6 will-change-transform sm:gap-10 lg:gap-14`}
+              className={`${visibility} -mt-24 flex-col will-change-transform`}
             >
-              {col.order.map((shotIndex, i) => (
-                <Card key={i} shot={shots[shotIndex % shots.length]} locale={locale} />
-              ))}
+              <div
+                className={`hero-drift flex flex-col gap-4 pb-4 sm:gap-6 sm:pb-6 lg:gap-7 lg:pb-7 ${col.drift === "down" ? "hero-drift-down" : ""}`}
+                style={{ "--drift-s": `${col.seconds}s`, animationDelay: `-${col.startAt}s` } as React.CSSProperties}
+              >
+                {[...col.order, ...col.order].map((shotIndex, i) => (
+                  <Card key={i} shot={shots[shotIndex % shots.length]} locale={locale} />
+                ))}
+              </div>
             </div>
           );
         })}
