@@ -161,10 +161,28 @@ clay, so Ribera overrides it back to navy under `.root`.
   bounds and centres it with a 12% margin on every side (the model alone tends
   to run into the edge). Quality: env `OPENAI_IMAGE_QUALITY`
   (default `medium`, `high` draws finer lines at a higher price).
+  **It must never invent**: the prompt's first rule is "draw only what is in the
+  photograph" (a balloon is a balloon, never a couple), anchored by a one-line
+  vision description of the photo (`describeSubjects` in the route, a small
+  vision model). Don't reintroduce "couple" wording in the prompt. Each drawing
+  costs money, so the wizard step is deliberate and capped: choose photo →
+  "Crear ilustración" → preview → "Usar esta ilustración" (nothing is added
+  before that), 3 attempts per web (sessionStorage), same photo = cached, no
+  attempt; the server has a per-IP hourly limit and `ILLUSTRATION_DAILY_CAP`.
+  While drawing, the wizard is locked (`BusyContext` / `useReportBusy` in
+  `components/customize/busy.tsx`).
 - **The mobile header grid must stay symmetric.** `grid-template-columns`
   needs equal-fraction side columns (`1fr auto 1fr`), not `auto 1fr auto` —
   otherwise the hamburger button and the (wider) RSVP button pull the
   middle logo column off the header's true center.
+- **Phases can be reordered by dragging** (StepItinerary, `@dnd-kit`): each
+  `WeddingPhase` carries a stable `id` (older drafts get one the first time the
+  order changes; until then they are known by position). The handle is
+  `touch-none` so a finger drags instead of scrolling, and the keyboard works
+  (space, arrows, space) with translated announcements. Anchors such as
+  `fase-<i>` are by position, so they follow the new order.
+- **The phase date-time picker** shows a hint and greys out its time controls
+  until a day is chosen (`timeNeedsDateLabel`).
 - **`buildVisiblePhases()` / per-section visibility filters** hide a phase,
   place, detail card, or contact until it actually has content (matching
   the template's own `phase.name || phase.when` etc. conditionals) — don't

@@ -27,13 +27,14 @@ export type SiteDict = {
     otherProvidersLabel: string;
     painPoints: string[];
     wediteLabel: string;
+    compareNo: string;
+    compareYes: string;
     promisesHeadingPre: string;
     promisesHeadingItalic: string;
     promises: { title: string; body: string }[];
     howItWorksLabel: string;
     howItWorksHeading: string;
     steps: { title: string; body: string }[];
-    mockupPublishCta: string;
     testimonialsLabel: string;
     ctaFinalPre: string;
     ctaFinalItalic: string;
@@ -162,6 +163,7 @@ export type SiteDict = {
     next: string;
     reviewAndBuy: string;
     completeToContinue: (labels: string) => string;
+    waitIllustration: string;
     fieldTooShort: string;
     missing: {
       partnerA: string;
@@ -217,7 +219,23 @@ export type SiteDict = {
       storyImageChoose: string;
       storyImageRemove: string;
       storyImageDrawing: string;
-      storyImageFallback: string;
+      storyImageHelp: string;
+      storyImageChange: string;
+      storyImageUnreadable: string;
+      storyImageCreate: string;
+      storyImageAttempts: (left: number, max: number) => string;
+      storyImageNoAttempts: string;
+      storyImageChooseOther: string;
+      storyImageCancel: string;
+      storyImageUseOriginal: string;
+      storyImageRetry: string;
+      storyImageFailed: string;
+      storyImageBusy: string;
+      storyImagePreviewTitle: string;
+      storyImagePreviewHint: string;
+      storyImageAccept: string;
+      storyImageAnother: string;
+      storyImageDiscard: string;
       hashtag: string;
     };
     stepRsvpGift: {
@@ -252,7 +270,15 @@ export type SiteDict = {
       timeMinute: string;
       timeUnknown: string;
       pickerDone: string;
+      timeNeedsDate: string;
       removePhase: string;
+      dragHandle: string;
+      dragInstructions: string;
+      dragPicked: (name: string, position: number, total: number) => string;
+      dragMoved: (name: string, position: number, total: number) => string;
+      dragDropped: (name: string, position: number, total: number) => string;
+      dragCancelled: (name: string) => string;
+      phaseFallbackName: (n: number) => string;
       placeNamePlaceholder: string;
       placeAddressPlaceholder: string;
       placeMapsUrlPlaceholder: string;
@@ -314,6 +340,8 @@ const es: SiteDict = {
       "Webs pensadas para ordenador cuando tus invitados están en WhatsApp.",
     ],
     wediteLabel: "Wedite",
+    compareNo: "No",
+    compareYes: "Sí",
     promisesHeadingPre: "Wedite crea las webs que",
     promisesHeadingItalic: "deberían de ser.",
     promises: [
@@ -329,7 +357,6 @@ const es: SiteDict = {
       { title: "Publicadla", body: "Elegid la dirección de vuestra web, como wedite.com/elenayjuan, y hacedla pública con un único pago." },
       { title: "Compartidla y recoged las confirmaciones", body: "Tendréis una tabla descargable en la que gestionar todas las respuestas al formulario de confirmación." },
     ],
-    mockupPublishCta: "Pagar y publicar",
     testimonialsLabel: "Parejas reales",
     ctaFinalPre: "Vuestra boda merece",
     ctaFinalItalic: "algo mejor",
@@ -342,8 +369,8 @@ const es: SiteDict = {
   catalog: {
     metaTitle: "Diseños de webs de boda — Wedite",
     metaDescription: "Explora el catálogo de diseños de webs de boda de Wedite, con preview en directo y personalización al instante.",
-    h1: "Elegid vuestro estilo",
-    sub: "Cada diseño se puede probar en directo antes de decidir nada. Cuando lo tengáis claro, lo personalizáis y lo hacéis vuestro sin salir del navegador.",
+    h1: "Diseñad vuestra web gratis y pagad solo si os enamora",
+    sub: "Elegid un estilo, personalizadlo con la vista previa en directo y probad todo lo que queráis sin pagar nada. Solo pagáis cuando decidís publicarla.",
     viewPreview: "Ver preview",
     choose: "Elegir",
     upcomingBadge: "Próximamente",
@@ -498,6 +525,7 @@ const es: SiteDict = {
     next: "Siguiente",
     reviewAndBuy: "Revisar y comprar",
     completeToContinue: (labels) => `Para continuar, completad: ${labels}.`,
+    waitIllustration: "Estamos dibujando vuestra ilustración. Podréis continuar en cuanto termine.",
     fieldTooShort: "Escribid al menos 2 caracteres.",
     missing: {
       partnerA: "tu nombre",
@@ -555,8 +583,24 @@ const es: SiteDict = {
       storyImage: "Foto (opcional)",
       storyImageChoose: "Elegir imagen",
       storyImageRemove: "Quitar",
-      storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto.",
-      storyImageFallback: "No hemos podido crear la ilustración, así que usaremos vuestra foto tal cual.",
+      storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto. No cerréis esta pestaña.",
+      storyImageHelp: "Subid una foto y la convertimos en una ilustración con el estilo de la plantilla. Dibujamos solo lo que aparece en la foto, y antes de añadirla veréis cómo queda.",
+      storyImageChange: "Cambiar imagen",
+      storyImageUnreadable: "No hemos podido leer esa imagen. Probad con otra.",
+      storyImageCreate: "Crear ilustración",
+      storyImageAttempts: (left, max) => `Intentos que os quedan: ${left} de ${max}.`,
+      storyImageNoAttempts: "Ya habéis usado todos los intentos de ilustración de esta web.",
+      storyImageChooseOther: "Elegir otra foto",
+      storyImageCancel: "Cancelar",
+      storyImageUseOriginal: "Usar mi foto tal cual",
+      storyImageRetry: "Volver a probar",
+      storyImageFailed: "No hemos podido crear la ilustración. No ha gastado ningún intento: podéis volver a probar o usar vuestra foto tal cual.",
+      storyImageBusy: "Ahora mismo hay mucha demanda y no podemos crear más ilustraciones. Podéis usar vuestra foto tal cual o volver a probar más tarde.",
+      storyImagePreviewTitle: "Así quedaría vuestra ilustración",
+      storyImagePreviewHint: "No se añade a la web hasta que pulséis «Usar esta ilustración».",
+      storyImageAccept: "Usar esta ilustración",
+      storyImageAnother: "Crear otra versión",
+      storyImageDiscard: "Descartar",
       hashtag: "Hashtag de la boda",
     },
     stepRsvpGift: {
@@ -591,7 +635,15 @@ const es: SiteDict = {
       timeMinute: "Minutos",
       timeUnknown: "Aún no sabemos la hora exacta",
       pickerDone: "Listo",
+      timeNeedsDate: "Elegid primero el día para poder elegir la hora.",
       removePhase: "Quitar fase",
+      dragHandle: "Arrastrar para cambiar el orden de la fase",
+      dragInstructions: "Para reordenar, pulsad espacio sobre el asa de la fase, moveos con las flechas arriba y abajo y volved a pulsar espacio para soltarla. Escape cancela.",
+      dragPicked: (name, position, total) => `Fase «${name}» cogida. Está en la posición ${position} de ${total}.`,
+      dragMoved: (name, position, total) => `Fase «${name}» movida a la posición ${position} de ${total}.`,
+      dragDropped: (name, position, total) => `Fase «${name}» soltada en la posición ${position} de ${total}.`,
+      dragCancelled: (name) => `Se ha cancelado el movimiento de la fase «${name}».`,
+      phaseFallbackName: (n) => `Fase ${n}`,
       placeNamePlaceholder: "Ermita de Sant Baldiri",
       placeAddressPlaceholder: "Dirección",
       placeMapsUrlPlaceholder: "Enlace de Google Maps (opcional)",
@@ -654,6 +706,8 @@ const en: SiteDict = {
       "Websites built for desktop when your guests are on WhatsApp.",
     ],
     wediteLabel: "Wedite",
+    compareNo: "No",
+    compareYes: "Yes",
     promisesHeadingPre: "Wedite builds the websites weddings",
     promisesHeadingItalic: "deserve.",
     promises: [
@@ -669,7 +723,6 @@ const en: SiteDict = {
       { title: "Publish it", body: "Pick your website address, like wedite.com/elenayjuan, and make it live with a single payment." },
       { title: "Share it and start collecting responses", body: "We'll send you a downloadable spreadsheet where you can sort and filter every RSVP response." },
     ],
-    mockupPublishCta: "Pay & publish",
     testimonialsLabel: "Real couples",
     ctaFinalPre: "Your wedding deserves",
     ctaFinalItalic: "something better",
@@ -682,8 +735,8 @@ const en: SiteDict = {
   catalog: {
     metaTitle: "Wedding website designs — Wedite",
     metaDescription: "Explore Wedite's catalog of wedding website designs, with a live preview and instant personalization.",
-    h1: "Choose your style",
-    sub: "Every design can be tried live before deciding anything. Once you're sure, you personalize it and make it yours without leaving the browser.",
+    h1: "Design your website for free and pay only if you love it",
+    sub: "Pick a style, personalize it with the live preview and try as much as you like without paying anything. You only pay when you decide to publish it.",
     viewPreview: "View preview",
     choose: "Choose",
     upcomingBadge: "Coming soon",
@@ -838,6 +891,7 @@ const en: SiteDict = {
     next: "Next",
     reviewAndBuy: "Review and buy",
     completeToContinue: (labels) => `To continue, please fill in: ${labels}.`,
+    waitIllustration: "We're drawing your illustration. You'll be able to continue as soon as it's done.",
     fieldTooShort: "Please write at least 2 characters.",
     missing: {
       partnerA: "your name",
@@ -895,8 +949,24 @@ const en: SiteDict = {
       storyImage: "Photo (optional)",
       storyImageChoose: "Choose image",
       storyImageRemove: "Remove",
-      storyImageDrawing: "Drawing your illustration… this can take up to a minute.",
-      storyImageFallback: "We couldn't create the illustration, so we'll use your photo as it is.",
+      storyImageDrawing: "Drawing your illustration… this can take up to a minute. Please don't close this tab.",
+      storyImageHelp: "Upload a photo and we turn it into an illustration in the template's style. We only draw what is in the photo, and you'll see the result before it is added.",
+      storyImageChange: "Change image",
+      storyImageUnreadable: "We couldn't read that image. Try another one.",
+      storyImageCreate: "Create illustration",
+      storyImageAttempts: (left, max) => `Attempts left: ${left} of ${max}.`,
+      storyImageNoAttempts: "You've used all the illustration attempts for this website.",
+      storyImageChooseOther: "Choose another photo",
+      storyImageCancel: "Cancel",
+      storyImageUseOriginal: "Use my photo as it is",
+      storyImageRetry: "Try again",
+      storyImageFailed: "We couldn't create the illustration. It didn't use up an attempt: you can try again or use your photo as it is.",
+      storyImageBusy: "There is a lot of demand right now and we can't create more illustrations. You can use your photo as it is or try again later.",
+      storyImagePreviewTitle: "This is how your illustration would look",
+      storyImagePreviewHint: "It isn't added to your website until you press “Use this illustration”.",
+      storyImageAccept: "Use this illustration",
+      storyImageAnother: "Create another version",
+      storyImageDiscard: "Discard",
       hashtag: "Wedding hashtag",
     },
     stepRsvpGift: {
@@ -931,7 +1001,15 @@ const en: SiteDict = {
       timeMinute: "Minutes",
       timeUnknown: "We don't know the exact time yet",
       pickerDone: "Done",
+      timeNeedsDate: "Pick a day first to choose the time.",
       removePhase: "Remove phase",
+      dragHandle: "Drag to change the order of the phase",
+      dragInstructions: "To reorder, press space on the phase's handle, move with the up and down arrow keys and press space again to drop it. Escape cancels.",
+      dragPicked: (name, position, total) => `Phase “${name}” picked up. It is at position ${position} of ${total}.`,
+      dragMoved: (name, position, total) => `Phase “${name}” moved to position ${position} of ${total}.`,
+      dragDropped: (name, position, total) => `Phase “${name}” dropped at position ${position} of ${total}.`,
+      dragCancelled: (name) => `Moving phase “${name}” was cancelled.`,
+      phaseFallbackName: (n) => `Phase ${n}`,
       placeNamePlaceholder: "St. Baldiri's Chapel",
       placeAddressPlaceholder: "Address",
       placeMapsUrlPlaceholder: "Google Maps link (optional)",

@@ -7,6 +7,7 @@ import Typewriter from "@/components/site/Typewriter";
 import TestimonialsCarousel from "@/components/site/TestimonialsCarousel";
 import ContactForm from "@/components/site/ContactForm";
 import SparkleIcon from "@/components/site/SparkleIcon";
+import HowItWorks from "@/components/site/HowItWorks";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
 
@@ -27,79 +28,6 @@ const ctaScatter: { top: string; left: string; size: string; opacity: number; ro
   { top: "36%", left: "96%", size: "1.2rem", opacity: 0.25, rotate: "10deg" },
 ];
 
-// Small, language-neutral illustrations for the "Cómo funciona" steps —
-// abstract bars/panels rather than screenshots, so they read at a glance
-// without needing to stay in sync with the real product UI.
-const delay = (s: number) => ({ "--d": `${s}s` }) as React.CSSProperties;
-
-function EditorMockup() {
-  return (
-    <div className="flex h-full gap-2">
-      <div className="flex w-2/5 flex-col gap-1.5 rounded-lg bg-paper p-2.5">
-        <div className="hw-grow h-1.5 w-3/4 rounded-full bg-line" style={delay(0.1)} />
-        <div className="hw-grow h-1.5 w-full rounded-full bg-line" style={delay(0.3)} />
-        <div className="hw-grow h-1.5 w-2/3 rounded-full bg-line" style={delay(0.5)} />
-        <div className="hw-press mt-1 h-5 w-full rounded-md bg-clay/25" style={delay(0.2)} />
-      </div>
-      <div className="flex flex-1 flex-col gap-1.5 rounded-lg bg-paper p-2.5">
-        <div className="hw-grow h-2 w-1/2 rounded-full bg-clay/50" style={delay(0.7)} />
-        <div className="hw-rise mt-1 h-9 w-full rounded-md bg-sage-light" style={delay(1)} />
-        <div className="hw-grow h-1.5 w-full rounded-full bg-line" style={delay(1.4)} />
-        <div className="hw-grow h-1.5 w-4/5 rounded-full bg-line" style={delay(1.6)} />
-      </div>
-    </div>
-  );
-}
-
-function PublishMockup({ cta }: { cta: string }) {
-  return (
-    <div className="flex h-full flex-col justify-center gap-3">
-      <div className="flex items-center gap-2 rounded-full border border-line bg-paper px-3 py-2.5">
-        <span className="hw-blink h-1.5 w-1.5 shrink-0 rounded-full bg-sage" />
-        <span className="hw-type truncate text-xs text-ink-soft">wedite.com/elenayjuan</span>
-        <svg viewBox="0 0 20 20" className="ml-auto h-3 w-3 shrink-0 text-ink-soft" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path d="M5 8l5 5 5-5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      <div className="hw-press rounded-full bg-ink px-3 py-2.5 text-center text-xs font-medium text-paper" style={delay(0.4)}>
-        {cta}
-      </div>
-    </div>
-  );
-}
-
-function ResponsesMockup() {
-  const rows: ("yes" | "no")[] = ["yes", "yes", "no"];
-  return (
-    <div className="flex h-full flex-col justify-center gap-2 rounded-lg bg-paper p-2.5">
-      <div className="flex items-center gap-2 px-1">
-        <div className="h-1.5 w-8 rounded-full bg-ink-soft/40" />
-        <div className="h-1.5 flex-1 rounded-full bg-ink-soft/40" />
-        <div className="h-1.5 w-6 rounded-full bg-ink-soft/40" />
-      </div>
-      {rows.map((status, i) => (
-        <div
-          key={i}
-          className="hw-rise flex items-center gap-2 rounded-md bg-paper-raised px-2 py-1.5"
-          style={delay(0.4 + i * 0.7)}
-        >
-          <div className="h-1.5 w-10 rounded-full bg-line" />
-          <div className="h-1.5 flex-1 rounded-full bg-line" />
-          {status === "yes" ? (
-            <svg viewBox="0 0 16 16" className="hw-draw h-3 w-3 shrink-0 text-sage" fill="none" stroke="currentColor" strokeWidth="2" style={delay(0.7 + i * 0.7)}>
-              <path d="M3 8.5l3 3 7-7" pathLength={1} strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          ) : (
-            <svg viewBox="0 0 16 16" className="hw-draw h-3 w-3 shrink-0 text-clay" fill="none" stroke="currentColor" strokeWidth="2" style={delay(0.7 + i * 0.7)}>
-              <path d="M4 4l8 8M12 4l-8 8" pathLength={1} strokeLinecap="round" />
-            </svg>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 export default function HomePage() {
   const featured = templates[0];
   const { locale } = useSiteLocale();
@@ -114,7 +42,7 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="mx-auto max-w-5xl px-6 pb-20 pt-20 text-center sm:pt-28">
+      <section className="mx-auto max-w-5xl px-6 pb-6 pt-16 text-center sm:pb-10 sm:pt-24">
         <p className="fade-in-slow text-xs uppercase tracking-[0.3em] text-clay" style={{ animationDelay: "150ms" }}>
           {home.eyebrow}
         </p>
@@ -150,7 +78,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="pb-24" data-reveal style={{ transitionDelay: "100ms" }}>
+      <section className="pb-16" data-reveal style={{ transitionDelay: "100ms" }}>
         <HeroGrid />
       </section>
 
@@ -163,51 +91,65 @@ export default function HomePage() {
             </h2>
           </div>
 
-          <div
-            data-reveal
-            style={{ transitionDelay: "120ms" }}
-            className="relative mt-14 grid overflow-hidden rounded-2xl border border-line sm:grid-cols-2"
-          >
-            <div className="flex flex-col gap-5 p-8 sm:p-10">
-              <p className="text-xs uppercase tracking-[0.3em] text-ink-soft">{home.otherProvidersLabel}</p>
-              <ul className="flex flex-col gap-4">
-                {home.painPoints.map((p, i) => (
-                  <li
-                    key={p}
+          {/* A real comparison: each problem sits opposite the answer to it. Wedite's column is the dark,
+              raised one (it is the one to look at); the others are plain, with a filled "no" mark. On a
+              phone every pair becomes a small card: the problem, then the answer. */}
+          <div className="mx-auto mt-14 grid max-w-4xl gap-4 sm:grid-cols-[1fr_1.08fr] sm:gap-0">
+            <div data-reveal className="hidden items-end px-8 pb-5 text-xs uppercase tracking-[0.3em] text-ink-soft sm:flex">
+              {home.otherProvidersLabel}
+            </div>
+            <div
+              data-reveal
+              className="hidden items-center gap-2 rounded-t-2xl bg-ink px-8 pb-5 pt-7 font-display text-2xl text-paper shadow-[0_24px_50px_-30px_rgba(33,29,26,0.6)] sm:flex"
+            >
+              {home.wediteLabel}
+              <SparkleIcon className="h-4 w-4 -translate-y-1 text-clay" />
+            </div>
+            {home.painPoints.map((pain, i) => {
+              const promise = home.promises[i];
+              const last = i === home.painPoints.length - 1;
+              return (
+                <div key={pain} className="overflow-hidden rounded-2xl border border-line sm:contents">
+                  <div
                     data-reveal
                     style={{ transitionDelay: `${i * 90}ms` }}
-                    className="flex items-start gap-3 text-ink-soft"
+                    className={`flex items-start gap-4 bg-paper-raised p-6 sm:bg-transparent sm:px-8 sm:py-7 sm:border-t sm:border-line`}
                   >
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-line text-[10px] text-ink-soft/70">
-                      ✕
+                    <span
+                      role="img"
+                      aria-label={home.compareNo}
+                      className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-clay-dark text-paper"
+                    >
+                      <svg viewBox="0 0 16 16" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" aria-hidden="true">
+                        <path d="M4 4l8 8M12 4l-8 8" />
+                      </svg>
                     </span>
-                    {p}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="flex flex-col gap-5 border-t border-line bg-clay/5 p-8 sm:border-t-0 sm:border-l sm:p-10">
-              <p className="text-xs uppercase tracking-[0.3em] text-clay">{home.wediteLabel}</p>
-              <ul className="flex flex-col gap-4">
-                {home.promises.map((p, i) => (
-                  <li
-                    key={p.title}
-                    data-reveal
-                    style={{ transitionDelay: `${i * 90}ms` }}
-                    className="flex items-start gap-3 text-ink"
-                  >
-                    <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-clay text-[10px] font-bold text-paper">
-                      ✓
-                    </span>
-                    <span>
-                      <span className="font-medium text-ink">{p.title}</span>
-                      <span className="block text-sm text-ink-soft">{p.body}</span>
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    <p className="text-ink-soft">{pain}</p>
+                  </div>
+                  {promise ? (
+                    <div
+                      data-reveal
+                      style={{ transitionDelay: `${i * 90 + 60}ms` }}
+                      className={`flex items-start gap-4 bg-ink p-6 text-paper sm:px-8 sm:py-7 sm:border-t sm:border-paper/10 ${last ? "sm:rounded-b-2xl" : ""} sm:shadow-[0_24px_50px_-30px_rgba(33,29,26,0.6)]`}
+                    >
+                      <span
+                        role="img"
+                        aria-label={home.compareYes}
+                        className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage-light text-sage"
+                      >
+                        <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                          <path d="M3 8.5l3 3 7-7" />
+                        </svg>
+                      </span>
+                      <p>
+                        <span className="block text-lg font-medium leading-snug">{promise.title}</span>
+                        <span className="mt-1 block text-sm leading-relaxed text-paper/75">{promise.body}</span>
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
           </div>
 
           <h2 className="mt-14 text-center font-display text-3xl">
@@ -217,30 +159,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section id="como-funciona" className="mx-auto max-w-5xl scroll-mt-20 px-6 py-24">
-        <div data-reveal>
-          <p className="text-center text-xs uppercase tracking-[0.3em] text-clay">
-            {home.howItWorksLabel}
-          </p>
-          <h2 className="mx-auto mt-4 max-w-md text-center font-display text-3xl sm:text-4xl">
-            {home.howItWorksHeading}
-          </h2>
-        </div>
-        <div className="mt-16 grid gap-10 sm:grid-cols-3">
-          {home.steps.map((step, i) => (
-            <div key={step.title} data-reveal style={{ transitionDelay: `${i * 120}ms` }}>
-              <div className="h-32 rounded-xl border border-line bg-paper-raised p-3">
-                {i === 0 ? <EditorMockup /> : i === 1 ? <PublishMockup cta={home.mockupPublishCta} /> : <ResponsesMockup />}
-              </div>
-              <span className="mt-5 block font-display text-4xl text-clay">{String(i + 1).padStart(2, "0")}</span>
-              <h3 className="mt-4 font-display text-xl">{step.title}</h3>
-              <p className="mt-3 text-sm leading-relaxed text-ink-soft">
-                {step.body}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <HowItWorks />
 
       <section className="border-t border-line bg-paper-raised">
         <div className="px-6 py-24" data-reveal>

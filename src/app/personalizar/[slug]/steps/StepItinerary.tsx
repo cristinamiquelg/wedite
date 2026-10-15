@@ -3,6 +3,17 @@ import { MAX_LENGTH } from "@/lib/translatable";
 import type { PlaceIllustration, WeddingData, WeddingPhase, WeddingPlace } from "@/lib/wedding-types";
 import { Select, TextInput } from "@/components/customize/fields";
 import DatePicker, { todayISO } from "@/components/customize/DatePicker";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const illustrationIds: PlaceIllustration[] = ["casa", "catedral", "cortijo", "restaurante"];
 const PLACE_NAME_MAX_LENGTH = 50;
@@ -10,6 +21,64 @@ const PLACE_ADDRESS_MAX_LENGTH = 80;
 const MAPS_URL_MAX_LENGTH = 300;
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
+
+const newPhaseId = () => `phase-${Math.random().toString(36).slice(2, 10)}`;
+// Phases from older drafts have no id yet: until they are first reordered they are known by position.
+const phaseKey = (p: WeddingPhase, i: number) => p.id ?? `phase-${i}`;
+
+function GripIcon() {
+  return (
+    <svg viewBox="0 0 20 20" aria-hidden="true" className="h-5 w-5" fill="currentColor">
+      <circle cx="7" cy="5" r="1.4" />
+      <circle cx="13" cy="5" r="1.4" />
+      <circle cx="7" cy="10" r="1.4" />
+      <circle cx="13" cy="10" r="1.4" />
+      <circle cx="7" cy="15" r="1.4" />
+      <circle cx="13" cy="15" r="1.4" />
+    </svg>
+  );
+}
+
+/** One phase card that can be dragged (by its handle, with the pointer, a finger or the keyboard) to a new place in the list. */
+function SortablePhase({
+  id,
+  index,
+  handleLabel,
+  children,
+}: {
+  id: string;
+  index: number;
+  handleLabel: string;
+  children: React.ReactNode;
+}) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      style={{ transform: CSS.Translate.toString(transform), transition }}
+      data-scroll-section={`fase-${index}`}
+      className={`flex gap-3 rounded-lg border bg-paper p-4 ${
+        isDragging ? "relative z-20 border-clay shadow-[0_18px_40px_-20px_rgba(33,29,26,0.45)]" : "border-line"
+      }`}
+    >
+      <button
+        type="button"
+        ref={setActivatorNodeRef}
+        aria-label={handleLabel}
+        title={handleLabel}
+        {...attributes}
+        {...listeners}
+        // touch-none: a finger on the handle drags instead of scrolling the page.
+        className={`-ml-1 mt-0.5 flex h-8 w-6 shrink-0 touch-none items-center justify-center rounded text-ink-soft/70 transition-colors hover:bg-sage-light hover:text-ink focus-visible:outline-2 focus-visible:outline-clay ${
+          isDragging ? "cursor-grabbing" : "cursor-grab"
+        }`}
+      >
+        <GripIcon />
+      </button>
+      <div className="flex min-w-0 flex-1 flex-col gap-4">{children}</div>
+    </div>
+  );
+}
 
 export default function StepItinerary({
   data,
@@ -21,6 +90,37 @@ export default function StepItinerary({
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).wizard;
 
+  const sensors = useSensors(
+    // A small distance keeps clicks on the handle from starting a drag by accident.
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const keys = data.phases.map(phaseKey);
+
+  function onDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const from = keys.indexOf(String(active.id));
+    const to = keys.indexOf(String(over.id));
+    if (from < 0 || to < 0) return;
+    // Every phase gets a stable id the first time the order changes.
+    const withIds = data.phases.map((p) => (p.id ? p : { ...p, id: newPhaseId() }));
+    onChange({ phases: arrayMove(withIds, from, to) });
+  }
+
+  const phaseLabel = (id: string | number) => {
+    const i = keys.indexOf(String(id));
+    return data.phases[i]?.name.trim() || dict.stepItinerary.phaseFallbackName(i + 1);
+  };
+  const announcements = {
+    onDragStart: ({ active }: { active: { id: string | number } }) => dict.stepItinerary.dragPicked(phaseLabel(active.id), keys.indexOf(String(active.id)) + 1, keys.length),
+    onDragOver: ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) =>
+      over ? dict.stepItinerary.dragMoved(phaseLabel(active.id), keys.indexOf(String(over.id)) + 1, keys.length) : undefined,
+    onDragEnd: ({ active, over }: { active: { id: string | number }; over: { id: string | number } | null }) =>
+      dict.stepItinerary.dragDropped(phaseLabel(active.id), (over ? keys.indexOf(String(over.id)) : keys.indexOf(String(active.id))) + 1, keys.length),
+    onDragCancel: ({ active }: { active: { id: string | number } }) => dict.stepItinerary.dragCancelled(phaseLabel(active.id)),
+  };
+
   function updatePhase(index: number, patch: Partial<WeddingPhase>) {
     onChange({
       phases: data.phases.map((p, i) => (i === index ? { ...p, ...patch } : p)),
@@ -29,7 +129,7 @@ export default function StepItinerary({
 
   function addPhase() {
     onChange({
-      phases: [...data.phases, { name: "", when: "", places: [{ name: "", address: "" }] }],
+      phases: [...data.phases, { id: newPhaseId(), name: "", when: "", places: [{ name: "", address: "" }] }],
     });
   }
 
@@ -60,12 +160,19 @@ export default function StepItinerary({
   return (
     <div className="flex flex-col gap-6">
       <p className="text-sm text-ink-soft">{dict.stepItinerary.intro}</p>
+      <DndContext
+        id="itinerary-phases"
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={onDragEnd}
+        accessibility={{
+          announcements,
+          screenReaderInstructions: { draggable: dict.stepItinerary.dragInstructions },
+        }}
+      >
+      <SortableContext items={keys} strategy={verticalListSortingStrategy}>
       {data.phases.map((phase, pi) => (
-        <div
-          key={pi}
-          data-scroll-section={`fase-${pi}`}
-          className="flex flex-col gap-4 rounded-lg border border-line p-4"
-        >
+        <SortablePhase key={keys[pi]} id={keys[pi]} index={pi} handleLabel={dict.stepItinerary.dragHandle}>
           <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div className="grid min-w-0 flex-1 gap-3 sm:grid-cols-2">
               <TextInput
@@ -87,6 +194,7 @@ export default function StepItinerary({
                 minuteLabel={dict.stepItinerary.timeMinute}
                 timeUnknownLabel={dict.stepItinerary.timeUnknown}
                 doneLabel={dict.stepItinerary.pickerDone}
+                timeNeedsDateLabel={dict.stepItinerary.timeNeedsDate}
                 ariaLabel={dict.stepItinerary.phaseWhenPlaceholder}
                 onChange={(when) => updatePhase(pi, { when })}
               />
@@ -174,8 +282,10 @@ export default function StepItinerary({
               {dict.stepItinerary.addPlace}
             </button>
           </div>
-        </div>
+        </SortablePhase>
       ))}
+      </SortableContext>
+      </DndContext>
       <button
         type="button"
         onClick={addPhase}

@@ -16,9 +16,9 @@ export default function CatalogContent() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
-      <div className="max-w-xl" data-reveal>
-        <h1 className="font-display text-4xl sm:text-5xl">{dict.catalog.h1}</h1>
-        <p className="mt-4 text-ink-soft">{dict.catalog.sub}</p>
+      <div className="max-w-3xl" data-reveal>
+        <h1 className="text-balance font-display text-4xl sm:text-5xl">{dict.catalog.h1}</h1>
+        <p className="mt-4 max-w-xl text-ink-soft">{dict.catalog.sub}</p>
       </div>
 
       <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
