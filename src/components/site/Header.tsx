@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Logo from "./Logo";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
@@ -29,6 +29,21 @@ export default function Header() {
     { href: "/quienes-somos", label: dict.nav.whoWeAre },
     { href: "/#contacto", label: dict.nav.contact },
   ];
+
+  // The open menu covers the page, so the page behind must not scroll; Escape closes it.
+  useEffect(() => {
+    if (!menuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [menuOpen]);
 
   function closeMenu() {
     setMenuOpen(false);
@@ -94,20 +109,22 @@ export default function Header() {
       </div>
 
       {menuOpen ? (
-        <div className="border-t border-line px-6 py-5 md:hidden">
-          <nav className="flex flex-col gap-1 text-base text-ink-soft">
+        // Full viewport height below the header (the header is 80 px: 40 px button + 2 × 20 px padding).
+        // `absolute` rather than `fixed`: the header's backdrop blur would make `fixed` relative to the header.
+        <div className="absolute inset-x-0 top-full flex h-[calc(100dvh-80px)] flex-col overflow-y-auto border-t border-line bg-paper px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 md:hidden">
+          <nav className="flex flex-col text-ink">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={closeMenu}
-                className="rounded-lg px-2 py-2.5 transition-colors hover:bg-line/60 hover:text-ink"
+                className="border-b border-line py-4 font-display text-2xl transition-colors hover:text-ink-soft"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4">
+          <div className="mt-auto flex items-center justify-between gap-3 pt-6">
             <span className="text-xs uppercase tracking-[0.2em] text-ink-soft">
               {locale === "en" ? "Language" : "Idioma"}
             </span>
