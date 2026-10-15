@@ -26,7 +26,9 @@ Olivar, Sierra, Duna. Check brand/domain/social availability before launching on
   thanks; reads the buyer's email via the Stripe `session_id`, never by order number).
 - `src/components/site/` — Header, Footer, `HeroGrid` (wall of design cards: scroll parallax + a slow CSS drift per column, `.hero-drift` in
   globals.css, cards listed twice so it loops without a jump; one image per language, 435×658 — a higher
-  resolution source would make them sharper), `CatalogContent` (live card for Ribera + blurred "Próximamente" cards),
+  resolution source would make them sharper), `HowItWorks` (the 3 "Cómo funciona" scenes: printed-looking
+  illustrations — nothing that resembles a button or field — that play one after another, 1 → 2 → 3, via `data-play` + `.hw-*` in globals.css),
+  `CatalogContent` (live card for Ribera + blurred "Próximamente" cards),
   `TestimonialsCarousel` (auto-advances every 5 s), `Typewriter`, `AddressPicker`,
   `ContactForm`, `LegalDocument`, `ScrollReveal`, `StagingBadge`.
 - `src/app/personalizar/[slug]/` — the configurator: `CustomizeClient.tsx` (steps,
