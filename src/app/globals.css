@@ -230,3 +230,23 @@ label:has(> input[type="radio"]) {
   vertical-align: -0.08em;
   background: currentColor;
 }
+
+/* Home hero wall: each column of design cards drifts slowly on its own (alternating up and
+   down). Its cards are listed twice and the box has a bottom padding equal to the gap, so moving
+   by exactly half its height lands on the same picture and the loop has no jump. Still for
+   people who prefer reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-drift {
+    animation: hero-drift-up var(--drift-s, 70s) linear infinite;
+    will-change: transform;
+  }
+  .hero-drift-down { animation-name: hero-drift-down; }
+}
+@keyframes hero-drift-up {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -50%, 0); }
+}
+@keyframes hero-drift-down {
+  from { transform: translate3d(0, -50%, 0); }
+  to { transform: translate3d(0, 0, 0); }
+}

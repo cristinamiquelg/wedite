@@ -114,7 +114,7 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="mx-auto max-w-5xl px-6 pb-20 pt-20 text-center sm:pt-28">
+      <section className="mx-auto max-w-5xl px-6 pb-6 pt-16 text-center sm:pb-10 sm:pt-24">
         <p className="fade-in-slow text-xs uppercase tracking-[0.3em] text-clay" style={{ animationDelay: "150ms" }}>
           {home.eyebrow}
         </p>
@@ -150,7 +150,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="pb-24" data-reveal style={{ transitionDelay: "100ms" }}>
+      <section className="pb-16" data-reveal style={{ transitionDelay: "100ms" }}>
         <HeroGrid />
       </section>
 
