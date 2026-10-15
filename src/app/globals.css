@@ -126,6 +126,32 @@ label:has(> input[type="radio"]) {
   }
 }
 
+/* Shooting star: a short tail that streaks across the dark banner and then stays hidden until its next cycle. */
+.shooting-star {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .shooting-star {
+    display: block;
+    position: absolute;
+    top: var(--ss-top);
+    left: var(--ss-left);
+    width: 110px;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, transparent, rgba(222, 142, 112, 0.65) 70%, #fbfbfa);
+    opacity: 0;
+    transform-origin: right center;
+    animation: shooting-star var(--ss-dur) linear var(--ss-delay) infinite;
+  }
+}
+@keyframes shooting-star {
+  0% { opacity: 0; transform: rotate(28deg) translateX(-40px); }
+  1.5% { opacity: 1; }
+  6% { opacity: 0; transform: rotate(28deg) translateX(300px); }
+  100% { opacity: 0; transform: rotate(28deg) translateX(300px); }
+}
+
 /* Loader shown while the story illustration is being drawn (IllustrationLoader). */
 @keyframes illustration-loader-draw {
   0% { stroke-dashoffset: 1; opacity: 1; }
