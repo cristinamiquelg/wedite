@@ -6,6 +6,7 @@
 const POINTS = 40;
 const OUTER = 50; // percent of the box: the tips touch its edges
 const INNER = 15; // how deep the star's waist goes
+const DOT = 24; // the circle is a small dot: its radius, in percent of the box
 
 type Pt = [number, number];
 
@@ -46,4 +47,4 @@ function polygon(radiusAt: (angle: number) => number): string {
 }
 
 export const STAR_POLYGON = polygon(starRadius);
-export const CIRCLE_POLYGON = polygon(() => OUTER);
+export const CIRCLE_POLYGON = polygon(() => DOT);
