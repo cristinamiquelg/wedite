@@ -41,6 +41,10 @@ The wizard scrolls the preview by id, so keep these ids: `top`, `cuando`, `histo
 
 ## Gotchas
 
+- **No accents in the hand-lettered text.** Gaegu draws accented capitals (Á, É, Ñ…) in a mismatched serif-like hand, so every
+  string set in `--m-script` goes through `plain()` (`rambla/plain.ts`: "Sábado" → "Sabado", "Begoña" → "Begona"). Reading
+  text (DM Sans) keeps its accents. A new script-font element must call `plain()` too.
+
 - In the wizard, Rambla's story photo is shown as is (black and white); the coral illustration of Ribera is not offered.
 - The form's `demoFocus` (a toggle was switched in the wizard) sets "yes, I'm coming", scrolls to `#rsvp-bus|contact|kids`
   and draws a thin ink line across it (`data-flash`), like Ribera does with navy.

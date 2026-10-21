@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import { getDict, type Locale } from "@/lib/i18n";
+import { plain } from "./plain";
 import styles from "./rambla.module.css";
 
 type YesNo = "si" | "no" | null;
@@ -324,7 +325,7 @@ export default function RamblaRsvpForm({
     const total = 1 + companions.length;
     return (
       <div className={styles.thanks} role="status">
-        <h3 className={styles.thanksTitle}>{dict.thanks}</h3>
+        <h3 className={styles.thanksTitle}>{plain(dict.thanks)}</h3>
         <p className={styles.thanksSummary}>
           {comes ? dict.summaryAttending.replace("{n}", String(total)) : dict.summaryNotAttending}
         </p>
@@ -420,7 +421,7 @@ export default function RamblaRsvpForm({
                 <div key={c.id} className={styles.companion}>
                   <div className={styles.companionHead}>
                     <h4 className={styles.companionTitle}>
-                      {dict.companionInfo} {i + 1}
+                      {plain(dict.companionInfo)} {i + 1}
                     </h4>
                     <button type="button" className={styles.linkBtn} onClick={() => removeCompanion(c.id)}>
                       {dict.removeCompanion}

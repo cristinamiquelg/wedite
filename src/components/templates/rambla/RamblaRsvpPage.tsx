@@ -6,6 +6,7 @@ import SparkleIcon from "@/components/site/SparkleIcon";
 import { rsvpAsksBus, rsvpAsksContact, rsvpAsksKidsMenu, type WeddingData } from "@/lib/wedding-types";
 import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RamblaRsvpForm from "./RamblaRsvpForm";
+import { plain } from "./plain";
 import styles from "./rambla.module.css";
 
 // The attendance form on a page of its own (`/<site>/rsvp`, and the wizard's preview while the "Formulario" step is
@@ -53,7 +54,7 @@ export default function RamblaRsvpPage({
           ← {t.backToSite}
         </a>
         <a href={hrefWithLang} className={styles.barNames}>
-          {names}
+          {plain(names)}
         </a>
         <div>
           {data.locales.length > 1 ? (
@@ -70,7 +71,7 @@ export default function RamblaRsvpPage({
 
       <main className={styles.formPageMain}>
         <div className={styles.inner}>
-          <h1 className={styles.sectionTitle}>{t.rsvpTitle}</h1>
+          <h1 className={styles.sectionTitle}>{plain(t.rsvpTitle)}</h1>
           {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
           <RamblaRsvpForm
             locale={activeLocale}
@@ -85,7 +86,7 @@ export default function RamblaRsvpPage({
 
       <footer className={styles.footer}>
         <div className={styles.footerMeta}>
-          {data.hashtag ? <p className={styles.footerHashtag}>{data.hashtag}</p> : null}
+          {data.hashtag ? <p className={styles.footerHashtag}>{plain(data.hashtag)}</p> : null}
           <p>
             {dict.ribera.footer.madeWith}{" "}
             <Link href="/" className="group inline-flex items-center gap-1" style={{ color: "inherit", textDecoration: "underline" }}>
