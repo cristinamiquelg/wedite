@@ -9,14 +9,14 @@ Wedite sells wedding websites: couples pick a design, fill in a configurator
 with a live preview, pay once (59 €) and get `wedite.com/<address>`. Guests
 answer an attendance form whose answers land in a table the couple can open.
 
-Today's designs: **Ribera** (live) and, shown as "Próximamente" in the catalog,
-**Cala**, **Rambla** and **Vega**. Free names kept for later: Dehesa, Almazara,
+Today's designs: **Ribera** and **Rambla** (both live) and, shown as "Próximamente" in the catalog,
+**Cala** and **Vega**. Free names kept for later: Dehesa, Almazara,
 Olivar, Sierra, Duna. Check brand/domain/social availability before launching one.
 
 ## Scope: which skill
 
 - Wedite's own pages, configurator shell, checkout, emails, address rules, copy → **this skill**.
-- Anything inside a wedding template (its sections, CSS, RSVP form, demo data) → `ribera`.
+- Anything inside a wedding template (its sections, CSS, RSVP form, demo data) → `ribera` for Ribera, `rambla` for Rambla.
 - `/ops/<token>`, events, funnels, SQL for stats → `dashboard`.
 
 ## File map

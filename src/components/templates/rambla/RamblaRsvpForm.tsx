@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { getDict, type Locale } from "@/lib/i18n";
 import { plain } from "./plain";
+import { rv } from "./reveal";
 import styles from "./rambla.module.css";
 
 type YesNo = "si" | "no" | null;
@@ -52,7 +53,7 @@ function YesNoQuestion({
   }
 
   return (
-    <div className={styles.question} id={id} data-flash={flash ? "" : undefined}>
+    <div className={styles.question} id={id} data-flash={flash ? "" : undefined} {...rv(0)}>
       <p id={`${uid}-q`} className={styles.questionLabel}>
         {question}
       </p>
@@ -208,7 +209,8 @@ export default function RamblaRsvpForm({
     if (focusN === undefined || !focusTarget) return;
     // Wait for the new questions to be on the page.
     const timer = window.setTimeout(() => {
-      const el = document.getElementById(`rsvp-${focusTarget}`);
+      // A question just switched off is gone: take the guest to where it was (just under "are you coming?").
+      const el = document.getElementById(`rsvp-${focusTarget}`) ?? document.getElementById("rsvp-attending");
       el?.scrollIntoView({ behavior: "smooth", block: "center" });
       setFlash(el?.id ?? null);
     }, 150);
@@ -338,12 +340,13 @@ export default function RamblaRsvpForm({
 
   return (
     <form ref={formRef} className={styles.form} onSubmit={onSubmit} noValidate>
-      <div className={styles.row2}>
+      <div className={styles.row2} {...rv(0)}>
         <TextField label={dict.firstName} value={firstName} onChange={setFirstName} autoComplete="given-name" error={errors.firstName} maxLength={80} />
         <TextField label={dict.lastName} value={lastName} onChange={setLastName} autoComplete="family-name" error={errors.lastName} maxLength={80} />
       </div>
 
       <YesNoQuestion
+        id="rsvp-attending"
         question={dict.attendingQ}
         value={attending}
         onChange={setAttending}
@@ -355,7 +358,7 @@ export default function RamblaRsvpForm({
       {comes ? (
         <>
           {askContact ? (
-            <div id="rsvp-contact" className={styles.question} data-flash={flash === "rsvp-contact" ? "" : undefined}>
+            <div id="rsvp-contact" className={styles.question} data-flash={flash === "rsvp-contact" ? "" : undefined} {...rv(0)}>
               <p className={styles.hint}>{dict.contactHint}</p>
               <div className={styles.row2}>
                 <TextField
@@ -385,7 +388,7 @@ export default function RamblaRsvpForm({
             />
           ) : null}
 
-          <div className={styles.field}>
+          <div className={styles.field} {...rv(0)}>
             <label htmlFor="rsvp-dietary" className={styles.questionLabel}>
               {dict.dietary} <span className={styles.fieldOptional}>({dict.optional})</span>
             </label>
@@ -402,7 +405,7 @@ export default function RamblaRsvpForm({
 
           {withOthers === "si" ? (
             <>
-              <div className={styles.question}>
+              <div className={styles.question} {...rv(0)}>
                 <p className={styles.questionLabel}>{dict.howManyCompanions}</p>
                 <div className={styles.stepper}>
                   <button type="button" className={styles.stepBtn} onClick={() => setCount(companions.length - 1)} disabled={companions.length <= 1} aria-label={dict.decreaseCompanions}>
@@ -418,7 +421,7 @@ export default function RamblaRsvpForm({
               </div>
 
               {companions.map((c, i) => (
-                <div key={c.id} className={styles.companion}>
+                <div key={c.id} className={styles.companion} {...rv(0)}>
                   <div className={styles.companionHead}>
                     <h4 className={styles.companionTitle}>
                       {plain(dict.companionInfo)} {i + 1}
@@ -482,7 +485,7 @@ export default function RamblaRsvpForm({
         </p>
       ) : null}
 
-      <button type="submit" className={`${styles.btnSolid} ${styles.submit}`} disabled={sending}>
+      <button type="submit" className={`${styles.btnSolid} ${styles.submit}`} disabled={sending} {...rv(0)}>
         {sending ? dict.sending : dict.submit}
       </button>
     </form>

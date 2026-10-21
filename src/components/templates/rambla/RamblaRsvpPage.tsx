@@ -7,6 +7,7 @@ import { rsvpAsksBus, rsvpAsksContact, rsvpAsksKidsMenu, type WeddingData } from
 import { getDict, locales as localeOptions, type Locale } from "@/lib/i18n";
 import RamblaRsvpForm from "./RamblaRsvpForm";
 import { plain } from "./plain";
+import { rv } from "./reveal";
 import styles from "./rambla.module.css";
 
 // The attendance form on a page of its own (`/<site>/rsvp`, and the wizard's preview while the "Formulario" step is
@@ -71,8 +72,14 @@ export default function RamblaRsvpPage({
 
       <main className={styles.formPageMain}>
         <div className={styles.inner}>
-          <h1 className={styles.sectionTitle}>{plain(t.rsvpTitle)}</h1>
-          {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
+          <h1 className={styles.sectionTitle} {...rv(0)}>
+            {plain(t.rsvpTitle)}
+          </h1>
+          {data.rsvpNote ? (
+            <p className={styles.rsvpIntro} {...rv(1)}>
+              {data.rsvpNote}
+            </p>
+          ) : null}
           <RamblaRsvpForm
             locale={activeLocale}
             showBus={rsvpAsksBus(data)}

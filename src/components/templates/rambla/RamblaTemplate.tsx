@@ -11,6 +11,7 @@ import RamblaCountdown from "./RamblaCountdown";
 import RamblaRsvpForm from "./RamblaRsvpForm";
 import { ART_ASPECT, FRAMES } from "./art";
 import { plain } from "./plain";
+import { rv } from "./reveal";
 import styles from "./rambla.module.css";
 
 const PHASE_WHEN_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/;
@@ -240,14 +241,13 @@ export default function RamblaTemplate({
 
   // The timeline: only phases that have something to show. A phase keeps its index in the couple's own list so
   // the wizard can scroll to exactly the one being edited.
-  const phases = data.phases
-    .map((phase, index) => ({
-      index,
-      phase,
-      when: splitWhen(phase.when, locale),
-      places: phase.places.map((place, k) => ({ place, k })).filter(({ place }) => place.name || place.address),
-    }))
-    .filter(({ phase, places }) => phase.name || phase.when || places.length > 0);
+  const allPhases = data.phases.map((phase, index) => ({
+    index,
+    phase,
+    when: splitWhen(phase.when, locale),
+    places: phase.places.map((place, k) => ({ place, k })).filter(({ place }) => place.name || place.address),
+  }));
+  const phases = allPhases.filter(({ phase, places }) => phase.name || phase.when || places.length > 0);
   // When every phase is on the same day, the day is said once above the timeline instead of on each line.
   const days = new Set(phases.map((p) => p.when.day).filter(Boolean));
   const singleDay = days.size === 1 ? [...days][0] : null;
@@ -297,18 +297,32 @@ export default function RamblaTemplate({
 
       {/* Save the date */}
       <section id="cuando" className={`${styles.section} ${styles.sectionPaper}`}>
-        <div className={`${styles.inner} ${styles.std}`} data-reveal>
-          <p className={styles.stdLabel}>{plain(t.saveTheDate)}</p>
-          <h2 className={styles.stdDate}>
+        <div className={`${styles.inner} ${styles.std}`}>
+          <p className={styles.stdLabel} {...rv(0)}>
+            {plain(t.saveTheDate)}
+          </p>
+          <h2 className={styles.stdDate} {...rv(1)}>
             {plain(weekdayDay ?? dict.dateFallback.long)}
             {dateObj ? <span className={styles.stdYear}>{dateObj.getFullYear()}</span> : null}
           </h2>
-          {data.estateName ? <p className={styles.stdPlace}>{data.estateName}</p> : null}
-          {data.estateLocation ? <p className={styles.stdPlaceSub}>{data.estateLocation}</p> : null}
+          {data.estateName ? (
+            <p className={styles.stdPlace} {...rv(2)}>
+              {data.estateName}
+            </p>
+          ) : null}
+          {data.estateLocation ? (
+            <p className={styles.stdPlaceSub} {...rv(3)}>
+              {data.estateLocation}
+            </p>
+          ) : null}
           <RamblaCountdown date={data.date} locale={locale} />
-          {data.welcomeMessage ? <p className={styles.welcome}>{data.welcomeMessage}</p> : null}
+          {data.welcomeMessage ? (
+            <p className={styles.welcome} {...rv(0)}>
+              {data.welcomeMessage}
+            </p>
+          ) : null}
           {ics ? (
-            <a href={ics} download="boda.ics" className={styles.btn}>
+            <a href={ics} download="boda.ics" className={styles.btn} {...rv(1)}>
               {t.addToCalendar}
             </a>
           ) : null}
@@ -318,21 +332,35 @@ export default function RamblaTemplate({
       {/* Story */}
       {hasStory ? (
         <section id="historia" className={styles.section}>
-          <div className={styles.inner} data-reveal>
-            <h2 className={styles.sectionTitle}>{plain(data.storyTitle || t.storyTitleFallback)}</h2>
+          <div className={styles.inner}>
+            <h2 className={styles.sectionTitle} {...rv(0)}>
+              {plain(data.storyTitle || t.storyTitleFallback)}
+            </h2>
             {data.storyImage ? (
               <div className={styles.storyRow}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={data.storyImage} alt="" className={styles.storyImage} />
+                <img src={data.storyImage} alt="" className={styles.storyImage} {...rv(1)} />
                 <div>
-                  <p className={styles.storyText}>{data.story}</p>
-                  {data.hashtag ? <p className={styles.hashtag}>{plain(data.hashtag)}</p> : null}
+                  <p className={styles.storyText} {...rv(2)}>
+                    {data.story}
+                  </p>
+                  {data.hashtag ? (
+                    <p className={styles.hashtag} {...rv(3)}>
+                      {plain(data.hashtag)}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             ) : (
               <div className={styles.storyCentered}>
-                <p className={styles.storyText}>{data.story}</p>
-                {data.hashtag ? <p className={styles.hashtag}>{plain(data.hashtag)}</p> : null}
+                <p className={styles.storyText} {...rv(1)}>
+                  {data.story}
+                </p>
+                {data.hashtag ? (
+                  <p className={styles.hashtag} {...rv(2)}>
+                    {plain(data.hashtag)}
+                  </p>
+                ) : null}
               </div>
             )}
           </div>
@@ -345,12 +373,19 @@ export default function RamblaTemplate({
       {/* The day, as a timeline */}
       {hasItinerary ? (
         <section id="itinerario" className={`${styles.section} ${styles.sectionPaper}`}>
-          <div className={styles.inner} data-reveal>
-            <h2 className={styles.sectionTitle}>{plain(t.programTitle)}</h2>
-            {singleDay ? <p className={styles.programDate}>{singleDay}</p> : null}
+          <div className={styles.inner}>
+            <h2 className={styles.sectionTitle} {...rv(0)}>
+              {plain(t.programTitle)}
+            </h2>
+            {singleDay ? (
+              <p className={styles.programDate} {...rv(1)}>
+                {singleDay}
+              </p>
+            ) : null}
             <ol className={styles.timeline}>
-              {phases.map(({ index, phase, when, places }, n) => (
-                <li key={index} id={`fase-${index}`} className={styles.phase} data-reveal style={{ transitionDelay: `${Math.min(n, 4) * 90}ms` }}>
+              {allPhases.map(({ index, phase, when, places }) =>
+                phase.name || phase.when || places.length > 0 ? (
+                <li key={index} id={`fase-${index}`} className={styles.phase} {...rv(phases.findIndex((x) => x.index === index) % 2)}>
                   <p className={styles.phaseTime}>
                     {plain(when.time ?? when.raw ?? (singleDay ? "·" : (when.day ?? "")))}
                     {when.time && !singleDay && when.day ? <span className={styles.phaseDay}>{when.day}</span> : null}
@@ -372,7 +407,11 @@ export default function RamblaTemplate({
                     ))}
                   </div>
                 </li>
-              ))}
+                ) : (
+                  // A phase with nothing to show yet: no entry, but the wizard can still scroll to where it will be.
+                  <li key={index} id={`fase-${index}`} className={styles.anchor} aria-hidden="true" />
+                ),
+              )}
             </ol>
           </div>
         </section>
@@ -391,17 +430,17 @@ export default function RamblaTemplate({
       {/* Dress code and the like, then the gift */}
       {hasDetails || hasGift ? (
         <section className={styles.section}>
-          <div className={styles.inner} data-reveal>
+          <div className={styles.inner}>
             {hasDetails ? (
               <>
-                <h2 id="detalles" className={styles.sectionTitle}>
+                <h2 id="detalles" className={styles.sectionTitle} {...rv(0)}>
                   {plain(t.infoTitle)}
                 </h2>
                 <div className={styles.cards}>
                   {data.detailCards.map((card, i) => {
                     const fallback = dict.ribera.details[card.icon];
                     return (
-                      <article key={i} id={`detalle-${i}`} className={styles.card}>
+                      <article key={i} id={`detalle-${i}`} className={styles.card} {...rv(i % 3)}>
                         <DetailIcon kind={card.icon} />
                         <h3 className={styles.cardName}>{plain(card.title || fallback.title)}</h3>
                         {card.description ? <p className={styles.cardText}>{card.description}</p> : <span className={styles.cardText} />}
@@ -420,7 +459,7 @@ export default function RamblaTemplate({
               <span id="detalles" aria-hidden="true" />
             )}
             {hasGift ? (
-              <div id="regalos" className={styles.gift}>
+              <div id="regalos" className={styles.gift} {...rv(0)}>
                 <h2 className="sr-only">{t.giftTitle}</h2>
                 {data.giftMessage ? <p className={styles.giftMessage}>{data.giftMessage}</p> : null}
                 {data.giftHolderName ? <p className={styles.giftHolder}>{plain(data.giftHolderName)}</p> : null}
@@ -456,9 +495,15 @@ export default function RamblaTemplate({
 
       {/* The form, on the same page */}
       <section id="rsvp" className={`${styles.section} ${styles.sectionPaper}`}>
-        <div className={styles.inner} data-reveal>
-          <h2 className={styles.sectionTitle}>{plain(t.rsvpTitle)}</h2>
-          {data.rsvpNote ? <p className={styles.rsvpIntro}>{data.rsvpNote}</p> : null}
+        <div className={styles.inner}>
+          <h2 className={styles.sectionTitle} {...rv(0)}>
+            {plain(t.rsvpTitle)}
+          </h2>
+          {data.rsvpNote ? (
+            <p className={styles.rsvpIntro} {...rv(1)}>
+              {data.rsvpNote}
+            </p>
+          ) : null}
           <RamblaRsvpForm
             locale={locale}
             showBus={rsvpAsksBus(data)}
@@ -473,11 +518,13 @@ export default function RamblaTemplate({
       <footer id="contacto" className={styles.footer}>
         {hasContact ? (
           <>
-            <h2 className={styles.contactTitle}>{plain(t.contactTitle)}</h2>
+            <h2 className={styles.contactTitle} {...rv(0)}>
+              {plain(t.contactTitle)}
+            </h2>
             <div className={styles.contactPeople}>
               {data.organizerContacts.map((contact, i) =>
                 contact.name || contact.phone || contact.email ? (
-                  <div key={i} id={`contacto-${i}`} className={styles.contactCard}>
+                  <div key={i} id={`contacto-${i}`} className={styles.contactCard} {...rv(i + 1)}>
                     {contact.name ? <p className={styles.contactName}>{plain(contact.name)}</p> : null}
                     {contact.phone ? (
                       <a href={`tel:${contact.phone.replace(/\s+/g, "")}`} className={styles.contactLink}>
@@ -493,7 +540,7 @@ export default function RamblaTemplate({
                     ) : null}
                   </div>
                 ) : (
-                  <span key={i} id={`contacto-${i}`} aria-hidden="true" />
+                  <span key={i} id={`contacto-${i}`} className={styles.anchor} aria-hidden="true" />
                 ),
               )}
             </div>
@@ -504,7 +551,7 @@ export default function RamblaTemplate({
             <span id="contacto-1" aria-hidden="true" />
           </>
         )}
-        <div className={styles.footerMeta}>
+        <div className={styles.footerMeta} {...rv(0)}>
           {data.hashtag ? <p className={styles.footerHashtag}>{plain(data.hashtag)}</p> : null}
           <p>
             {dict.ribera.footer.madeWith}{" "}

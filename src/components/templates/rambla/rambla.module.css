@@ -990,6 +990,18 @@
   padding: clamp(40px, 8vw, 80px) 20px;
 }
 
+/* A place for the wizard to scroll to that takes no room (an item with nothing to show yet). */
+.anchor {
+  position: absolute;
+  left: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
 /* ---------- Footer: contact and credits ---------- */
 .footer {
   padding: 64px 20px 40px;
@@ -1005,6 +1017,7 @@
   font-size: 22px;
 }
 .contactPeople {
+  position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
@@ -1057,4 +1070,46 @@
   font-size: 19px;
   letter-spacing: 0.1em;
   color: var(--m-ink);
+}
+
+/* ---------- Fade-ins on scroll ----------
+   Every piece of the page (marked with rv() in the markup) is hidden until it reaches the screen, then fades in
+   with a short rise, one after another inside its group (--rv-i). Gated on `reveal-ready` (nothing stays hidden if
+   scripts don't run) and off for reduced motion. Fill-mode "backwards" keeps hover transforms working. */
+@keyframes mRise {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .root {
+    --m-fade-dur: 1.1s;
+    --m-fade-step: 130ms;
+    --m-fade-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  /* Wins over the shared [data-reveal] rule in globals.css, which would fade the element as one block. */
+  html:global(.reveal-ready) .root [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  html:global(.reveal-ready) .root [data-reveal]:not(:global(.is-visible)) {
+    opacity: 0;
+  }
+  html:global(.reveal-ready) .root [data-reveal]:global(.is-visible) {
+    animation: mRise var(--m-fade-dur) var(--m-fade-ease) backwards;
+    animation-delay: calc(var(--rv-i, 0) * var(--m-fade-step));
+  }
+}
+@media print {
+  .root [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
 }

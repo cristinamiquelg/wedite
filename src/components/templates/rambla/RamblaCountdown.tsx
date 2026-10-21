@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { getDict, type Locale } from "@/lib/i18n";
 import { plain } from "./plain";
+import { rv } from "./reveal";
 import styles from "./rambla.module.css";
 
 function getRemaining(target: string) {
@@ -48,8 +49,8 @@ export default function RamblaCountdown({ date, locale }: { date: string; locale
 
   return (
     <div className={styles.countdown} role="timer" aria-live="off">
-      {units.map(([value, label]) => (
-        <div key={label} className={styles.unit}>
+      {units.map(([value, label], i) => (
+        <div key={label} className={styles.unit} {...rv(i)}>
           <span className={styles.unitNum}>{value}</span>
           <span className={styles.unitLabel}>{label}</span>
         </div>

@@ -103,7 +103,8 @@ export default function StepRiberaCouple({
           onChange={(date) => onChange({ date })}
         />
       </Field>
-      <div className="grid gap-5 sm:grid-cols-2">
+      {/* Rambla shows the venue under the date in its "save the date" block, not on the cover. */}
+      <div className="grid gap-5 sm:grid-cols-2" data-scroll-section={templateSlug === "rambla" ? "cuando" : undefined}>
         <Field label={dict.stepCouple.estateName} error={errorFor("estateName")}>
           <TextInput
             value={data.estateName}
