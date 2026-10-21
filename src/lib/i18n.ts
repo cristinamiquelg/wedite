@@ -74,6 +74,21 @@ type Dict = {
       summaryNotAttending: string;
     };
   };
+  rambla: {
+    nav: { fecha: string; historia: string; programa: string; info: string; confirmar: string };
+    saveTheDate: string;
+    storyTitleFallback: string;
+    programTitle: string;
+    infoTitle: string;
+    giftTitle: string;
+    rsvpTitle: string;
+    contactTitle: string;
+    menu: { open: string; close: string };
+    addToCalendar: string;
+    namesFallback: { a: string; b: string };
+    backToSite: string;
+    scrollDown: string;
+  };
   countdown: { days: string; hours: string; minutes: string; seconds: string; alreadyCelebrated: string };
   rsvpForm: {
     name: string;
@@ -160,6 +175,21 @@ const es: Dict = {
       summaryNotAttending: "Sentimos que no puedas venir. Gracias por avisar.",
     },
   },
+  rambla: {
+    nav: { fecha: "La fecha", historia: "Nuestra historia", programa: "El día", info: "Info", confirmar: "Confirmar asistencia" },
+    saveTheDate: "Guardad la fecha",
+    storyTitleFallback: "Nuestra historia",
+    programTitle: "El gran día",
+    infoTitle: "Lo que tenéis que saber",
+    giftTitle: "Regalo",
+    rsvpTitle: "¿Venís?",
+    contactTitle: "¿Alguna duda? Escribidnos",
+    menu: { open: "Abrir menú", close: "Cerrar menú" },
+    addToCalendar: "Añadir al calendario",
+    namesFallback: { a: "Vuestro nombre", b: "Vuestra pareja" },
+    backToSite: "Volver a la web",
+    scrollDown: "Seguir bajando",
+  },
   countdown: { days: "días", hours: "horas", minutes: "min", seconds: "seg", alreadyCelebrated: "¡Ya lo celebramos!" },
   rsvpForm: {
     name: "Nombre y apellidos",
@@ -245,6 +275,21 @@ const en: Dict = {
       summaryAttending: "Confirmed: {n} guest(s).",
       summaryNotAttending: "Sorry you can't make it. Thanks for letting us know.",
     },
+  },
+  rambla: {
+    nav: { fecha: "The date", historia: "Our story", programa: "The day", info: "Info", confirmar: "RSVP" },
+    saveTheDate: "Save the date",
+    storyTitleFallback: "Our story",
+    programTitle: "The big day",
+    infoTitle: "Good to know",
+    giftTitle: "Gift",
+    rsvpTitle: "Will you come?",
+    contactTitle: "Any questions? Write to us",
+    menu: { open: "Open menu", close: "Close menu" },
+    addToCalendar: "Add to calendar",
+    namesFallback: { a: "Your name", b: "Your partner" },
+    backToSite: "Back to the site",
+    scrollDown: "Keep scrolling",
   },
   countdown: { days: "days", hours: "hours", minutes: "min", seconds: "sec", alreadyCelebrated: "We already celebrated!" },
   rsvpForm: {

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter, Libre_Baskerville, Oswald, Science_Gothic } from "next/font/google";
+import { DM_Sans, Fraunces, Gaegu, Inter, Libre_Baskerville, Oswald, Science_Gothic } from "next/font/google";
 import "./globals.css";
 import Analytics from "@/components/site/Analytics";
 import ScrollReveal from "@/components/site/ScrollReveal";
@@ -26,6 +26,18 @@ const libreBaskerville = Libre_Baskerville({
   subsets: ["latin"],
   weight: ["400", "700"],
   style: ["normal", "italic"],
+});
+
+// Used by the "Rambla" wedding template: a hand-lettered face for names, dates and labels, and a plain sans for reading.
+const gaegu = Gaegu({
+  variable: "--font-gaegu",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
 });
 
 const oswald = Oswald({
@@ -59,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="es"
-      className={`${fraunces.variable} ${inter.variable} ${libreBaskerville.variable} ${oswald.variable} ${scienceGothic.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${inter.variable} ${libreBaskerville.variable} ${oswald.variable} ${scienceGothic.variable} ${gaegu.variable} ${dmSans.variable} h-full antialiased`}
     >
       <head>
         <script

@@ -63,7 +63,7 @@ export type SiteDict = {
     payOnce: string;
   };
   templates: Record<
-    "ribera",
+    "ribera" | "rambla",
     { tagline: string; summary: string; description: string; features: string[]; imageAlt: string }
   >;
   quienesSomos: {
@@ -209,6 +209,18 @@ export type SiteDict = {
       welcomeMessagePlaceholder: string;
       estateName: string;
       location: string;
+      /** Rambla only: the two childhood photos shown in the frames of the cover drawing. */
+      childPhotos: {
+        title: string;
+        help: string;
+        label: (name: string, fallback: string) => string;
+        choose: string;
+        change: string;
+        remove: string;
+        unreadable: string;
+        fallbackA: string;
+        fallbackB: string;
+      };
     };
     stepStory: {
       sectionTitle: string;
@@ -220,6 +232,8 @@ export type SiteDict = {
       storyImageRemove: string;
       storyImageDrawing: string;
       storyImageHelp: string;
+      /** Rambla: the photo is shown as it is (in black and white), there is no illustration. */
+      storyImageHelpPlain: string;
       storyImageChange: string;
       storyImageUnreadable: string;
       storyImageCreate: string;
@@ -382,13 +396,6 @@ const es: SiteDict = {
         tags: ["Botánico", "Romántico"],
       },
       {
-        image: "/catalog/rambla-es.png",
-        title: "Rambla",
-        tagline: "Minimalista y a trazo",
-        imageAlt: "Avance de Rambla, próximo diseño: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños",
-        tags: ["Minimalista", "A trazo"],
-      },
-      {
         image: "/catalog/vega-es.webp",
         title: "Vega",
         tagline: "Art nouveau, en burdeos y rosa",
@@ -416,6 +423,20 @@ const es: SiteDict = {
         "Tarjetas de detalles (código de vestimenta, autobuses, hoteles)",
         "Confirmación de asistencia con acompañantes ilimitados",
         "Sección de regalo con marco ilustrado",
+        "100% adaptada a móvil",
+      ],
+    },
+    rambla: {
+      tagline: "Minimalista y a trazo",
+      imageAlt: "Rambla, un diseño de Wedite: una pareja ilustrada a trazo que sostiene dos fotos de cuando eran pequeños, con los nombres y la fecha",
+      summary: "Minimalista y a trazo, con una ilustración vuestra y las fotos de cuando erais pequeños.",
+      description: "Una web sencilla y luminosa que empieza por vosotros: una pareja dibujada a trazo con vuestras fotos de cuando erais niños. Después, la fecha, el día en una línea del tiempo, lo que necesitan saber vuestros invitados y el formulario para confirmar.",
+      features: [
+        "Portada ilustrada con vuestras dos fotos de pequeños",
+        "Save the date con cuenta atrás en directo",
+        "El día en una línea del tiempo, con mapa de cada lugar",
+        "Tarjetas de información (código de vestimenta, autobuses, alojamiento)",
+        "Confirmación de asistencia con acompañantes, en la misma página",
         "100% adaptada a móvil",
       ],
     },
@@ -573,6 +594,17 @@ const es: SiteDict = {
       welcomeMessagePlaceholder: "Lo primero que leerán vuestros invitados al entrar en la web.",
       estateName: "Finca / lugar principal",
       location: "Ubicación",
+      childPhotos: {
+        title: "Las fotos de la portada",
+        help: "Una foto de cada uno de cuando erais pequeños: aparecerán dentro de los dos marcos del dibujo. Mejor si son cuadradas o la cara queda en el centro.",
+        label: (name, fallback) => `Foto de ${name || fallback} de pequeño/a`,
+        choose: "Elegir foto",
+        change: "Cambiar foto",
+        remove: "Quitar",
+        unreadable: "No hemos podido leer esa imagen. Probad con otra.",
+        fallbackA: "la primera persona",
+        fallbackB: "la segunda persona",
+      },
     },
     stepStory: {
       sectionTitle: "Título de la sección",
@@ -584,6 +616,7 @@ const es: SiteDict = {
       storyImageRemove: "Quitar",
       storyImageDrawing: "Dibujando vuestra ilustración… puede tardar hasta un minuto. No cerréis esta pestaña.",
       storyImageHelp: "Subid una foto y la convertimos en una ilustración con el estilo de la plantilla. Dibujamos solo lo que aparece en la foto, y antes de añadirla veréis cómo queda.",
+      storyImageHelpPlain: "Se mostrará en blanco y negro junto a vuestra historia.",
       storyImageChange: "Cambiar imagen",
       storyImageUnreadable: "No hemos podido leer esa imagen. Probad con otra.",
       storyImageCreate: "Crear ilustración",
@@ -747,13 +780,6 @@ const en: SiteDict = {
         tags: ["Botanical", "Romantic"],
       },
       {
-        image: "/catalog/rambla-en.png",
-        title: "Rambla",
-        tagline: "Minimal and line-drawn",
-        imageAlt: "Preview of Rambla, an upcoming design: a line-drawn couple holding two photos of themselves as children",
-        tags: ["Minimal", "Line-drawn"],
-      },
-      {
         image: "/catalog/vega-en.webp",
         title: "Vega",
         tagline: "Art nouveau, in burgundy and pink",
@@ -781,6 +807,20 @@ const en: SiteDict = {
         "Detail cards (dress code, buses, hotels)",
         "RSVP with unlimited plus-ones",
         "Gift section with an illustrated frame",
+        "100% mobile-friendly",
+      ],
+    },
+    rambla: {
+      tagline: "Minimal and line-drawn",
+      imageAlt: "Rambla, a Wedite design: a line-drawn couple holding two photos of themselves as children, with their names and the date",
+      summary: "Minimal and line-drawn, with an illustration of you two and your childhood photos.",
+      description: "A simple, bright site that starts with you: a line-drawn couple holding your photos as children. Then the date, the day as a timeline, what your guests need to know, and the RSVP form.",
+      features: [
+        "Illustrated cover with your two childhood photos",
+        "Save the date with a live countdown",
+        "The day as a timeline, with a map for every place",
+        "Info cards (dress code, buses, where to stay)",
+        "RSVP with plus-ones, on the same page",
         "100% mobile-friendly",
       ],
     },
@@ -938,6 +978,17 @@ const en: SiteDict = {
       welcomeMessagePlaceholder: "The first thing your guests will read when they open the site.",
       estateName: "Venue / main location",
       location: "Location",
+      childPhotos: {
+        title: "The cover photos",
+        help: "A photo of each of you as a child: they appear inside the two frames of the drawing. Square photos, or ones with the face in the middle, work best.",
+        label: (name, fallback) => `Photo of ${name || fallback} as a child`,
+        choose: "Choose photo",
+        change: "Change photo",
+        remove: "Remove",
+        unreadable: "We couldn't read that image. Try another one.",
+        fallbackA: "the first person",
+        fallbackB: "the second person",
+      },
     },
     stepStory: {
       sectionTitle: "Section title",
@@ -949,6 +1000,7 @@ const en: SiteDict = {
       storyImageRemove: "Remove",
       storyImageDrawing: "Drawing your illustration… this can take up to a minute. Please don't close this tab.",
       storyImageHelp: "Upload a photo and we turn it into an illustration in the template's style. We only draw what is in the photo, and you'll see the result before it is added.",
+      storyImageHelpPlain: "It is shown in black and white next to your story.",
       storyImageChange: "Change image",
       storyImageUnreadable: "We couldn't read that image. Try another one.",
       storyImageCreate: "Create illustration",

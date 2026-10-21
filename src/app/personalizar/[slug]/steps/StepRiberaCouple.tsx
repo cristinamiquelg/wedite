@@ -2,6 +2,7 @@ import TranslationReview from "@/components/customize/TranslationReview";
 import { MAX_LENGTH } from "@/lib/translatable";
 import type { WeddingData } from "@/lib/wedding-types";
 import { Field, TextArea, TextInput } from "@/components/customize/fields";
+import ChildPhotoField from "@/components/customize/ChildPhotoField";
 import DatePicker, { todayISO } from "@/components/customize/DatePicker";
 import { useSiteLocale } from "@/lib/site-locale";
 import { getSiteDict } from "@/lib/site-dict";
@@ -14,11 +15,13 @@ export default function StepRiberaCouple({
   data,
   onChange,
   showErrors = false,
+  templateSlug,
 }: {
   data: WeddingData;
   onChange: (patch: Partial<WeddingData>) => void;
   /** Set once the couple tried to continue: flags the mandatory fields still empty. */
   showErrors?: boolean;
+  templateSlug?: string;
 }) {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).wizard;
@@ -59,6 +62,35 @@ export default function StepRiberaCouple({
           />
         </Field>
       </div>
+      {templateSlug === "rambla" ? (
+        // Rambla's cover: the couple holding a photo of themselves as children, one in each frame of the drawing.
+        <div className="flex flex-col gap-3 rounded-lg border border-line p-4">
+          <div>
+            <p className="text-sm font-medium text-ink">{dict.stepCouple.childPhotos.title}</p>
+            <p className="mt-1 text-xs text-ink-soft">{dict.stepCouple.childPhotos.help}</p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <ChildPhotoField
+              label={dict.stepCouple.childPhotos.label(data.partnerA.trim(), dict.stepCouple.childPhotos.fallbackA)}
+              value={data.childPhotoA}
+              onChange={(childPhotoA) => onChange({ childPhotoA })}
+              chooseLabel={dict.stepCouple.childPhotos.choose}
+              changeLabel={dict.stepCouple.childPhotos.change}
+              removeLabel={dict.stepCouple.childPhotos.remove}
+              unreadableLabel={dict.stepCouple.childPhotos.unreadable}
+            />
+            <ChildPhotoField
+              label={dict.stepCouple.childPhotos.label(data.partnerB.trim(), dict.stepCouple.childPhotos.fallbackB)}
+              value={data.childPhotoB}
+              onChange={(childPhotoB) => onChange({ childPhotoB })}
+              chooseLabel={dict.stepCouple.childPhotos.choose}
+              changeLabel={dict.stepCouple.childPhotos.change}
+              removeLabel={dict.stepCouple.childPhotos.remove}
+              unreadableLabel={dict.stepCouple.childPhotos.unreadable}
+            />
+          </div>
+        </div>
+      ) : null}
       <Field label={dict.stepCouple.weddingDate} required requiredLabel={dict.required} asDiv error={errorFor("date")}>
         <DatePicker
           value={data.date}
@@ -71,7 +103,8 @@ export default function StepRiberaCouple({
           onChange={(date) => onChange({ date })}
         />
       </Field>
-      <div className="grid gap-5 sm:grid-cols-2">
+      {/* Rambla shows the venue under the date in its "save the date" block, not on the cover. */}
+      <div className="grid gap-5 sm:grid-cols-2" data-scroll-section={templateSlug === "rambla" ? "cuando" : undefined}>
         <Field label={dict.stepCouple.estateName} error={errorFor("estateName")}>
           <TextInput
             value={data.estateName}

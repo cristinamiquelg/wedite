@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
-import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
+import { emptyWeddingData, getDemoByLocaleFor, getDemoWeddingDataFor } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
 import { renderRsvpPage, type DemoFocus, type ForcedLocale, type TemplateSlug } from "@/components/templates/registry";
 import { localizeWeddingData } from "@/lib/translatable";
@@ -14,7 +14,7 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
   const params = useSearchParams();
   const isDraft = params.get("draft") === "1";
   // A draft starts from the empty template, never the demo (see PreviewClient).
-  const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingData()));
+  const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingDataFor(slug)));
   const [forceLocale, setForceLocale] = useState<ForcedLocale>();
   const [demoFocus, setDemoFocus] = useState<DemoFocus>();
 
@@ -54,7 +54,7 @@ export default function RsvpClient({ slug }: { slug: TemplateSlug }) {
   return renderRsvpPage(slug, data, {
     backHref: `/preview/${slug}${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
-    localized: isDraft ? localizeWeddingData(data) : riberaDemoByLocale,
+    localized: isDraft ? localizeWeddingData(data) : getDemoByLocaleFor(slug),
     forceLocale,
     demoFocus,
   });

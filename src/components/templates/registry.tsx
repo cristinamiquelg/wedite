@@ -2,6 +2,8 @@ import type { WeddingData } from "@/lib/wedding-types";
 import type { Locale } from "@/lib/i18n";
 import RiberaTemplate from "./ribera/RiberaTemplate";
 import RiberaRsvpPage from "./ribera/RiberaRsvpPage";
+import RamblaTemplate from "./rambla/RamblaTemplate";
+import RamblaRsvpPage from "./rambla/RamblaRsvpPage";
 
 /** Per-language versions of the content (the demo), used when the guest switches language. */
 export type LocalizedData = Partial<Record<Locale, WeddingData>>;
@@ -12,7 +14,7 @@ export type ForcedLocale = { locale: Locale; n: number };
 /** Asks the RSVP page to show one of the form's questions (the wizard's preview, when a switch is toggled). */
 export type DemoFocus = { target: "bus" | "contact" | "kids"; n: number };
 
-const knownSlugs = ["ribera"] as const;
+const knownSlugs = ["ribera", "rambla"] as const;
 export type TemplateSlug = (typeof knownSlugs)[number];
 
 export function isKnownTemplateSlug(slug: string): slug is TemplateSlug {
@@ -29,13 +31,21 @@ export function renderRsvpPage(
   opts: { backHref: string; initialLocale?: string; siteSlug?: string; localized?: LocalizedData; forceLocale?: ForcedLocale; demoFocus?: DemoFocus },
 ) {
   switch (slug) {
+    case "rambla":
+      return <RamblaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} forceLocale={opts.forceLocale} demoFocus={opts.demoFocus} />;
     case "ribera":
       return <RiberaRsvpPage data={data} localized={opts.localized} backHref={opts.backHref} initialLocale={opts.initialLocale} siteSlug={opts.siteSlug} forceLocale={opts.forceLocale} demoFocus={opts.demoFocus} />;
   }
 }
 
-export function renderTemplate(slug: TemplateSlug, data: WeddingData, opts: { rsvpHref?: string; initialLocale?: string; localized?: LocalizedData; forceLocale?: ForcedLocale } = {}) {
+export function renderTemplate(
+  slug: TemplateSlug,
+  data: WeddingData,
+  opts: { rsvpHref?: string; initialLocale?: string; localized?: LocalizedData; forceLocale?: ForcedLocale; siteSlug?: string } = {},
+) {
   switch (slug) {
+    case "rambla":
+      return <RamblaTemplate data={data} localized={opts.localized} initialLocale={opts.initialLocale} forceLocale={opts.forceLocale} siteSlug={opts.siteSlug} />;
     case "ribera":
       return <RiberaTemplate data={data} localized={opts.localized} rsvpHref={opts.rsvpHref} initialLocale={opts.initialLocale} forceLocale={opts.forceLocale} />;
   }

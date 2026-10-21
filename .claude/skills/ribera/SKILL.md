@@ -1,13 +1,14 @@
 ---
 name: ribera
-description: Context and conventions for making changes to the "Ribera" wedding template — the guest-facing site, its wizard steps, and the catalog/preview surfaces around it. Use whenever the request is about Ribera specifically (visual tweaks, new fields, wizard steps, RSVP form, scroll behavior).
+description: Context and conventions for making changes to the "Ribera" wedding template (not Rambla: that has its own skill) — the guest-facing site, its wizard steps, and the catalog/preview surfaces around it. Use whenever the request is about Ribera specifically (visual tweaks, new fields, wizard steps, RSVP form, scroll behavior).
 ---
 
 # Ribera template
 
-Ribera is currently Wedite's only production template: an elegant,
-navy/coral, multi-phase wedding site (preboda/boda/postboda) modeled 1:1 on
-a real invitation (github.com/cristinamiquelg/invitacion-lk).
+Ribera is Wedite's first template: an elegant, navy/coral, multi-phase
+wedding site (preboda/boda/postboda) modeled 1:1 on a real invitation
+(github.com/cristinamiquelg/invitacion-lk). Rambla (light grey, line art) has
+its own skill: use `rambla` for anything about it.
 
 ## File map
 

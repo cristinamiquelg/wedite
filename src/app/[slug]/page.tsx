@@ -24,6 +24,7 @@ export default async function PublishedSitePage({
   const { lang } = await searchParams;
   return renderTemplate(site.templateSlug, site.data, {
     rsvpHref: `/${slug}/rsvp`,
+    siteSlug: slug,
     initialLocale: lang,
     localized: localizeWeddingData(site.data),
   });

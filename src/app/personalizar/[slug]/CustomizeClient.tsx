@@ -32,6 +32,8 @@ type StepDef = {
     data: WeddingData;
     onChange: (patch: Partial<WeddingData>) => void;
     showErrors?: boolean;
+    /** Lets a step show what only one design needs (e.g. Rambla's two cover photos). */
+    templateSlug?: string;
   }) => React.ReactElement;
 };
 
@@ -401,7 +403,7 @@ export default function CustomizeClient({ template }: { template: Template }) {
               <BusyContext.Provider value={setBusy}>
                 <PreviewControlContext.Provider value={previewControl}>
                   <TranslationProvider value={translationService}>
-                    <Step data={data} onChange={patch} showErrors={showErrors} />
+                    <Step data={data} onChange={patch} showErrors={showErrors} templateSlug={template.slug} />
                   </TranslationProvider>
                 </PreviewControlContext.Provider>
               </BusyContext.Provider>

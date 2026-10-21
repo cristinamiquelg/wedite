@@ -8,6 +8,7 @@ import { getSiteDict } from "@/lib/site-dict";
 
 const THUMBNAILS: Record<string, Record<SiteLocale, string>> = {
   ribera: { es: "/catalog/ribera-es.png", en: "/catalog/ribera-en.png" },
+  rambla: { es: "/catalog/rambla-es.png", en: "/catalog/rambla-en.png" },
 };
 
 export default function CatalogContent() {
@@ -23,7 +24,7 @@ export default function CatalogContent() {
 
       <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {templates.map((tpl, i) => {
-          const tplDict = dict.templates[tpl.slug as "ribera"];
+          const tplDict = dict.templates[tpl.slug as "ribera" | "rambla"];
           return (
             <article
               key={tpl.id}
