@@ -51,10 +51,14 @@ type Phase =
 export default function StepStory({
   data,
   onChange,
+  templateSlug,
 }: {
   data: WeddingData;
   onChange: (patch: Partial<WeddingData>) => void;
+  templateSlug?: string;
 }) {
+  // Rambla shows the story photo as it is, in black and white: no illustration is drawn.
+  const plainPhoto = templateSlug === "rambla";
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale).wizard.stepStory;
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
@@ -74,6 +78,10 @@ export default function StepStory({
   async function choose(file: File) {
     setPickFailed(false);
     try {
+      if (plainPhoto) {
+        onChange({ storyImage: await blobToDataUrl(await resizeImageToJpeg(file, 900)), storyImageKind: undefined });
+        return;
+      }
       const photo = await resizeImageToJpeg(file);
       setPhase({ kind: "picked", photo, thumb: await blobToDataUrl(photo) });
     } catch {
@@ -164,7 +172,7 @@ export default function StepStory({
 
       <Field label={dict.storyImage} asDiv>
         <div className="flex flex-col gap-3">
-          <p className="text-xs text-ink-soft">{dict.storyImageHelp}</p>
+          <p className="text-xs text-ink-soft">{plainPhoto ? dict.storyImageHelpPlain : dict.storyImageHelp}</p>
 
           {phase.kind === "idle" ? (
             <div className="flex items-center gap-4">

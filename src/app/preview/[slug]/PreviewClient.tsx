@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import type { WeddingData } from "@/lib/wedding-types";
-import { emptyWeddingData, getDemoWeddingData, riberaDemoByLocale } from "@/lib/wedding-types";
+import { emptyWeddingData, getDemoByLocaleFor, getDemoWeddingDataFor } from "@/lib/wedding-types";
 import { draftStorageKey } from "@/lib/draft-storage";
 import { renderTemplate, type ForcedLocale, type TemplateSlug } from "@/components/templates/registry";
 import { localizeWeddingData } from "@/lib/translatable";
@@ -15,7 +15,7 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
   // demo's content.
   const params = useSearchParams();
   const isDraft = params.get("draft") === "1";
-  const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingData()));
+  const [data, setData] = useState<WeddingData>(() => (isDraft ? emptyWeddingData : getDemoWeddingDataFor(slug)));
   const [forceLocale, setForceLocale] = useState<ForcedLocale>();
   // Marketing previews (catalog cards, "ver preview" links) always show the
   // curated demo — only ?draft=1 (the wizard's own live iframe, "review
@@ -90,7 +90,7 @@ export default function PreviewClient({ slug }: { slug: TemplateSlug }) {
     rsvpHref: `/preview/${slug}/rsvp${isDraft ? "?draft=1" : ""}`,
     initialLocale: params.get("lang") ?? undefined,
     // The curated demo is written in both languages; a couple's draft texts are translated automatically.
-    localized: isDraft ? localizeWeddingData(data) : riberaDemoByLocale,
+    localized: isDraft ? localizeWeddingData(data) : getDemoByLocaleFor(slug),
     forceLocale,
   });
 }

@@ -8,7 +8,7 @@ import { getSiteDict } from "@/lib/site-dict";
 export default function TemplateDetailContent({ tpl }: { tpl: Template }) {
   const { locale } = useSiteLocale();
   const dict = getSiteDict(locale);
-  const tplDict = dict.templates[tpl.slug as "ribera"];
+  const tplDict = dict.templates[tpl.slug as "ribera" | "rambla"];
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">

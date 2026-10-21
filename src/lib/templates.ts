@@ -37,6 +37,27 @@ export const templates: Template[] = [
       "100% adaptada a móvil",
     ],
   },
+  {
+    id: "tpl-rambla",
+    slug: "rambla",
+    name: "Rambla",
+    tagline: "Minimalista y a trazo",
+    summary: "Minimalista y a trazo, con una ilustración vuestra y las fotos de cuando erais pequeños.",
+    description:
+      "Una web sencilla y luminosa que empieza por vosotros: una pareja dibujada a trazo con vuestras fotos de cuando erais niños. Después, la fecha, el día en una línea del tiempo, lo que necesitan saber vuestros invitados y el formulario para confirmar.",
+    price: 59,
+    tags: ["Minimalista", "A trazo"],
+    colors: ["Gris", "Negro"],
+    tools: ["Confirmaciones", "Itinerario", "Regalo"],
+    features: [
+      "Portada ilustrada con vuestras dos fotos de pequeños",
+      "Save the date con cuenta atrás en directo",
+      "El día en una línea del tiempo, con mapa de cada lugar",
+      "Tarjetas de información (código de vestimenta, autobuses, alojamiento)",
+      "Confirmación de asistencia con acompañantes, en la misma página",
+      "100% adaptada a móvil",
+    ],
+  },
 ];
 
 export function getTemplateBySlug(slug: string): Template | undefined {

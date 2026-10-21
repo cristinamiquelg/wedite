@@ -59,6 +59,9 @@ export type WeddingData = {
   storyImage?: string;
   /** "illustration" when `storyImage` is the coral line drawing generated from the couple's photo (shown as-is); otherwise it's a plain photo (shown with the navy duotone). */
   storyImageKind?: "illustration";
+  /** The "Rambla" hero: a photo of each partner as a child, shown inside the two frames of the drawing. Data URLs from the wizard. */
+  childPhotoA?: string;
+  childPhotoB?: string;
   timeline: TimelineItem[];
   galleryCaptions: string[];
   rsvpNote: string;
@@ -270,6 +273,148 @@ export const riberaDemoWeddingDataEn: WeddingData = {
   ],
 };
 
+export const ramblaDemoWeddingData: WeddingData = {
+  ...emptyWeddingData,
+  locales: ["es", "en"],
+  partnerA: "Ana",
+  partnerB: "Clara",
+  date: "2027-06-19",
+  hashtag: "#AnaYClara2027",
+  welcomeMessage: "Nos casamos y queremos que estéis ahí. Guardad la fecha: va a ser un día para recordar.",
+  storyTitle: "Nuestra historia",
+  story:
+    "Fuimos vecinas de pupitre en el cole y amigas durante veinte años. Un día nos dimos cuenta de que la mejor persona del mundo llevaba tanto tiempo a nuestro lado que casi no la veíamos. Ahora sí.",
+  childPhotoA: "/rambla/demo-foto-a.jpg",
+  childPhotoB: "/rambla/demo-foto-b.jpg",
+  estateName: "Masía Can Roca",
+  estateLocation: "Sitges, Barcelona",
+  phases: [
+    {
+      name: "La ceremonia",
+      when: "2027-06-19T17:00",
+      places: [{ name: "Ermita de Sant Sebastià", address: "Passeig de la Ribera, 3, Sitges" }],
+    },
+    {
+      name: "El aperitivo",
+      when: "2027-06-19T18:30",
+      places: [{ name: "Jardín de la Masía", address: "Camí de Can Roca, s/n, Sitges" }],
+    },
+    {
+      name: "La cena",
+      when: "2027-06-19T20:30",
+      places: [{ name: "Salón de la Masía", address: "Camí de Can Roca, s/n, Sitges" }],
+    },
+    {
+      name: "La fiesta",
+      when: "2027-06-19T23:30",
+      places: [{ name: "La carpa", address: "Camí de Can Roca, s/n, Sitges" }],
+    },
+  ],
+  detailCards: [
+    {
+      icon: "dresscode",
+      title: "Código de vestimenta",
+      description: "Cóctel. Los jardines son de gravilla: mejor tacón ancho o zapato plano.",
+      ctaLabel: "Ver inspiración",
+      url: "https://www.pinterest.es/search/pins/?q=invitada%20boda%20c%C3%B3ctel",
+    },
+    {
+      icon: "bus",
+      title: "Autobuses",
+      description: "Salida a las 16:15 desde la estación de Sitges. Vuelta a partir de las 02:00.",
+      ctaLabel: "Ver punto de salida",
+      url: "https://www.google.com/maps/search/?api=1&query=Estaci%C3%B3%20de%20Sitges",
+    },
+    {
+      icon: "hotel",
+      title: "Alojamiento",
+      description: "Hemos reservado habitaciones en dos hoteles del pueblo hasta el 1 de abril.",
+      ctaLabel: "Ver hoteles",
+      url: "https://www.google.com/maps/search/?api=1&query=hoteles%20Sitges",
+    },
+  ],
+  rsvpNote: "Confirmadnos vuestra asistencia antes del 1 de mayo. Si venís en pareja o en familia, con que lo rellene uno basta.",
+  giftMessage:
+    "Vuestra presencia es nuestro mejor regalo. Si queréis ayudarnos con la luna de miel, podéis hacerlo por transferencia a",
+  giftAccount: "ES00 0000 0000 0000 0000 0000",
+  giftHolderName: "Ana García",
+  organizerContacts: [
+    { name: "Ana", phone: "+34 600 11 22 33", email: "anayclara@example.com" },
+    { name: "Clara", phone: "+34 611 22 33 44" },
+  ],
+};
+
+export const ramblaDemoWeddingDataEn: WeddingData = {
+  ...ramblaDemoWeddingData,
+  partnerA: "Anna",
+  partnerB: "Claire",
+  hashtag: "#AnnaAndClaire2027",
+  welcomeMessage: "We're getting married and we'd love you to be there. Save the date: it's going to be a day to remember.",
+  storyTitle: "Our story",
+  story:
+    "We were desk mates at school and friends for twenty years. One day we realised the best person in the world had been by our side for so long that we'd almost stopped seeing her. Now we see her.",
+  estateName: "Can Roca Estate",
+  estateLocation: "Sitges, Barcelona",
+  phases: [
+    {
+      name: "The ceremony",
+      when: "2027-06-19T17:00",
+      places: [{ name: "Sant Sebastià Chapel", address: "Passeig de la Ribera, 3, Sitges" }],
+    },
+    {
+      name: "Cocktail hour",
+      when: "2027-06-19T18:30",
+      places: [{ name: "The estate garden", address: "Camí de Can Roca, s/n, Sitges" }],
+    },
+    {
+      name: "Dinner",
+      when: "2027-06-19T20:30",
+      places: [{ name: "The estate hall", address: "Camí de Can Roca, s/n, Sitges" }],
+    },
+    {
+      name: "The party",
+      when: "2027-06-19T23:30",
+      places: [{ name: "The marquee", address: "Camí de Can Roca, s/n, Sitges" }],
+    },
+  ],
+  detailCards: [
+    {
+      icon: "dresscode",
+      title: "Dress code",
+      description: "Cocktail. The gardens are gravel: block heels or flats are best.",
+      ctaLabel: "See inspiration",
+      url: "https://www.pinterest.com/search/pins/?q=cocktail%20wedding%20guest%20outfit",
+    },
+    {
+      icon: "bus",
+      title: "Shuttle buses",
+      description: "Pick-up at 4:15 PM from Sitges station. Return trips from 2:00 AM.",
+      ctaLabel: "See pick-up point",
+      url: "https://www.google.com/maps/search/?api=1&query=Sitges%20railway%20station",
+    },
+    {
+      icon: "hotel",
+      title: "Where to stay",
+      description: "We've reserved rooms in two hotels in town until April 1st.",
+      ctaLabel: "See hotels",
+      url: "https://www.google.com/maps/search/?api=1&query=hotels%20Sitges",
+    },
+  ],
+  rsvpNote: "Please let us know before May 1st. If you're coming as a couple or a family, one reply is enough.",
+  giftMessage:
+    "Your presence is our best gift. If you'd like to help with the honeymoon, you can do so by bank transfer to",
+  giftHolderName: "Anna Garcia",
+  organizerContacts: [
+    { name: "Anna", phone: "+34 600 11 22 33", email: "annaandclaire@example.com" },
+    { name: "Claire", phone: "+34 611 22 33 44" },
+  ],
+};
+
+/** The curated demo of a design (the catalog, the "see preview" links). */
+export function getDemoWeddingDataFor(slug: string): WeddingData {
+  return slug === "rambla" ? ramblaDemoWeddingData : riberaDemoWeddingData;
+}
+
 export function getDemoWeddingData(): WeddingData {
   return riberaDemoWeddingData;
 }
@@ -279,3 +424,12 @@ export const riberaDemoByLocale: Partial<Record<Locale, WeddingData>> = {
   es: riberaDemoWeddingData,
   en: riberaDemoWeddingDataEn,
 };
+
+export const ramblaDemoByLocale: Partial<Record<Locale, WeddingData>> = {
+  es: ramblaDemoWeddingData,
+  en: ramblaDemoWeddingDataEn,
+};
+
+export function getDemoByLocaleFor(slug: string): Partial<Record<Locale, WeddingData>> {
+  return slug === "rambla" ? ramblaDemoByLocale : riberaDemoByLocale;
+}

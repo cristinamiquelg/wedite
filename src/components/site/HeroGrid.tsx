@@ -46,8 +46,8 @@ const shots: Shot[] = [
     slug: "rambla",
     label: "Portada",
     alt: {
-      es: "Avance de Rambla, próximo diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
-      en: "Preview of Rambla, an upcoming Wedite design: a line-drawn couple holding two photos of themselves as children",
+      es: "Rambla, un diseño de Wedite: una pareja ilustrada a trazo con dos fotos de cuando eran pequeños",
+      en: "Rambla, a Wedite design: a line-drawn couple holding two photos of themselves as children",
     },
   },
   {
